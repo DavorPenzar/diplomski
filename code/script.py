@@ -753,12 +753,10 @@ def show_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
             (
                 _np.str,
                 _np.str_,
-                _np.str0,
                 _np.unicode,
                 _np.unicode_,
                 _np.string_,
-                _np.bytes_,
-                _np.bytes0
+                _np.bytes_
             )
         )
     ):
