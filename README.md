@@ -1,2 +1,3 @@
 # diplomski
-Materijali mog diplomskog rada u nastajanju
+
+Materijali mog diplomskog rada u nastajanju.
