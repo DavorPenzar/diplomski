@@ -197,9 +197,10 @@ def triang (x = 1.0, y = None, num = 50):
 
     # Using the objects LT_check and GT_check, define the comparison objects to
     # check if a point is inside the triangle.  The point is inside the triangle
-    # if it is above the line (x[0], y[0]), (x[1], y[1]) and below the other two
-    # lines; however, if x[(i + 1) % 3] < x[i], then the inequalities < and >
-    # are inverted to check where a point lies in regards to the i-th line.
+    # if it is above the line (x[0], y[0]), (x[1], y[1]) and, depending on
+    # angles, below or above the other two lines; however, if
+    # x[(i + 1) % 3] < x[i], then the inequalities < and > are inverted to check
+    # where a point lies in regards to the i-th line.
     liner_check = [
         GT_check,
         (
