@@ -746,7 +746,21 @@ def show_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
     # Sanitize the parameter how.
     if not (
         isinstance(how, _six.string_types) or
-        isinstance(how, _six.text_type)
+        isinstance(how, _six.text_type) or
+        isinstance(how, _six.binary_type) or
+        isinstance(
+            how,
+            (
+                _np.str,
+                _np.str_,
+                _np.str0,
+                _np.unicode,
+                _np.unicode_,
+                _np.string_,
+                _np.bytes_,
+                _np.bytes0
+            )
+        )
     ):
         raise TypeError('Plot type must be a string.')
     try:
