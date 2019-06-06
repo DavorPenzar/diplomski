@@ -3,6 +3,19 @@
 """
 Useful functions.
 
+Dependencies
+------------
+1.  Standard Python library:
+    1.  copy,
+    2.  math,
+    3.  numbers,
+    4.  six,
+    5.  warnings,
+2.  SciPy library:
+    1.  matplotlib,
+    2.  numpy,
+    3.  scipy.
+
 """
 
 # Standard Python library.
