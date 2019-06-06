@@ -19,6 +19,8 @@ import numpy as _np
 import scipy.sparse as _sp
 from matplotlib.axes import Axes as _Axes
 from mpl_toolkits.mplot3d import Axes3D as _Axes3D
+from numpy.linalg import eig as _eig
+from scipy.sparse.linalg import eigs as _eigs
 
 def triang (x = 1.0, y = None, num = 50):
     """
@@ -27,59 +29,62 @@ def triang (x = 1.0, y = None, num = 50):
     Parameters
     ----------
     x : float or (3,) array, optional
-        If a single floating point value is passed, it must not be NaN, infinite
-        or negative: it then defines the width of the triangle.  If the array of
-        three values is passed, each defines the x-value of the three points of
-        the triangle (none of them may be NaN or infinite).  Passing a single
-        value 0 <= x < inf is the same as passing [-x / 2, x / 2, 0].  If a
-        single value is passed as the parameter x and None is passed as y, the
-        value of x does not affect the resulting rectangle (probably except for
-        extremely large or extremely small values, and definitely except for
-        zero and non-zero values), therefore the parameter x is optional.
+        Width or x-values of the vertices of the triangle (default is 1). If a
+        single floating point value is passed (non-negative), it defines the
+        width of the triangle.  If the array of three values is passed, each
+        defines the x-value of the three vertices of the triangle.  Passing a
+        single value `x` is the same as passing `[-x / 2, x / 2, 0]`.  If a
+        single value is passed as the parameter `x` and `None` is passed as `y`,
+        the value of `x` does not affect the resulting rectangle (probably
+        except for extremely large or extremely small values, and definitely
+        except for zero versus non-zero values), therefore the parameter `x` is
+        optional.
 
     y : None or float or (3,) array, optional
-        If a single floating point value is passed, it must not be NaN, infinite
-        or negative: it then defines the height of the triangle.  If the array
-        of three values is passed, each defines the y-value of the three points
-        of the triangle (none of them may be NaN or infinite).  Passing a single
-        value 0 <= y < inf is the same as passing [-y / 2, -y / 2, y / 2].  If
-        None, 0.5 * abs(x[1] - x[0]) * sqrt(3) is used as the height of the
+        Height or y-values of the vertices of the triangle (default is `None`).
+        If a single floating point value is passed, it defines the height of the
+        triangle.  If the array of three values is passed, each defines the
+        y-value of the three vertices of the triangle.  Passing a single value
+        `y` is the same as passing `[-y / 2, -y / 2, y / 2]`.  If `None`,
+        `0.5 * abs(x[1] - x[0]) * sqrt(3)` is used as the height of the
         triangle.
 
     num : int, optional
         The number of discretization points used to discretize the wider
-        dimension of the resulting rectangle.  The parameter num must be greater
-        than 1.
+        dimension of the resulting rectangle (default is 50).
 
     Returns
     -------
     Omega : (M, N) array
         Array of trues and falses representing the discretization of the
         rectangle containing the closure of the triangle.  The rectangle will
-        stretch from min(x) to max(x) on its first dimension, and from min(y) to
-        max(y) on its second dimension, and the equality max(M, N) == num will
-        be true.  The values of Omega are defined as: Omega[i, j] == True if and
-        only if (i, j) is inside the open triangle.  Note that the first
-        dimension represents the x-axis.
+        stretch from `min(x)` to `max(x)` on its first dimension, and from
+        `min(y)` to `max(y)` on its second dimension, and the equality
+        `max(M, N) == num` will be true.  The values of Omega are defined as:
+        `Omega[i, j] == True` if and only if (`i`, `j`) is inside the open
+        triangle.  Note that the first dimension represents the x-axis.
 
     Raises
     ------
     TypeError
-        If x or y is not a floating point number or an array of real dtype (y
-        may be None), an exception of type TypeError is raised.  If num is not
-        an integral value, an exception of type TypeError is raised.
+        If `x` or `y` is not a floating point number or an array of real dtype
+        (`y` may be `None`), an exception of type `TypeError` is raised.  If num
+        is not an integral value, an exception of type `TypeError` is raised.
 
     ValueError
-        If x or y is a single value and it is negative, an exception of type
-        ValueError is raised.  If x or y contains a NaN or an infinite value, an
-        exception of type ValueError is raised.  If num is less than 2, an
-        exception of type ValueError is raised.
+        If `x` or `y` is a single value and cannot be converted to `float` or is
+        negative, NaN or infinite, an exception of type `ValueError` is raised.
+        If `x` or `y` as array contains a NaN or an infinite value, an exception
+        of type `ValueError` is raised.  If `num` cannot be converted to `int`
+        or is less than 2, an exception of type ValueError is raised.
 
     """
 
-    # Define comparison objects used for ordering < and >.
+    # Define comparison objects used for ordering <, >, <= and >=.
     LT_check = lambda r, s : r < s
     GT_check = lambda r, s : r > s
+    LE_check = lambda r, s : r <= s
+    GE_check = lambda r, s : r >= s
 
     # Sanitize the parameter x.
     if hasattr(x, '__iter__') or hasattr(x, '__array__'):
@@ -90,15 +95,17 @@ def triang (x = 1.0, y = None, num = 50):
                 raise TypeError('x must be a scalar or an array.')
         if not issubclass(x.dtype.type, _numbers.Real):
             raise TypeError('x must be real.')
-        x = x.asytep(float)
+        x = x.astype(float)
         if not x.ndim == 1:
-            raise ValueError('x must be 1-dimensional array.')
+            raise ValueError('x must be a 1-dimensional array.')
         if not x.size == 3:
             raise ValueError('x must have exactly 3 elements.')
     else:
         if not isinstance(x, _numbers.Real):
             raise TypeError('Width must be real.')
         x = _copy.deepcopy(float(x))
+        if _math.isnan(x) or _math.isinf(x):
+            raise ValueError('Width must not be NaN or infinite.')
         if x < 0.0:
             raise ValueError('Width must not be negative')
         x = 0.5 * _np.array([-x, x, 0.0], dtype = float, order = 'F')
@@ -120,13 +127,15 @@ def triang (x = 1.0, y = None, num = 50):
             raise TypeError('y must be real.')
         y = y.astype(float)
         if not y.ndim == 1:
-            raise ValueError('y must be 1-dimensional array.')
+            raise ValueError('y must be a 1-dimensional array.')
         if not y.size == 3:
             raise ValueError('y must have exactly 3 elements.')
     else:
         if not isinstance(y, _numbers.Real):
             raise TypeError('Height must be real.')
         y = _copy.deepcopy(float(y))
+        if _math.isnan(y) or _math.isinf(y):
+            raise ValueError('Height must not be NaN or infinite.')
         if y < 0.0:
             raise ValueError('Height must be positive.')
         y = 0.5 * _np.array([-y, -y, y], dtype = float, order = 'F')
@@ -179,6 +188,45 @@ def triang (x = 1.0, y = None, num = 50):
         x = _np.roll(x, 1)
         y = _np.roll(y, 1)
 
+    # Assure the vertices are positively oriented.
+    if y[0] >= y[1]:
+        x[[0, 1]] = x[[1, 0]]
+        y[[0, 1]] = y[[1, 0]]
+    if x[0] < x[2]:
+        if y[1] >= (y[2] - y[0]) / (x[2] - x[0]) * (x[1] - x[0]) + y[0]:
+            x[[0, 1]] = x[[1, 0]]
+            y[[0, 1]] = y[[1, 0]]
+    elif x[0] > x[2]:
+        if y[1] <= (y[2] - y[0]) / (x[2] - x[0]) * (x[1] - x[0]) + y[0]:
+            x[[0, 1]] = x[[1, 0]]
+            y[[0, 1]] = y[[1, 0]]
+    else:
+        if x[1] < x[0]:
+            x[[0, 1]] = x[[1, 0]]
+            y[[0, 1]] = y[[1, 0]]
+
+    # Rotate the vertices until the first edge is the lowest.
+    if y[0] == y[1] and y[1] == y[2]:
+        I = _np.flip(_np.argsort(x))
+        x = x[I].copy()
+        y = y[I].copy()
+        del I
+        while not (x[0] <= x[2] and x[2] <= x[1]):
+            x = _np.roll(x, 1)
+            y = _np.roll(y, 1)
+    else:
+        while True:
+            check = GE_check if x[1] >= x[0] else LE_check
+            if (
+                y[0] <= y[1] and
+                y[1] <= y[2] and
+                check(
+                    (x[1] - x[0]) * (y[2] - y[0]),
+                    (y[1] - y[0]) * (x[2] - x[0])
+                )
+            ):
+                break
+
     ##  The following code is derived from the formula generating the line
     ##  interpolating two different points on a plane.  For the points
     ##  (x_A, y_A) and (x_B, y_B), if x_B != x_A, the line is generated by the
@@ -196,32 +244,21 @@ def triang (x = 1.0, y = None, num = 50):
     ##  than down or up).
 
     # Using the objects LT_check and GT_check, define the comparison objects to
-    # check if a point is inside the triangle.  The point is inside the triangle
-    # if it is above the line (x[0], y[0]), (x[1], y[1]) and, depending on
-    # angles, below or above the other two lines; however, if
-    # x[(i + 1) % 3] < x[i], then the inequalities < and > are inverted to check
-    # where a point lies in regards to the i-th line.
+    # check if a point is inside the triangle.
     liner_check = [
-        GT_check,
-        (
-            LT_check if (
-                (x[2] - x[1]) * (x[0] - x[1]) + (y[2] - y[1]) * (y[0] - y[1]) >
-                0
-            ) else GT_check
-        ),
-        (
-            LT_check if (
-                (x[1] - x[2]) * (x[0] - x[2]) + (y[1] - y[2]) * (y[0] - y[2]) >
-                0
-            ) else GT_check
-        )
+        GT_check if GE_check(
+            (x[1] - x[0]) * (y[2] - y[0]),
+            (y[1] - y[0]) * (x[2] - x[0])
+        ) else LT_check,
+        LT_check if LE_check(
+            (x[2] - x[1]) * (y[0] - y[1]),
+            (y[2] - y[1]) * (x[0] - x[1])
+        ) else GT_check,
+        LT_check if LE_check(
+            (x[0] - x[2]) * (y[1] - y[2]),
+            (y[0] - y[2]) * (x[1] - x[2])
+        ) else GT_check
     ]
-    if x[1] < x[0]:
-        liner_check[0] = GT_check if liner_check[0] is LT_check else LT_check
-    if x[2] < x[1]:
-        liner_check[1] = GT_check if liner_check[1] is LT_check else LT_check
-    if x[0] < x[1]:
-        liner_check[2] = GT_check if liner_check[2] is LT_check else LT_check
 
     # Compute the values to compare to check if the point is inside the
     # triangle.
@@ -263,44 +300,42 @@ def ellips (a = 1.0, b = None, num = 50):
     Parameters
     ----------
     a : float, optional
-        The width of the ellipsis.  The width must not be NaN, infinite or
-        negative.  If a value is passed as the parameter a and None is passed as
-        b, the value of a does not affect the resulting rectangle (probably
-        except for extremely large or extremely small values, and definitely
-        except for zero and non-zero values), therefore the parameter a is
-        optional.
+        The width of the ellipsis (default is 1).  If a value is passed as the
+        parameter `a` and `None` is passed as `b`, the value of `a` does not
+        affect the resulting rectangle (probably except for extremely large or
+        extremely small values, and definitely except for zero versus non-zero
+        values), therefore the parameter `a` is optional.
 
     b : None or float, optional
-        The height of the ellipsis.  The width must not be NaN, infinite or
-        negative.  If None, height will be equal to width.
+        The height of the ellipsis.  If None, height will be equal to width.
 
     num : int, optional
         The number of discretization points used to discretize the wider
-        dimension of the resulting rectangle.  The parameter num must be greater
-        than 1.
+        dimension of the resulting rectangle.
 
     Returns
     -------
-    Omega
+    Omega : array
         Array of trues and falses representing the discretization of the
         rectangle containing the closure of the ellipsis.  The rectangle will
-        stretch from -a to a on its first dimension, and from -b to b on its
-        second dimension, and the equality max(M, N) == num will be true.  The
-        values of Omega are defined as: Omega[i, j] == True if and only if
-        (i, j) is inside the open ellipsis.  Note that the first dimension
-        represents the x-axis.
+        stretch from `-a` to `a` on its first dimension, and from `-b` to `b` on
+        its second dimension, and the equality `max(M, N) == num` will be true.
+        The values of `Omega` are defined as: `Omega[i, j] == True` if and only
+        if (`i`, `j`) is inside the open ellipsis.  Note that the first
+        dimension represents the x-axis.
 
     Raises
     ------
     TypeError
-        If any of a, b is not a floating point number, an exception of type
-        TypeError is raised.  If num is not an integral value, an exception of
-        type TypeError is raised.
+        If any of `a`, `b` is not a floating point number, an exception of type
+        `TypeError` is raised.  If `num` is not an integral value, an exception
+        of type `TypeError` is raised.
 
     ValueError
-        If a or b is NaN, infinite or negative, an exception of type ValueError
-        is raised.  If num is less than 2, an exception of type ValueError is
-        raised.
+        If `a` or `b` cannot be converted to float or is NaN, infinite or
+        negative, an exception of type `ValueError` is raised.  If `num` cannot
+        be converted to `int` or is less than 2, an exception of type
+        `ValueError` is raised.
 
     """
 
@@ -377,58 +412,97 @@ def ellips (a = 1.0, b = None, num = 50):
     # Return the rectangle.
     return Omega
 
-def eigenfunc (Omega, ignore_zeros = True):
+def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     """
     Compute the Dirichlet Laplacian eigenfunctions and eigenvalues on Omega.
 
     Parameters
     ----------
     Omega : (M, N) array
-        Omega must be a 2-dimensional non-empty array (Omega.size > 0) of
-        integral dtype and must contain only the values 0 and 1 (at least one
-        element must be non-zero, and no element in the first or the last row
-        and in the first or the last column may be 1).  As such, Omega
-        represents an equidistant discretization of a rectangle containing the
-        2-dimensional domain at which the Dirichlet Laplacian eigenfunctions and
-        eigenvalues are computed: Omega[i, j] == 1 if and only if (i, j) is
-        inside Omega.  Note that the first dimension represents the x-axis.
+        Discretization of the domain.  Omega must be a 2-dimensional non-empty
+        array (`Omega.size > 0`) of integral dtype and must contain only the
+        values 0 and 1 (at least one element must be non-zero, and no element in
+        the first or the last row and in the first or the last column may be 1).
+        As such, `Omega` represents an equidistant discretization of a rectangle
+        containing the 2-dimensional domain at which the Dirichlet Laplacian
+        eigenvalues and eigenfunctions are computed: `Omega[i, j] == 1` if and
+        only if (`i`, `j`) is inside Omega.  Note that the first dimension
+        represents the x-axis.
 
-    ignore_zeros : boolean, optional
-        If true, eigenvalues close to or equal to zero are ignored (as well as
-        their corresponding eigenfunctions); otherwise all the real eigenvalues
-        and their corresponding real-valued eigenfunctions are returned.
-        Closeness to zero is defined as
-            >>> def is_zero (x):
-            ...     numpy.isclose(1, 1 + x)
+    k : int in range [1, Omega.sum()], optional
+        Number of Dirichlet Laplacian eigenfunctions and eigenvectors to find at
+        the most (default is 1).  The first `k` non-zero real eigenvalues of the
+        least magnitude are found and their corresponding real-valued
+        eigenfunctions (if they are also real-valued).  The parameter `k` must
+        not be less than 1 or exceed `Omega.sum()`.
+
+    as_sparse : boolean, optional
+        If `True`, the eigenvalues and the eigenfunctions are computed using a
+        matrix of class `scipy.sparse.spmatrix` and by calling the function
+        `scipy.sparse.linalg.eigs`; otherwise the matrix is represented using a
+        regular `numpy.ndarray` and the function `numpy.linalg.eig` (default is
+        `False`).  The matrix is of shape `(Omega.size, Omega.size)` and at the
+        most only `5 * Omega.size` of its elements are non-zero, therefore, if
+        `Omega` is large, constructing the `numpy.ndarray` might raise a
+        `MemoryError` while constructing the `scipy.sparse.spmatrix` should not.
+        On the other hand, the function `numpy.linalg.eig` is much faster than
+        the function `scipy.sparse.linalg.eigs`.
+
+    h : None or float in range (0, +inf), optional
+        The step of the discretization (default is `None`).  The Laplacian of
+        the function `u` (discretized in the same way as the domain) at
+        `Omega[i, j]` (if `Omega[i, j]` is inside the domain) is approximated as
+        `(u[i + 1, j] + u[i, j + 1] - 4 * u[i, j] + u[i - 1, j] + u[i, j - 1]) / h ** 2`,
+        however, if `h` is `None`, only the numerator is used for the
+        approximation (as if `h == 1`).  Changing this parameter can result in
+        forcing to include some of the eigenvalues if `h` is close to 0 (include
+        eigenvalues that would otherwise be close to 0) or to ignore some if `h`
+        is large (exclude eigenvalues of small magnitude).
 
     Returns
     -------
-    l : (K,) array
+    l : float or (k,) array
         Array containing the real Dirichlet Laplacian eigenvalues sorted
-        ascendingly.
+        ascendingly by magnitude.  If `k == 1`, only the first value is returned
+        as a scalar (not an array).
 
-    u : (K, M, N) array
+    u : (M, N) array or (k, M, N) array
         Array containing the discrete approximations of the real-valued
-        Dirichlet Laplacian eigenfunctions.  The "function" u[i] corresponds to
-        the eigenvalue l[i].  It is guarranteed that all the "functions'" values
-        are in the range [-1, 1] and that each "function" is a constant
-        zero-valued "function" or it reaches 1 on Omega.
+        Dirichlet Laplacian eigenfunctions.  The "function" `u[i]` corresponds
+        to the eigenvalue `l[i]`.  It is guarranteed that all the "functions'"
+        values are in the range [-1, 1] and that each "function" is a constant
+        zero-valued "function" or it reaches 1 on `Omega`.  If `k == 1`, only
+        the first eigenfunction is returned as a 2-dimensional array (not an
+        array of shape (1, M, N)).
 
     Raises
     ------
     TypeError
-        If Omega is not array-like or if its dtype is not integral, an exception
-        of type TypeError is raised.  If ignore_zeros is not boolean, an
-        exception of type TypeError is raised.
+        If `Omega` is not array-like or if its dtype is not integral, an
+        exception of type `TypeError` is raised.  If `k` is not of integral
+        type, an exception of type `TypeError` is raised.  If `as_sparse` is not
+        boolean, an exception of type `TypeError` is raised.  If `h` is not
+        `None` or a floating point number, an exception of type `TypeError` is
+        raised.
 
     ValueError
-        If Omega is not a non-empty matrix containing only 0 and 1, with at
+        If `Omega` is not a non-empty matrix containing only 0 and 1, with at
         least one non-zero value, and all zeros on its borderline rows and
-        columns, an exception of type ValueError is raised.
+        columns, an exception of type `ValueError` is raised.  If `k` cannot be
+        converted to `int` or is less than or equal to 0 or is greater than
+        `Omega.sum()`, an exception of type `ValueError` is raised.  If
+        `as_sparse` cannot be converted to `bool`, an exception of type
+        `ValueError` is raised.  If `h` is not `None` and cannot be converted to
+        `float`, is less than or equal to 0 or is NaN or infinite, an exception
+        of type `ValueError` is raised.
 
     RuntimeError
         If no real non-zero eigenvalues corresponding to real-valued
-        eigenfunctions are found, an exception of type RuntimeError is raised.
+        eigenfunctions are found, an exception of type `RuntimeError` is raised.
+
+    MemoryError
+        If `as_sparse` is `False`, an exception of type `MemoryError` might be
+        raised.
 
     """
 
@@ -459,18 +533,48 @@ def eigenfunc (Omega, ignore_zeros = True):
         )
     Omega = Omega.astype(_np.bool8)
 
-    # Sanitize the parameter ignore_zeros.
-    if not isinstance(
-        ignore_zeros,
-        (_numbers.Integral, int, bool, _np.bool, _np.bool_, _np.bool8)
-    ):
-        raise TypeError('Parameter non_zero must be boolean.')
-    if ignore_zeros not in {0, 1}:
-        raise ValueError('Parameter non_zero must be either False or True.')
+    # Sanitize the parameter k.
+    if not isinstance(k, _numbers.Integral):
+        raise TypeError('Parameter k must be integral.')
     try:
-        ignore_zeros = _copy.deepcopy(bool(ignore_zeros))
+        k = _copy.deepcopy(int(k))
     except (TypeError, ValueError, AttributeError):
-        raise ValueError('Parameter non_zero must be boolean.')
+        raise ValueError('Parameter k must be of type int.')
+    if k <= 0:
+        raise ValueError('Parameter k must be greater than 0.')
+    if k > Omega.sum(dtype = int):
+        raise ValueError(
+            'Parameter k must not be larger than the number of points in Omega.'
+        )
+
+    # Sanitize the parameter as_sparse.
+    if not isinstance(
+        as_sparse,
+        (_numbers.Integral, int, bool, _np.bool, _np.bool8, _np.bool_)
+    ):
+        raise TypeError('Parameter as_sparse must be boolean.')
+    if hasattr(as_sparse, '__hash__'):
+        if as_sparse not in {0, False, 1, True}:
+            raise ValueError('Parameter as_sparse must be False or True.')
+    else:
+        raise TypeError('Parameter as_sparse must be hashable.')
+    try:
+        as_sparse = _copy.deepcopy(bool(as_sparse))
+    except (TypeError, ValueError, AttributeError):
+        raise ValueError('Parameter as_sparse must be of type bool.')
+
+    # Sanitize the parameter h.
+    if h is not None:
+        if not isinstance(h, _numbers.Real):
+            raise TypeError('Parameter h must be real.')
+        if h <= 0.0 or h > 1.0:
+            raise ValueError('Parameter h must be greater than 0.')
+        try:
+            h = _copy.deepcopy(int(h))
+        except (TypeError, ValueError, AttributeError):
+            raise ValueError('Parameter h must be of type float.')
+        if _math.isnan(h) or _math.isinf(h):
+            raise ValueError('Parameter h must not be NaN or infinite.')
 
     # Construct the complete Laplacian approximation matrix (no zero-rows).
     d0 = -4 * _np.ones(Omega.size, dtype = float)
@@ -506,15 +610,27 @@ def eigenfunc (Omega, ignore_zeros = True):
     # Convert the Laplacian matrix to Compressed Sparse Column matrix.
     D = D.tocsc()
 
-    ##  TODO: utilize the scipy.sparse library to compute eigenvalues and
-    ##  eigenfunctions.
+    # Compute the inverse of Omega.
+    Omega_inv = ~Omega
 
     # Compute the eigenvalues and eigenvectors of the matrix D.
-    l, u = _np.linalg.eig(-D.todense(order = 'F'))
+    l = None
+    u = None
+    if as_sparse:
+        l, u = _eigs(
+            -(D if h is None else D / h ** 2),
+            Omega_inv.sum(dtype = int) + k
+        )
+    else:
+        l, u = _np.linalg.eig(-(D if h is None else D / h ** 2).todense())
 
-    # Convert the matrix u to true array.
+    # Convert l to a 1-dimensional array and u to a 2-dimensional array.
+    l = l.ravel().copy(order = 'F')
     if isinstance(u, _np.matrix):
         u = u.A
+    if u.ndim <= 1:
+        u = u.reshape((u.size, 1))
+    u = u.copy(order = 'F')
 
     # Free the memory.
     del D
@@ -527,33 +643,30 @@ def eigenfunc (Omega, ignore_zeros = True):
     u_abs = _np.abs(u)
     I = _np.argsort(l_abs)
     while I.size:
-        if ignore_zeros:
-            I = I[~_np.isclose(1, 1 + l_abs[I])]
-            if not I.size:
-                break
-        else:
-            l_abs[_np.isclose(1, 1 + l_abs)] = 1
+        I = I[~_np.isclose(1, 1 + l_abs[I])].copy(order = 'F')
+        l_abs[_np.isclose(1, 1 + l_abs)] = 1
         u_abs[_np.isclose(1, 1 + u_abs)] = 1
-        I = I[_np.isclose(1, 1 + l[I].imag / l_abs[I])]
+        if not I.size:
+            break
+        I = I[_np.isclose(1, 1 + l[I].imag / l_abs[I])].copy(order = 'F')
         if not I.size:
             break
         I = I[
             _np.isclose(1, 1 + u[:, I].imag / u_abs[:, I]).all(axis = 0).ravel()
-        ]
+        ].copy(order = 'F')
         break
     del l_abs
     del u_abs
 
-    # If no eigenvalue or eigenvector satisfying the conditions were found,
-    # raise an exception of type RuntimeError.
+    # If no real eigenvalue or eigenvector satisfying were found, raise an
+    # exception of type RuntimeError.  Otherwise, if I has more than k entries,
+    # set it to hold only its first k elements.
     if not I.size:
         raise RuntimeError(
-            'No real {bnz:s}eigenvalues and real eigenfunctions were '
-            'found.'.format(bnz = ' non-zero' if ignore_zeros else '')
+            'No real eigenvalues and real eigenfunctions were found.'
         )
-
-    # Assure I is a stand-alone array (not a view to another array).
-    I = I.copy(order = 'F')
+    elif I.size > k:
+        I = I[:k].copy(order = 'F')
 
     # Convert, reorder and filter the eigenvalues and eigenvectors.
     l = _np.array(l[I].real, dtype = float, copy = True, order = 'F')
@@ -576,9 +689,6 @@ def eigenfunc (Omega, ignore_zeros = True):
         pass
     if u.ndim == 2:
         u = u.reshape((1, u.shape[0], u.shape[1]))._copy(order = 'C')
-
-    # Compute the inverse of Omega.
-    Omega_inv = ~Omega
 
     # Free the memory.
     del Omega
@@ -606,6 +716,11 @@ def eigenfunc (Omega, ignore_zeros = True):
     # Free the memory.
     del Omega_inv
 
+    # If only the first eigenvalue and function were to be found, return them
+    # not encapsulated in higher-order arrays.
+    if k == 1:
+        return (_copy.deepcopy(float(l[0])), u[0].copy(order = 'F'))
+
     # Return the eigenvalues and eigenfunctions.
     return (l, u)
 
@@ -620,55 +735,57 @@ def show_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
         the first dimension represents the x-axis.
 
     dom : None or (2, 2) array, optional
-        Boundaries of the domain.  The function u is plotted as the funtion on
-        the rectangle defined by the vertices (dom[0, 0], dom[1, 0]),
-        (dom[0, 1], dom[1, 0]), (dom[0, 1], dom[1, 1]), (dom[0, 0], dom[1, 1]).
-        The array must be sorted ascendingly on the axis 1.  If None, the
-        vertices are computed such that the ratio of the rectangle's width
-        by the rectangle's height is equal to M / N and that the narrower
-        dimension of the rectangle stretches from -1 to 1.
+        Boundaries of the domain (default is None).  The function `u` is plotted
+        as the funtion on the rectangle defined by the vertices
+        (`dom[0, 0]`, `dom[1, 0]`), (`dom[0, 1]`, `dom[1, 0]`),
+        (`dom[0, 1]`, `dom[1, 1]`), (`dom[0, 0]`, `dom[1, 1]`).  The array must
+        be sorted ascendingly on the axis 1.  If `None`, the vertices are
+        computed such that the ratio of the rectangle's width by the rectangle's
+        height is equal to M / N and that the narrower dimension of the
+        rectangle stretches from -1 to 1.
 
     ax : None or matplotlib.axes.Axes or mpl_toolkits.mplot3d.Axes3D, optional
-        Axis at which the surface is plotted.  If None, matplotlib.pyplot.gca()
-        is used.
+        Axis at which the surface is plotted (default is `None`).  If `None`,
+        `matplotlib.pyplot.gca()` is used.
 
     how : str, optional
-        Type of the plot.  The function is plotted by calling
-        ax.__getattribute__(how)(...).
+        Type of the plot (default is `'contourf'`).  The function is plotted by
+        calling `ax.__getattribute__(how)(...)`.
 
     *args, **kwargs
-        Additional arguments passed to ax.__getattribute__(how)(...) after the
-        first three arguments (X, Y and Z).
+        Additional arguments passed to `ax.__getattribute__(how)(...)` after the
+        first three arguments (`X`, `Y` and `Z`).
 
     Returns
     -------
     ax : matplotlib.axes.Axes or mpl_toolkits.mplot3d.Axes3D
-        Axis at which the surface is plotted.
+        Axis at which the function is plotted.
 
     Raises
     ------
     TypeError
-        If the parameter u or the parameter dom is not an array of real values,
-        an exception of type TypeError is raised.  If the parameter ax is not an
-        isinstance of class matplotlib.axes.Axes or mpl_toolkits.mplot3d.Axes3D,
-        an exception of type TypeError is raised.  If the parameter how is not a
-        string, an exception of type TypeError is raised.
+        If the parameter `u` or the parameter `dom` (not being `None`) is not an
+        array of real values, an exception of type `TypeError` is raised.  If
+        the parameter `ax` is not `None` or an isinstance of class
+        `matplotlib.axes.Axes` or `mpl_toolkits.mplot3d.Axes3D`, an exception of
+        type `TypeError` is raised.  If the parameter `how` is not a string, an
+        exception of type `TypeError` is raised.
 
     ValueError
-        If the parameter u or the parameter dom is not of the adequate shape, if
-        the parameter u is an empty array or if any of its dimensions is equal
-        to 1, an exception of type ValueError is raised.  If any of the values
-        in the arrays u and dom is NaN or infinite, an exception of type
-        ValueError is raised.  If the script is run in a Python2 environment and
-        the parameter how is not a Python2 compatible string, an exception of
-        type ValueError is raised.
+        If the parameter `u` or the parameter `dom` is not of the adequate
+        shape, if the parameter `u` is an empty array or if any of its
+        dimensions is equal to 1, an exception of type `ValueError` is raised.
+        If any of the values in the arrays `u` and `dom` is NaN or infinite, an
+        exception of type `ValueError` is raised.  If the parameter `how` is not
+        cannot be converted to `str`, an exception of type `ValueError` is
+        raised.
 
-    ...
-        If the command
-            >>> ax.__getattribute__(how)(X, Y, Z, *args, **kwargs)
-        (where the shapes and values of X, Y and Z are not the problem if the
-        parameter how defines a regular plot type that accepts 3 arrays as data
-        to be plotted) raises an exception, it is not caught.
+    other
+        If the command `ax.__getattribute__(how)(X, Y, Z, *args, **kwargs)`
+        (where the shapes and values of `X`, `Y` and `Z` are valid if the plot
+        type defined by the parameter `how` accepts the same arguments as
+        `matplotlib.axes.Axes.contourf`) raises an exception, it is not caught.
+        Not even `AttributeError` is caught if `how` is not a valid plot type.
 
     """
 
