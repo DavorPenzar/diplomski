@@ -647,7 +647,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     if as_sparse:
         l, u = _eigs(-D, Omega_inv.sum(dtype = int) + k)
     else:
-        l, u = _np.linalg.eig(-D.todense(order = 'F'))
+        l, u = _eig(-D.todense(order = 'F'))
 
     # Convert l to a 1-dimensional array and u to a 2-dimensional array.
     l = l.ravel().copy(order = 'F')
