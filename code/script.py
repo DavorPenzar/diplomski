@@ -6,19 +6,19 @@ Useful functions.
 Dependencies
 ------------
 1.  Standard Python library:
-    1.  copy,
-    2.  math,
-    3.  numbers,
-    4.  six,
-    5.  warnings,
+    1.  `copy`,
+    2.  `math`,
+    3.  `numbers`,
+    4.  `six`,
+    5.  `warnings`,
 2.  SciPy library:
-    1.  matplotlib
-        1.  matplotlib.axes,
-        2.  matplotlib.pyplot,
-    2.  mpl_toolkits.mplot3d,
-    3.  numpy
-        1.  numpy.linalg,
-    4.  scipy.sparse.
+    1.  `matplotlib`
+        1.  `matplotlib.axes`,
+        2.  `matplotlib.pyplot`,
+    2.  `mpl_toolkits.mplot3d`,
+    3.  `numpy`
+        1.  `numpy.linalg`,
+    4.  `scipy.sparse`.
 
 """
 
@@ -273,13 +273,37 @@ def triang (x = 1, y = None, num = 50):
     )
 
     # Fill the rectangle with trues where needed.
-    for i in iter(range(int(u.size))):
-        for j in iter(range(int(v.size))):
+    I = list(range(int(u.size)))
+    J = list(range(int(v.size)))
+    for i in I:
+        for j in J:
             Omega[i, j] = _np.bool8(
                 liner_check[0](v_liner[0, j], u_liner[0, i]) and
                 liner_check[1](v_liner[1, j], u_liner[1, i]) and
                 liner_check[2](v_liner[2, j], u_liner[2, i])
             )
+        try:
+            del j
+        except (NameError, UnboundLocalError):
+            pass
+    try:
+        del i
+    except (NameError, UnboundLocalError):
+        pass
+    del I
+    del J
+
+    # Free the memory.
+    del u_liner
+    del v_liner
+    del u
+    del v
+    del a
+    del b
+    del x_min
+    del x_max
+    del y_min
+    del y_max
 
     # Return the rectangle.
     return Omega
@@ -416,9 +440,30 @@ def ellips (a = 1, b = None, num = 50):
     v2 = v ** 2
 
     # Fill the rectangle with trues where needed.
-    for i in iter(range(int(u.size))):
-        for j in iter(range(int(v.size))):
+    I = list(range(int(u.size)))
+    J = list(range(int(v.size)))
+    for i in I:
+        for j in J:
             Omega[i, j] = _np.bool8(b2 * u2[i] + a2 * v2[j] < ab2)
+        try:
+            del j
+        except (NameError, UnboundLocalError):
+            pass
+    try:
+        del i
+    except (NameError, UnboundLocalError):
+        pass
+    del I
+    del J
+
+    # Free the memory.
+    del u2
+    del v2
+    del a2
+    del b2
+    del ab2
+    del u
+    del v
 
     # Return the rectangle.
     return Omega
@@ -619,8 +664,8 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     # to zero.
     I = list(range(int(Omega.shape[0])))
     J = list(range(int(Omega.shape[1])))
-    for i in iter(I):
-        for j in iter(J):
+    for i in I:
+        for j in J:
             if not Omega[i, j]:
                 D[i + Omega.shape[0] * j] = 0
     try:
@@ -702,9 +747,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
 
     # Reshape u to a three-dimensional array.
     u = _np.array(
-        tuple(
-            u[:, i].reshape(Omega.shape) for i in iter(range(int(u.shape[1])))
-        ),
+        tuple(u[:, i].reshape(Omega.shape) for i in range(int(u.shape[1]))),
         dtype = float,
         order = 'C'
     )
@@ -724,7 +767,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     with _warnings.catch_warnings():
         _warnings.filterwarnings('error')
         with _np.errstate(divide = 'raise'):
-            for i in iter(range(int(u.shape[0]))):
+            for i in range(int(u.shape[0])):
                 u[i, Omega_inv] = 0
                 aux_ui = u[i].ravel().copy(order = 'C')
                 try:
@@ -741,12 +784,13 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     # Free the memory.
     del Omega_inv
 
-    # If only the first eigenvalue and function were to be found, return them
-    # not encapsulated in higher-order arrays.
+    # If only the first eigenvalue and function were to be found, convert
+    # variables l and u.
     if k == 1:
-        return (_copy.deepcopy(float(l[0])), u[0].copy(order = 'F'))
+        l = _copy.deepcopy(float(l[0]))
+        u = u[0].copy(order = 'F')
 
-    # Return the eigenvalues and eigenfunctions.
+    # Return the eigenvalue(s) and eigenfunction(s).
     return (l, u)
 
 def show_2d_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
