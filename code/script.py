@@ -18,7 +18,8 @@ Dependencies
     2.  `mpl_toolkits.mplot3d`,
     3.  `numpy`
         1.  `numpy.linalg`,
-    4.  `scipy.sparse`.
+    4.  `scipy.sparse`
+        1.  `scipy.sparse.linalg`.
 
 """
 
