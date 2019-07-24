@@ -40,7 +40,7 @@ from mpl_toolkits.mplot3d import Axes3D as _Axes3D
 from numpy.linalg import eig as _eig
 from scipy.sparse.linalg import eigs as _eigs
 
-def triang (x = 1, y = None, num = 50):
+def triang (x = 1, y = None, num = 50, return_dom = False):
     """
     Compute the discretisation of a rectangle containing an open triangle.
 
@@ -63,25 +63,40 @@ def triang (x = 1, y = None, num = 50):
         triangle.  If an array of three values is passed, each value defines the
         y-value of a vertix of the triangle.  Passing a single value `y` is the
         same as passing `[-y / 2, -y / 2, y / 2]`.  If `None`,
-        `sqrt(0.75) * abs(x[1] - x[0])` is used as the height of the
-        triangle.
+        `sqrt(0.75) * abs(x[1] - x[0])` is used as the height of the triangle.
 
     num : int in range [2, +inf), optional
         The number of discretisation points used to discretise the wider
         dimension of the resulting rectangle (default is 50).
+
+    return_dom : boolean, optional
+        If `True`, the rectangle's boundaries are returned as well as the
+        rectangle itself (default is `False`).
 
     Returns
     -------
     Omega : (M, N) array of booleans
         Array of trues and falses representing the discretisation of the
         rectangle containing the closure of the triangle.  The rectangle will
-        stretch from `min(x)` to `max(x)` on its first dimension, and from
-        `min(y)` to `max(y)` on its second dimension, and the equality
-        `max(M, N) == num` will be true.  The values of Omega are defined as:
-        `Omega[i, j] == True` if and only if the point at the intersection of
-        the `i`-th discretisation line of the x-axis and the `j`-th
-        discretisation line of the y-axis is inside the open triangle.  Note
-        that the first dimension represents the x-axis.
+        span from `min(x)` to `max(x)` on its first dimension, and from `min(y)`
+        to `max(y)` on its second dimension, and the equality `max(M, N) == num`
+        will be true.  If the ratio
+        (`max(x)` - `min(x)`) / (`max(y)` - `min(y)`) (allowing for the
+        denominator to be equal to 0) cannot be written as a rational number
+        p / q such that max(p, q) = `num`, then the narrower dimension of the
+        rectangle is stretched, possibly resulting in a few additional
+        rows/columns filled with falses --- this is done so that the
+        discretisation step is equal on both the x-axis and the y-axis.  The
+        values of Omega are defined as: `Omega[i, j] == True` if and only if the
+        point at the intersection of the `i`-th discretisation line of the
+        x-axis and the `j`-th discretisation line of the y-axis is inside the
+        open triangle.  Note that the first dimension represents the x-axis.
+
+    dom : (2, 2) array of floats
+        The rectangle that is returned spans from `dom[0, 0]` to `dom[0, 1]` on
+        the x-axis, and from `dom[1, 0]` to `dom[1, 1]` on the y-axis.  It is
+        guarranteed that `(dom[:, 0] <= dom[:, 1]).all()` is `True`.  This is
+        returned only if the parameter `return_dom` is `True`.
 
     Raises
     ------
@@ -133,6 +148,7 @@ def triang (x = 1, y = None, num = 50):
         x = 0.5 * _np.array([-x, x, 0.0], dtype = float, order = 'F')
     if _np.isnan(x).any() or _np.isinf(x).any():
         raise ValueError('x must be non-NaN and finite.')
+    x[~x.astype(bool)] = 0
 
     # If y is None, define the heigt of the triangle.
     if y is None:
@@ -170,6 +186,7 @@ def triang (x = 1, y = None, num = 50):
         y = 0.5 * _np.array([-y, -y, y], dtype = float, order = 'F')
     if _np.isnan(y).any() or _np.isinf(y).any():
         raise ValueError('y must be non-NaN and finite.')
+    y[~y.astype(bool)] = 0
 
     # Sanitise the parameter num.
     if isinstance(num, _np.ndarray):
@@ -187,6 +204,26 @@ def triang (x = 1, y = None, num = 50):
             'Number of discretisation points must be greater than 1.'
         )
 
+    # Sanitise the parameter return_dom.
+    if isinstance(return_dom, _np.ndarray):
+        if return_dom.size == 1:
+            return_dom = return_dom.ravel()
+            return_dom = return_dom.dtype.type(return_dom[0])
+    if not isinstance(
+        return_dom,
+        (_numbers.Integral, int, bool, _np.bool, _np.bool8, _np.bool_)
+    ):
+        raise TypeError('Parameter return_dom must be boolean.')
+    try:
+        if return_dom not in {0, False, 1, True}:
+            raise ValueError('Parameter return_dom must be False or True.')
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter return_dom must be False or True.')
+    try:
+        return_dom = _copy.deepcopy(bool(return_dom))
+    except (TypeError, ValueError, AttributeError):
+        raise ValueError('Parameter return_dom must be of type bool.')
+
     # Compute the boundaries and the dimensions of the rectangle.
 
     x_min = float(x.min())
@@ -200,20 +237,34 @@ def triang (x = 1, y = None, num = 50):
 
     # Initialize the rectangle to all falses.
     Omega = None
-    if a > b:
-        Omega = _np.zeros(
-            (num, int(round(b / a * num))),
-            dtype = _np.bool8,
-            order = 'F'
-        )
-    elif a < b:
-        Omega = _np.zeros(
-            (int(round(a / b * num)), num),
-            dtype = _np.bool8,
-            order = 'F'
-        )
+    if a < b:
+        k = int(_math.ceil(num * a / b))
+        a_ = k * b / num
+        X = x_min + x_max
+        x_min, x_max = ((X - a_) / 2, (X + a_) / 2)
+        Omega = _np.zeros((k, num), dtype = _np.bool8, order = 'F')
+        del k
+        del a_
+        del X
+    elif a > b:
+        k = int(_math.ceil(num * b / a))
+        b_ = k * a / num
+        Y = y_min + y_max
+        y_min, y_max = ((Y - b_) / 2, (Y + b_) / 2)
+        Omega = _np.zeros((num, k), dtype = _np.bool8, order = 'F')
+        del k
+        del b_
+        del Y
     else:
         Omega = _np.zeros((num, num), dtype = _np.uint8, order = 'F')
+    if x_min == 0:
+        x_min = 0.0
+    if x_max == 0:
+        x_max = 0.0
+    if y_min == 0:
+        y_min = 0.0
+    if y_max == 0:
+        y_max = 0.0
 
     # Discretise the rectangle.
     u = _np.linspace(x_min, x_max, num = Omega.shape[0])
@@ -299,17 +350,20 @@ def triang (x = 1, y = None, num = 50):
     del v_liner
     del u
     del v
-    del a
-    del b
-    del x_min
-    del x_max
-    del y_min
-    del y_max
 
-    # Return the rectangle.
-    return Omega
+    # Return the rectangle and, if needed, the domain's boundaries.
+    return (
+        (
+            Omega,
+            _np.array(
+                [[x_min, x_max], [y_min, y_max]],
+                dtype = float,
+                order = 'F'
+            )
+        ) if return_dom else Omega
+    )
 
-def ellips (a = 1, b = None, num = 50):
+def ellips (a = 1, b = None, num = 50, return_dom = False):
     """
     Compute the discretisation of a rectangle containing an open ellipsis.
 
@@ -330,17 +384,33 @@ def ellips (a = 1, b = None, num = 50):
         The number of discretisation points used to discretise the wider
         dimension of the resulting rectangle (default is 50).
 
+    return_dom : boolean, optional
+        If `True`, the rectangle's boundaries are returned as well as the
+        rectangle itself (default is `False`).
+
     Returns
     -------
     Omega : (M, N) array of booleans
         Array of trues and falses representing the discretisation of the
         rectangle containing the closure of the ellipsis.  The rectangle will
-        stretch from `-a` to `a` on its first dimension, and from `-b` to `b` on
+        span from `-a` to `a` on its first dimension, and from `-b` to `b` on
         its second dimension, and the equality `max(M, N) == num` will be true.
-        The values of `Omega` are defined as: `Omega[i, j] == True` if and only
-        if the point at the intersection of the `i`-th discretisation line of
-        the x-axis and the `j`-th discretisation line of the y-axis is inside
-        the open ellipsis.  Note that the first dimension represents the x-axis.
+        If the ratio `a` / `b` (allowing for the denominator to be equal to 0)
+        cannot be written as a rational number p / q such that
+        max(p, q) = `num`, then the narrower dimension of the rectangle is
+        stretched, possibly resulting in a few additional rows/columns filled
+        with falses --- this is done so that the discretisation step is equal on
+        both the x-axis and the y-axis.  The values of `Omega` are defined as:
+        `Omega[i, j] == True` if and only if the point at the intersection of
+        the `i`-th discretisation line of the x-axis and the `j`-th
+        discretisation line of the y-axis is inside the open ellipsis.  Note
+        that the first dimension represents the x-axis.
+
+    dom : (2, 2) array of floats
+        The rectangle that is returned spans from `dom[0, 0]` to `dom[0, 1]` on
+        the x-axis, and from `dom[1, 0]` to `dom[1, 1]` on the y-axis.  It is
+        guarranteed that `(dom[:, 0] <= dom[:, 1]).all()` is `True`.  This is
+        returned only if the parameter `return_dom` is `True`.
 
     Raises
     ------
@@ -369,6 +439,8 @@ def ellips (a = 1, b = None, num = 50):
         raise ValueError('a must be non-NaN and finite.')
     if a < 0:
         raise ValueError('a must not be negative.')
+    if a == 0:
+        a = 0.0
 
     # If b is None, define the height of the ellipsis.
     if b is None:
@@ -389,6 +461,8 @@ def ellips (a = 1, b = None, num = 50):
         raise ValueError('b must be non-NaN and finite.')
     if b < 0:
         raise ValueError('b must not be negative.')
+    if b == 0:
+        b = 0.0
 
     # Sanitise the parameter num.
     if isinstance(num, _np.ndarray):
@@ -406,26 +480,66 @@ def ellips (a = 1, b = None, num = 50):
             'Number of discretisation points must be greater than 1.'
         )
 
+    # Sanitise the parameter return_dom.
+    if isinstance(return_dom, _np.ndarray):
+        if return_dom.size == 1:
+            return_dom = return_dom.ravel()
+            return_dom = return_dom.dtype.type(return_dom[0])
+    if not isinstance(
+        return_dom,
+        (_numbers.Integral, int, bool, _np.bool, _np.bool8, _np.bool_)
+    ):
+        raise TypeError('Parameter return_dom must be boolean.')
+    try:
+        if return_dom not in {0, False, 1, True}:
+            raise ValueError('Parameter return_dom must be False or True.')
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter return_dom must be False or True.')
+    try:
+        return_dom = _copy.deepcopy(bool(return_dom))
+    except (TypeError, ValueError, AttributeError):
+        raise ValueError('Parameter return_dom must be of type bool.')
+
+    # Compute the boundaries and the dimensions of the rectangle.
+
+    x_min = -a
+    x_max = a
+
+    y_min = -b
+    y_max = b
+
     # Initialize the rectangle to all falses.
     Omega = None
-    if a > b:
-        Omega = _np.zeros(
-            (num, int(round(b / a * num))),
-            dtype = _np.bool8,
-            order = 'F'
-        )
-    elif a < b:
-        Omega = _np.zeros(
-            (int(round(a / b * num)), num),
-            dtype = _np.bool8,
-            order = 'F'
-        )
+    if a < b:
+        k = int(_math.ceil(num * a / b))
+        a_ = k * b / num
+        x_min = -a_
+        x_max = a_
+        Omega = _np.zeros((k, num), dtype = _np.bool8, order = 'F')
+        del k
+        del a_
+    elif a > b:
+        k = int(_math.ceil(num * b / a))
+        b_ = k * a / num
+        y_min = -b_
+        y_max = b_
+        Omega = _np.zeros((num, k), dtype = _np.bool8, order = 'F')
+        del k
+        del b_
     else:
         Omega = _np.zeros((num, num), dtype = _np.uint8, order = 'F')
+    if x_min == 0:
+        x_min = 0.0
+    if x_max == 0:
+        x_max = 0.0
+    if y_min == 0:
+        y_min = 0.0
+    if y_max == 0:
+        y_max = 0.0
 
     # Discretise the rectangle.
-    u = _np.linspace(-a, a, num = Omega.shape[0])
-    v = _np.linspace(-b, b, num = Omega.shape[1])
+    u = _np.linspace(x_min, x_max, num = Omega.shape[0])
+    v = _np.linspace(y_min, y_max, num = Omega.shape[1])
 
     ##  The following code is derived from the implicit ellipsis formula
     ##      b^2 * x^2 + a^2 * y^2 = a^2 * b^2
@@ -466,8 +580,17 @@ def ellips (a = 1, b = None, num = 50):
     del u
     del v
 
-    # Return the rectangle.
-    return Omega
+    # Return the rectangle and, if needed, the domain's boundaries.
+    return (
+        (
+            Omega,
+            _np.array(
+                [[x_min, x_max], [y_min, y_max]],
+                dtype = float,
+                order = 'F'
+            )
+        ) if return_dom else Omega
+    )
 
 def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     """
@@ -577,12 +700,6 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         raise ValueError('Omega must be non-empty.')
     if not _np.isin(Omega.ravel(), [0, 1]).all():
         raise ValueError('Omega must contain only 0 and 1.')
-    if not Omega.ravel().any():
-        raise ValueError('Omega must contain at least one non-zero value.')
-    if Omega[[0, -1], :].ravel().any() or Omega[:, [0, -1]].ravel().any():
-        raise ValueError(
-            'Borderline rows and columns of Omega must contain only zeros.'
-        )
     if isinstance(Omega, _np.matrix):
         Omega = Omega.A
     Omega = Omega.astype(_np.bool8)
@@ -657,7 +774,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         (-Omega.shape[0], -1, 0, 1, Omega.shape[0]),
         Omega.size,
         Omega.size
-    ).tolil()
+    ).tolil(copy = True)
     del d0
     del d1
 
@@ -669,12 +786,12 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         for j in J:
             if not Omega[i, j]:
                 D[i + Omega.shape[0] * j] = 0
+        try:
+            del j
+        except (NameError, UnboundLocalError):
+            pass
     try:
         del i
-    except (NameError, UnboundLocalError):
-        pass
-    try:
-        del j
     except (NameError, UnboundLocalError):
         pass
     del I
@@ -682,7 +799,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
 
     # Convert the Laplacian matrix to Compressed Sparse Column matrix dividing
     # it by h^2 if necesarry.
-    D = (D if h is None else D / h ** 2).tocsc()
+    D = (D if h is None else D / h ** 2).tocsc(copy = True)
 
     # Compute the inverse of Omega.
     Omega_inv = ~Omega
@@ -725,6 +842,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         I = I[
             _np.isclose(1, 1 + u[:, I].imag / u_abs[:, I]).all(axis = 0).ravel()
         ].copy(order = 'F')
+
         break
     del l_abs
     del u_abs
@@ -748,7 +866,7 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
 
     # Reshape u to a three-dimensional array.
     u = _np.array(
-        tuple(u[:, i].reshape(Omega.shape) for i in range(int(u.shape[1]))),
+        [u[:, i].reshape(Omega.shape) for i in range(int(u.shape[1]))],
         dtype = float,
         order = 'C'
     )
@@ -810,9 +928,9 @@ def show_2d_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
         (`dom[0, 0]`, `dom[1, 0]`), (`dom[0, 1]`, `dom[1, 0]`),
         (`dom[0, 1]`, `dom[1, 1]`) and (`dom[0, 0]`, `dom[1, 1]`).  The array
         must be sorted ascendingly on the axis 1.  If `None`, the vertices are
-        computed such that the ratio of the rectangle's width by the rectangle's
-        height is equal to `M / N` and that the narrower dimension of the
-        rectangle stretches from -1 to 1.
+        computed such that the rectangle's center (the intersection of its
+        diagonals) is at (0, 0), the ratio of its width by its height is equal
+        to `M / N` and that the narrower dimension spans from -1 to 1.
 
     ax : None or matplotlib.axes.Axes or mpl_toolkits.mplot3d.Axes3D, optional
         Axis at which the surface is plotted (default is `None`).  If `None`,
