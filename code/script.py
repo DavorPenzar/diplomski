@@ -117,6 +117,12 @@ def triang (x = 1, y = None, num = 50, return_dom = False):
     GE_check = lambda r, s : r >= s
 
     # Sanitise the parameter x.
+    if hasattr(x, '__iter__') or hasattr(x, '__array__'):
+        if not isinstance(x, _np.ndarray):
+            try:
+                x = _np.array(x)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(x, _np.ndarray):
         if x.size == 1:
             x = x.ravel()
@@ -150,11 +156,15 @@ def triang (x = 1, y = None, num = 50, return_dom = False):
         raise ValueError('x must be non-NaN and finite.')
     x[~x.astype(bool)] = 0
 
-    # If y is None, define the heigt of the triangle.
+    # Sanitise the parameter y.
     if y is None:
         y = _math.sqrt(0.75) * abs(float(x[1] - x[0]))
-
-    # Sanitise the parameter y.
+    if hasattr(y, '__iter__') or hasattr(y, '__array__'):
+        if not isinstance(y, _np.ndarray):
+            try:
+                y = _np.array(y)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(y, _np.ndarray):
         if y.size == 1:
             y = y.ravel()
@@ -189,6 +199,12 @@ def triang (x = 1, y = None, num = 50, return_dom = False):
     y[~y.astype(bool)] = 0
 
     # Sanitise the parameter num.
+    if hasattr(num, '__iter__') or hasattr(num, '__array__'):
+        if not isinstance(num, _np.ndarray):
+            try:
+                num = _np.array(num)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(num, _np.ndarray):
         if num.size == 1:
             num = num.ravel()
@@ -205,6 +221,12 @@ def triang (x = 1, y = None, num = 50, return_dom = False):
         )
 
     # Sanitise the parameter return_dom.
+    if hasattr(return_dom, '__iter__') or hasattr(return_dom, '__array__'):
+        if not isinstance(return_dom, _np.ndarray):
+            try:
+                return_dom = _np.array(return_dom)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(return_dom, _np.ndarray):
         if return_dom.size == 1:
             return_dom = return_dom.ravel()
@@ -238,19 +260,19 @@ def triang (x = 1, y = None, num = 50, return_dom = False):
     # Initialize the rectangle to all falses.
     Omega = None
     if a < b:
-        k = int(_math.ceil(num * a / b))
+        k = max(int(_math.ceil(num * a / b)), 2)
         a_ = k * b / num
         X = x_min + x_max
-        x_min, x_max = ((X - a_) / 2, (X + a_) / 2)
+        x_min, x_max = (0.5 * (X - a_), 0.5 * (X + a_))
         Omega = _np.zeros((k, num), dtype = _np.bool8, order = 'F')
         del k
         del a_
         del X
     elif a > b:
-        k = int(_math.ceil(num * b / a))
+        k = max(int(_math.ceil(num * b / a)), 2)
         b_ = k * a / num
         Y = y_min + y_max
-        y_min, y_max = ((Y - b_) / 2, (Y + b_) / 2)
+        y_min, y_max = (0.5 * (Y - b_), 0.5 * (Y + b_))
         Omega = _np.zeros((num, k), dtype = _np.bool8, order = 'F')
         del k
         del b_
@@ -425,6 +447,12 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
     """
 
     # Sanitise the parameter a.
+    if hasattr(a, '__iter__') or hasattr(a, '__array__'):
+        if not isinstance(a, _np.ndarray):
+            try:
+                a = _np.array(a)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(a, _np.ndarray):
         if a.size == 1:
             a = a.ravel()
@@ -442,11 +470,15 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
     if a == 0:
         a = 0.0
 
-    # If b is None, define the height of the ellipsis.
+    # Sanitise the parameter b.
     if b is None:
         b = a
-
-    # Sanitise the parameter b.
+    if hasattr(b, '__iter__') or hasattr(b, '__array__'):
+        if not isinstance(b, _np.ndarray):
+            try:
+                b = _np.array(b)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(b, _np.ndarray):
         if b.size == 1:
             b = b.ravel()
@@ -465,6 +497,12 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
         b = 0.0
 
     # Sanitise the parameter num.
+    if hasattr(num, '__iter__') or hasattr(num, '__array__'):
+        if not isinstance(num, _np.ndarray):
+            try:
+                num = _np.array(num)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(num, _np.ndarray):
         if num.size == 1:
             num = num.ravel()
@@ -481,6 +519,12 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
         )
 
     # Sanitise the parameter return_dom.
+    if hasattr(return_dom, '__iter__') or hasattr(return_dom, '__array__'):
+        if not isinstance(return_dom, _np.ndarray):
+            try:
+                return_dom = _np.array(return_dom)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(return_dom, _np.ndarray):
         if return_dom.size == 1:
             return_dom = return_dom.ravel()
@@ -511,7 +555,7 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
     # Initialize the rectangle to all falses.
     Omega = None
     if a < b:
-        k = int(_math.ceil(num * a / b))
+        k = max(int(_math.ceil(num * a / b)), 2)
         a_ = k * b / num
         x_min = -a_
         x_max = a_
@@ -519,7 +563,7 @@ def ellips (a = 1, b = None, num = 50, return_dom = False):
         del k
         del a_
     elif a > b:
-        k = int(_math.ceil(num * b / a))
+        k = max(int(_math.ceil(num * b / a)), 2)
         b_ = k * a / num
         y_min = -b_
         y_max = b_
@@ -705,6 +749,12 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
     Omega = Omega.astype(_np.bool8)
 
     # Sanitise the parameter k.
+    if hasattr(k, '__iter__') or hasattr(k, '__array__'):
+        if not isinstance(k, _np.ndarray):
+            try:
+                k = _np.array(k)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(k, _np.ndarray):
         if k.size == 1:
             k = k.ravel()
@@ -728,6 +778,12 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         )
 
     # Sanitise the parameter as_sparse.
+    if hasattr(as_sparse, '__iter__') or hasattr(as_sparse, '__array__'):
+        if not isinstance(as_sparse, _np.ndarray):
+            try:
+                as_sparse = _np.array(as_sparse)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(as_sparse, _np.ndarray):
         if as_sparse.size == 1:
             as_sparse = as_sparse.ravel()
@@ -748,6 +804,12 @@ def eigenfunc (Omega, k = 1, as_sparse = False, h = None):
         raise ValueError('Parameter as_sparse must be of type bool.')
 
     # Sanitise the parameter h.
+    if hasattr(h, '__iter__') or hasattr(h, '__array__'):
+        if not isinstance(h, _np.ndarray):
+            try:
+                h = _np.array(h)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(h, _np.ndarray):
         if h.size == 1:
             h = h.ravel()
@@ -1054,6 +1116,28 @@ def show_2d_func (u, dom = None, ax = None, how = 'contourf', *args, **kwargs):
             )
 
     # Sanitise the parameter how.
+    if hasattr(how, '__iter__') or hasattr(how, '__array__'):
+        if not (
+            isinstance(how, _np.ndarray) or
+            isinstance(how, _six.string_types) or
+            isinstance(how, _six.text_type) or
+            isinstance(how, _six.binary_type) or
+            isinstance(
+                how,
+                (
+                    _np.str,
+                    _np.str_,
+                    _np.unicode,
+                    _np.unicode_,
+                    _np.string_,
+                    _np.bytes_
+                )
+            )
+        ):
+            try:
+                how = _np.array(how)
+            except (TypeError, ValueError, AttributeError):
+                pass
     if isinstance(how, _np.ndarray):
         if how.size == 1:
             how = how.ravel()
