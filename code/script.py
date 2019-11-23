@@ -23,14 +23,14 @@ Dependencies
 
 """
 
-# Standard Python library.
+# Import standard Python library modules.
 import copy as _copy
 import math as _math
 import numbers as _numbers
 import six as _six
 import warnings as _warnings
 
-# SciPy packages.
+# Import SciPy packages.
 import matplotlib as _mpl
 import matplotlib.pyplot as _plt
 import numpy as _np
