@@ -25,10 +25,19 @@
 #include "boolean.h"
 #include "numeric.h"
 
+/* Define the constant for the approximation of the mathematical constant pi. */
+#define PI 3.141592653589793
+
 /* Define constants for maximal numbers of iterations. */
 #define IN_ITER_MAX     1024U
 #define OUT_ITER_MAX    1024U
 #define ATTEMPT_MAX     1024U
+
+/**
+ * Whether or not the polygon path should be printed.
+ *
+ */
+const bool print_polygon_path = true;
 
 /* Define functions. */
 
@@ -191,6 +200,10 @@ int main (int argc, char** argv)
     /* Array of vertices. */
     real_t* P;
 
+    /* Arrays of the edges' lengths and the outer angles. */
+    real_t* l;
+    real_t* phi;
+
     /* Value returned by the displaying application. */
     int return_value;
 
@@ -206,6 +219,10 @@ int main (int argc, char** argv)
     /* Array of vertices. */
     P = (real_t*)(NULL);
 
+    /* Arrays of the edges' lengths and the outer angles. */
+    l = (real_t*)(NULL);
+    phi = (real_t*)(NULL);
+
     /* Value returned by the displaying application. */
     return_value = 0;
 
@@ -216,6 +233,11 @@ int main (int argc, char** argv)
 
     /* Set the seed for the pseudorandom number generator. */
     srand((unsigned int)time((time_t*)(NULL)));
+
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
 
     /* If the number of command line arguments is not 2, print the error message
      * and exit with a non-zero value. */
@@ -307,6 +329,11 @@ int main (int argc, char** argv)
         P = (real_t*)(NULL);
     }
 
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
+
     /* If the polygon has been successfully generated, display it. */
     if (i < ATTEMPT_MAX)
     {
@@ -320,6 +347,80 @@ int main (int argc, char** argv)
                 i + 1U,
                 n
         );
+
+        /* If the polygon path should be printed, compute and print it. */
+        if (print_polygon_path)
+        {
+            /* Allocate memory for the arrays of the edges' lengths and the
+             * outer angles. */
+            l = (real_t*)malloc(n_true * sizeof *l);
+            phi = (real_t*)malloc(n_true * sizeof *phi);
+
+            /* If the memory allocation has failed, print the error message,
+            * deallocate memory and exit with a non-zero value. */
+            if (!(l && phi))
+            {
+                /* Print the error message. */
+                fprintf(stderr, "Memory allocation fail.\n");
+
+                /* Deallocate the memory allocated for the arrays of the edges'
+                * lengths and the outer angles. */
+                free(l);
+                l = (real_t*)(NULL);
+                free(phi);
+                phi = (real_t*)(NULL);
+
+                /* Clear the memory in the array of points. */
+                memset(P, 0, 2U * n * sizeof *P);
+
+                /* Deallocate the memory allocated for the array of points. */
+                free(P);
+                P = (real_t*)(NULL);
+
+                /* Exit with a non-zero value. */
+                exit(EXIT_FAILURE);
+            }
+
+            /* Initialise the arrays of the edges' lengths and the outer engles
+             * to zeros. */
+            memset(l, 0, n_true * sizeof *l);
+            memset(phi, 0, n_true * sizeof *phi);
+
+            /* Compute the edges' lengths and the outer angles. */
+            describe_polygon(n_true, P, l, phi);
+
+            /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+            fflush(stdin);
+            fflush(stdout);
+            fflush(stderr);
+
+            /* Print the path of the polygon. */
+            printf("Polygon path:\n");
+            for (i = 0U; i < n_true; ++i)
+                printf("\t%6.4fl @ %7.4fpi\n", *(l + i), *(phi + i) / (PI));
+
+            /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+            fflush(stdin);
+            fflush(stdout);
+            fflush(stderr);
+
+            /* Clear the memory in the arrays of the edges' lengths and the
+             * outer angles. */
+            memset(l, 0, n_true * sizeof *l);
+            memset(phi, 0, n_true * sizeof *l);
+
+            /* Deallocate the memory allocated for the arrays of the edges'
+             * lengths and the outer angles. */
+            free(l);
+            l = (real_t*)(NULL);
+            free(phi);
+            phi = (real_t*)(NULL);
+        }
+
+        /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+        fflush(stdin);
+        fflush(stdout);
+        fflush(stderr);
 
         /* Display the polygon and print the returned value. */
         return_value = display(n_true, P);
@@ -335,6 +436,11 @@ int main (int argc, char** argv)
     /* Otherwise inform the user that no `n`-gon has been found. */
     else
         printf("No %lu-gon found.\n", n);
+
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
 
     /* Return 0 after successfully running the program. */
     return EXIT_SUCCESS;

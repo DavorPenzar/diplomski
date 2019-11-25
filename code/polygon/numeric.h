@@ -174,30 +174,373 @@ constexpr inline sign_t sign (const real_t x)
 /**
  * Get the absolute value of a real number.
  *
+ * The value is computed using the `fabs` function from the standard library.
+ *
  * @param x
  *     Real number.
  *
  * @return
  *     Absolute value of `x`.
  *
+ * @see fabs
+ *
  */
 #if !defined(__cplusplus)
 real_t rabs (real_t x)
-#elif (__cplusplus) < 201103L
-inline real_t rabs (real_t x)
 #else
-constexpr inline real_t rabs (const real_t x)
+inline real_t rabs (real_t x)
 #endif /* __cplusplus */
 {
 #if !defined(__cplusplus)
-    return (x == 0.0) ? 0.0 : fabs(x);
+    return (x == 0.0) ? 0.0 : (real_t)fabs((double)x);
 #else
-    return (x == 0.0) ? 0.0 : ::fabs(x);
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::fabs(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the square root of a real number.
+ *
+ * The value is computed using the `sqrt` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Square root of `x`.
+ *
+ * @see sqrt
+ *
+ */
+#if !defined(__cplusplus)
+real_t rsqrt (real_t x)
+#else
+inline real_t rsqrt (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x == 0.0) ? 0.0 : (real_t)sqrt((double)x);
+#else
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::sqrt(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the power of a real number.
+ *
+ * The value is computed using the `pow` function from the standard library.
+ *
+ * @param base
+ *     Real number, base of the power.
+ *
+ * @param exponent
+ *     Real number, exponent of the power.
+ *
+ * @return
+ *     The `exponent` power of the `base`.
+ *
+ * @see pow
+ *
+ */
+#if !defined(__cplusplus)
+real_t rpow (real_t base, real_t exponent)
+#else
+inline real_t rpow (real_t base, real_t exponent)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (base == 0.0 && 0.0 < exponent) ?
+        0.0 :
+        (real_t)pow((double)base, (double)exponent);
+#else
+    return (base == 0.0 && 0.0 < exponent) ?
+        0.0 :
+        static_cast<real_t>(::pow(base, exponent));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the exponential function valueated at a real number.
+ *
+ * The value is computed using the `exp` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     The value of the exponential function valued at `x`.
+ *
+ * @see exp
+ *
+ */
+#if !defined(__cplusplus)
+real_t rexp (real_t x)
+#else
+inline real_t rexp (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (real_t)exp((double)x);
+#else
+    return static_cast<real_t>(::exp(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the natural logarithm of a real number.
+ *
+ * The value is computed using the `log` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Natural logarithm of `x`.
+ *
+ * @see log
+ *
+ */
+#if !defined(__cplusplus)
+real_t rlog (real_t x)
+#else
+inline real_t rlog (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (real_t)log((double)x);
+#else
+    return static_cast<real_t>(::log(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the base 10 logarithm of a real number.
+ *
+ * The value is computed using the `log10` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Base 10 logarithm of `x`.
+ *
+ * @see log10
+ *
+ */
+#if !defined(__cplusplus)
+real_t rlog10 (real_t x)
+#else
+inline real_t rlog10 (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (real_t)log10((double)x);
+#else
+    return static_cast<real_t>(::log10(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the sine value of a real number.
+ *
+ * The value is computed using the `sin` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Sine value of `x`.
+ *
+ * @see sin
+ *
+ */
+#if !defined(__cplusplus)
+real_t rsin (real_t x)
+#else
+inline real_t rsin (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x == 0.0) ? 0.0 : (real_t)sin((double)x);
+#else
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::sin(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the cosine value of a real number.
+ *
+ * The value is computed using the `cos` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Cosine value of `x`.
+ *
+ * @see cos
+ *
+ */
+#if !defined(__cplusplus)
+real_t rcos (real_t x)
+#else
+inline real_t rcos (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (real_t)cos((double)x);
+#else
+    return static_cast<real_t>(::cos(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the tangent value of a real number.
+ *
+ * The value is computed using the `tan` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Tangent value of `x`.
+ *
+ * @see tan
+ *
+ */
+#if !defined(__cplusplus)
+real_t rtan (real_t x)
+#else
+inline real_t rtan (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x == 0.0) ? 0.0 : (real_t)tan((double)x);
+#else
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::tan(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the arc sine value of a real number.
+ *
+ * The value is computed using the `asin` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Arc sine value of `x`.
+ *
+ * @see asin
+ *
+ */
+#if !defined(__cplusplus)
+real_t rasin (real_t x)
+#else
+inline real_t rasin (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x == 0.0) ? 0.0 : (real_t)asin((double)x);
+#else
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::asin(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the arc cosine value of a real number.
+ *
+ * The value is computed using the `acos` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Arc cosine value of `x`.
+ *
+ * @see acos
+ *
+ */
+#if !defined(__cplusplus)
+real_t racos (real_t x)
+#else
+inline real_t racos (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (real_t)acos((double)x);
+#else
+    return static_cast<real_t>(::acos(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the arc tangent value of a real number.
+ *
+ * The value is computed using the `atan` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @return
+ *     Arc tangent value of `x`.
+ *
+ * @see atan
+ *
+ */
+#if !defined(__cplusplus)
+real_t ratan (real_t x)
+#else
+inline real_t ratan (real_t x)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x == 0.0) ? 0.0 : (real_t)atan((double)x);
+#else
+    return (x == 0.0) ? 0.0 : static_cast<real_t>(::atan(x));
+#endif /* __cplusplus */
+}
+
+/**
+ * Get the arc tangent value of a ratio.
+ *
+ * The value is computed using the `atan2` function from the standard library.
+ *
+ * @param x
+ *     Real number.
+ *
+ * @param y
+ *     Real number.
+ *
+ * @return
+ *     Arc tangent value of `y` / `x` (if `x` != 0; otherwise pi / 2 or
+ *     3 * pi / 2) taking into account the sign of both arguments to determine
+ *     the quadrant.
+ *
+ * @see atan2
+ *
+ */
+#if !defined(__cplusplus)
+real_t ratan2 (real_t x, real_t y)
+#else
+inline real_t ratan2 (real_t x, real_t y)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (y == 0.0 && !(x == 0.0)) ?
+        0.0 :
+        (real_t)atan2((double)x, (double)y);
+#else
+    return (x == 0.0 && !(x == 0.0)) ? 0.0 : static_cast<real_t>(::atan2(x, y));
 #endif /* __cplusplus */
 }
 
 /**
  * Get a random real number in the interval [`min`, `max`].
+ *
+ * The random value is generated using the `rand` function from the standard
+ * library.
  *
  * Caution: if `max` > `min`, only the values from the descrete set
  * {`val_min` + k / `(RAND_MAX)` * (`val_max` - `val_min`) :
@@ -210,9 +553,9 @@ constexpr inline real_t rabs (const real_t x)
  *     Upper bound of the random value.
  *
  * @return
- *     If `val_max` > `min`, a value generated by calling the function `rand` is
- *     returned; if `val_min` == `val_max`, the value of `val_min` and `val_max`
- *     is returned; otherwise 0 is returned.
+ *     If `val_max` > `val_min`, a value generated by calling the function
+ *     `rand` is returned; if `val_min` == `val_max`, the value of `val_min` and
+ *     `val_max` is returned; otherwise 0 is returned.
  *
  * @see rand
  *

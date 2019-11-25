@@ -1014,6 +1014,12 @@ real_t* simplify_polygon (::size_t n, real_t* P)
  * considered clockwise if the sign of the product is -1 (`minus`), otherwise
  * (even if the sign is 0 (`zero`)) the order is considered counterclockwise.
  *
+ * The vertices of a polygon will be ordered conventionally if the
+ * polygon has been simplified beforehand via the `simplify_polygon` function
+ * and if the simplified polygon "has passed" the `check_polygon` function's
+ * test.  However, even without the simplification the vertices may actually be
+ * ordered conventionally.
+ *
  * If any of the coordinates is NaN, the result may be unexpected.
  *
  * The given array is not mutated in the function.
@@ -1034,6 +1040,10 @@ real_t* simplify_polygon (::size_t n, real_t* P)
  *     that the first and the last points are neighbouring.
  *
  *     Caution: the array `P` is mutated in the function.
+ *
+ * @see simplify_polygon
+ * @see check_polygon
+ * @see simplify_check_polygon
  *
  */
 #if !defined(__cplusplus)
@@ -1710,7 +1720,7 @@ bool simplify_check_polygon (::size_t* n, real_t* P)
      * statement. */
     do
     {
-        /* If `n` is a null-pointer, return `false`. */
+        /* If `n` is a null-pointer, break the `do while`-loop. */
         if (!n)
             break;
 
@@ -1752,16 +1762,19 @@ bool simplify_check_polygon (::size_t* n, real_t* P)
  *     diameter is returned.  To get the squared diameter, it is more efficient
  *     to pass a non-false value as `sq` than to square the result after calling
  *     the function with `sq` set to `false` as non-squared diameter is computed
- *     from the squared diameter merely using the function `sqrt`.
+ *     from the squared diameter merely using the function `rsqrt`.
  *
  * @return
  *     Maximal Euclidean distance between the points (squared if
  *     `sq` != `false`).
+ *
+ * @see rsqrt
+ *
  */
 #if !defined(__cplusplus)
-real_t diameter (size_t n, const real_t* P, bool sq)
+real_t diameter_polygon (size_t n, const real_t* P, bool sq)
 #else
-real_t diameter (::size_t n, const real_t* P, bool sq)
+real_t diameter_polygon (::size_t n, const real_t* P, bool sq)
 #endif /* __cplusplus */
 {
     /* DECLARATION OF VARIABLES */
@@ -1850,11 +1863,7 @@ real_t diameter (::size_t n, const real_t* P, bool sq)
 
     /* Return the diameter of the set; squared or not according to value of the
      * parameter `sq`. */
-#if !defined(__cplusplus)
-    return sq ? D : (real_t)sqrt((double)D);
-#else
-    return sq ? D : static_cast<real_t>(::sqrt(static_cast<double>(D)));
-#endif /* __cplusplus */
+    return sq ? D : rsqrt(D);
 }
 
 /**
@@ -1872,8 +1881,7 @@ real_t diameter (::size_t n, const real_t* P, bool sq)
  * @param P
  *     Array of points of size at least 2 * `n`.  The array is organised as
  *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
- *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
- *     that the first and the last points are neighbouring.
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.
  *
  *     Caution: the array `P` is mutated in the function.
  *
@@ -1911,7 +1919,7 @@ void standardise_polygon (::size_t n, real_t* P)
         n = 0U;
 
     /* Compute the diameter of the set of the points. */
-    d = diameter(n, P, false);
+    d = diameter_polygon(n, P, false);
 
     /* Update the points' coordinates. */
 
@@ -1924,6 +1932,185 @@ void standardise_polygon (::size_t n, real_t* P)
     else
         for (i = 0U; i / 2U < n; ++i)
             *(P + i) /= d;
+}
+
+/**
+ * Describe a polygon defined by an array of its vertices by computing the
+ * lengths of its edges and outer angles.
+ *
+ * The lengths of the edges of the polygon are computed using the `rsqrt`
+ * function and the outer angles are computed using the `racos` function.  The
+ * outer angles' values are from the interval (-pi, pi].
+ *
+ * The memory for the arrays of the edges' lengths and the outer angles must be
+ * preallocated.  If either of the arguments passed is a null-pointer, no effect
+ * will be made.  If the memory locations of either of the three arrays overlap,
+ * the results will be unexpected.
+ *
+ * The results may also be unexpected if the array of points is not an array of
+ * coordinates of true vertices of a polygon in the mathematically positive
+ * order.  To assure this, simplify the polygon, check it if it really is a
+ * polygon and reorder the vertices using the `simplify_polygon`,
+ * `check_polygon` (or `simplify_check_polygon`) and
+ * `correct_polygon_orientation` functions.
+ *
+ * The array `P` is not mutated in the function, but the arrays `l` and `phi`
+ * are.
+ *
+ * @param n
+ *     Number of points.
+ *
+ * @param P
+ *     Array of points of size at least 2 * `n`.  The array is organised as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
+ *     that the first and the last points are neighbouring.  The points
+ *     represent the vertices of the polygon.
+ *
+ * @param l
+ *     Array of the edges' lengths of size at least 2 * `n`.  The array is
+ *     filled as
+ *     {|(x_0, y_0), (x_1, y_1)|, |(x_1, y_1), (x_2, y_2)|, ...,
+ *     |(x_n_minus_2, y_n_minus_2), (x_n_minus_1, y_n_minus_1)|,
+ *     |(x_n_minus_1, y_n_minus_1), (x_0, y_0)|}, where |(x_A, y_A), (x_B, y_B)|
+ *     is the distance from the point A = (x_A, y_A) to the point
+ *     B = (x_B, y_B).
+ *
+ *     Caution: the array is mutated in the function.
+ *
+ * @param phi
+ *     Array of the outer angles of size at least 2 * `n`.  The array is filled
+ *     as `{phi_1, phi_2, ..., phi_n_minus_2, phi_n_minus_1, phi_0}`, where
+ *     `phi_i` is the outer angle at the `i`-th vertex.
+ *
+ *     Caution: the array is mutated in the function.
+ *
+ * @see simplify_polygon
+ * @see check_polygon
+ * @see simplify_check_polygon
+ * @see correct_polygon_orientation
+ *
+ */
+void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Iteration indices. */
+    size_t i;
+    size_t j;
+    size_t k;
+
+    /* Auxiliary pointers to coordinates of points. */
+    const real_t* x_i;
+    const real_t* y_i;
+    const real_t* x_j;
+    const real_t* y_j;
+    const real_t* x_k;
+    const real_t* y_k;
+
+    /* Differences in coordinates. */
+    real_t dx_i;
+    real_t dy_i;
+    real_t dx_j;
+    real_t dy_j;
+
+    /* Auxiliary pointers to lengths of edges. */
+    real_t* l_i;
+    real_t* l_j;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Iteration indices. */
+    i = 0U;
+    j = 0U;
+    k = 0U;
+
+    /* Auxiliary pointers to coordinates of points. */
+    x_i = P;
+    y_i = x_i + 1U;
+    x_j = P;
+    y_j = x_i + 1U;
+    x_k = P;
+    y_k = x_i + 1U;
+
+    /* Differences in coordinates. */
+    dx_i = 0.0;
+    dy_i = 0.0;
+    dx_j = 0.0;
+    dy_j = 0.0;
+
+    /* Auxiliary pointers to lengths of edges. */
+    l_i = l;
+    l_j = l;
+
+    /* ALGORITHM */
+
+    /* If either of the pointers `P`, `l` and `phi` is a null-pointer, set the
+     * number `n` to 0. */
+    if (!(P && l && phi))
+        n = 0U;
+
+    /* Initialise the arrays `l` and `phi` to zeros. */
+#if !defined(__cplusplus)
+    memset(l, 0, n * sizeof *l);
+    memset(phi, 0, n * sizeof *phi);
+#else
+    ::memset(l, 0, n * sizeof *l);
+    ::memset(phi, 0, n * sizeof *phi);
+#endif /* __cplusplus */
+
+    /* Iterate over the points and compute the lengths of edges and the outer
+     * angles. */
+    for (i = 0U; i < n; ++i)
+    {
+        /* Compute the indices of the next two points. */
+        j = incmod(i, n);
+        k = incmod(j, n);
+
+        /* Ektract the coordinates of the `i`-th, the `j`-th and the `k`-th
+         * points---points `P_i`, `P_j` and `P_k` respectively. */
+        x_i = P + 2U * i;
+        y_i = x_i + 1U;
+        x_j = P + 2U * j;
+        y_j = x_j + 1U;
+        x_k = P + 2U * k;
+        y_k = x_k + 1U;
+
+        /* Compute the diferences in coordinates of points P_i and P_j, and
+         * points P_j and P_k. */
+        dx_i = *x_j - *x_i;
+        dy_i = *y_j - *y_i;
+        dx_j = *x_k - *x_j;
+        dy_j = *y_k - *y_j;
+
+        /* Extract the lengths of edges P_i P_j and P_j P_k. */
+        l_i = l + i;
+        l_j = l + j;
+
+        /* If the lengths of edge P_i P_j is currently set to 0, compute it; do
+         * the same with the edge P_j P_k if its length is set to 0. */
+        if (*l_i == 0.0)
+            *l_i = rsqrt(dx_i * dx_i + dy_i * dy_i);
+        if (*l_j == 0.0)
+            *l_j = rsqrt(dx_j * dx_j + dy_j * dy_j);
+
+        /* Compute the angle at the point P_j and save its value on the `i`-th
+         * place in the array `phi`. */
+#if !defined(__cplusplus) || (__cplusplus) < 201103L
+        *(phi + i) = (
+            sign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) == minus ?
+                -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
+                racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
+        );
+#else /* __cplusplus */
+        *(phi + i) = (
+            sign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) ==
+                sign_t::minus ?
+                -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
+                racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
+        );
+#endif /* __cplusplus */
+    }
 }
 
 #endif /* __POLYGON_H__INCLUDED */
