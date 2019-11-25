@@ -21,6 +21,7 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import AutoMinorLocator
 
 # Check if the variable `__name__` is in the right format.
 if not (isinstance(__name__, str) and __name__.__class__ is str):
@@ -97,8 +98,29 @@ ax.set_title("$ {0:d} $-gon".format(int(P.shape[0])))
 # Set the aspect of axis scaling to equal.
 ax.set_aspect('equal')
 
+# Set minor axes.
+ax.xaxis.set_minor_locator(AutoMinorLocator(4))
+ax.yaxis.set_minor_locator(AutoMinorLocator(4))
+
 # Show the grid.
-ax.grid(True, which = 'both', axis = 'both')
+ax.grid(
+    True,
+    which = 'minor',
+    axis = 'both',
+    alpha = 0.25,
+    color = 'black',
+    linestyle = '--',
+    linewidth = 0.333333333333333
+)
+ax.grid(
+    True,
+    which = 'major',
+    axis = 'both',
+    alpha = 0.5,
+    color = 'black',
+    linestyle = '-',
+    linewidth = 0.5
+)
 
 # Fill the polygon area.
 ax.fill(

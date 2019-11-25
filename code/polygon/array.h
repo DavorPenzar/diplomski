@@ -189,7 +189,7 @@ void flip (void* a, ::size_t n, ::size_t size)
  *
  * All the values at odd indices will be pushed to the beginning of the array,
  * and all the values at even indices will be pushed to the end of the array.
- * Relative order of values at odd (even) indices is preserved.  More
+ * Relative order of elements at odd (even) indices is preserved.  More
  * specifically, the array
  * `{a_0, b_0, a_1, b_1, ..., a_k_minus_one, b_k_minus_one}` is reordered into
  * the array `{a_0, a_1, ..., a_k_minus_one, b_0, b_1, ..., b_k_minus_one}`.  If
@@ -377,10 +377,11 @@ void polarise (void* a, ::size_t n, ::size_t size)
  *
  * The first element in the array (at index 0) stays in place, but all other
  * elements are reordered so that every element from the first half of the array
- * is followed by an element from the other half and vice versa.  Relative order
- * of values from the first (second) half is preserved.  If the array has an odd
- * number of elements, the middle element is considered to be in the first half.
- * More specifically, the array
+ * is followed by an element from the other half and vice versa (except for the
+ * last element in the resulting array).  Relative order of elements from the
+ * first (second) half is preserved.  If the array has an odd number of
+ * elements, the middle element is considered to be in the first half.  More
+ * specifically, the array
  * `{a_0, a_1, ..., a_k_minus_one, a_k, b_0, b_1, ..., b_k_minus_one}` is
  * reordered into the array
  * `{a_0, b_0, a_1, b_1, ..., a_k_minus_one, b_k_minus_one, a_k}`.  If `a_k` is

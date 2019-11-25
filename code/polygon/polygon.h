@@ -1233,19 +1233,13 @@ void correct_polygon_orientation (::size_t n, real_t* P)
 #if !defined(__cplusplus) || (__cplusplus) < 201103L
         if (
             sign(
-                *x_v * (*y_j - *y_i) -
-                *y_v * (*x_j - *x_i) -
-                *x_i * *y_j +
-                *x_j * *y_i
+                (*x_v - *x_i) * (*y_j - *y_i) - (*x_j - *x_i) * (*y_v - *y_i)
             ) == minus
         )
 #else
         if (
             sign(
-                *x_v * (*y_j - *y_i) -
-                *y_v * (*x_j - *x_i) -
-                *x_i * *y_j +
-                *x_j * *y_i
+                (*x_v - *x_i) * (*y_j - *y_i) - (*x_j - *x_i) * (*y_v - *y_i)
             ) == sign_t::minus
         )
 #endif /* __cplusplus */
