@@ -45,12 +45,13 @@
  *
  * Elements from position `i` and `n` - `i` - 1 in the array will be swapped for
  * all values of `i` in {0, 1, ..., floor(n / 2)}.  More specifically, the array
- * `{a_0, a_1, ..., a_n_minus_two, a_n_minus_one}` is reordered into the array
- * `{a_n_minus_one, a_n_minus_two, ..., a_1, a_0}`.  If the number of elements
+ * `{a_0, a_1, ..., a_n_minus_2, a_n_minus_1}` is reordered into the array
+ * `{a_n_minus_1, a_n_minus_2, ..., a_1, a_0}`.  If the number of elements
  * is odd, the middle element stays in place.
  *
  * The function does not use any additional arrays to reorder the original
- * array.  Only one extra element is used for swapping elements.
+ * array.  Only one extra element is used for swapping elements.  The time
+ * complexity of the function is O(n).
  *
  * The inverse of the function is the function itself.
  *
@@ -191,11 +192,10 @@ void flip (void* a, ::size_t n, ::size_t size)
  * and all the values at even indices will be pushed to the end of the array.
  * Relative order of elements at odd (even) indices is preserved.  More
  * specifically, the array
- * `{a_0, b_0, a_1, b_1, ..., a_k_minus_one, b_k_minus_one}` is reordered into
- * the array `{a_0, a_1, ..., a_k_minus_one, b_0, b_1, ..., b_k_minus_one}`.  If
- * there is an additional element `a_k` at the end of the original array, it
- * it will end up on position after all other elements `a_i` and before all
- * elements `b_j`.
+ * `{a_0, b_0, a_1, b_1, ..., a_k_minus_1, b_k_minus_1}` is reordered into the
+ * array `{a_0, a_1, ..., a_k_minus_1, b_0, b_1, ..., b_k_minus_1}`.  If there
+ * is an additional element `a_k` at the end of the original array, it will end
+ * up on position after all other elements `a_i` and before all elements `b_j`.
  *
  * Although the effect of this function can be achieved in linear time
  * complexity using additional arrays, this function uses only one extra
@@ -382,11 +382,10 @@ void polarise (void* a, ::size_t n, ::size_t size)
  * first (second) half is preserved.  If the array has an odd number of
  * elements, the middle element is considered to be in the first half.  More
  * specifically, the array
- * `{a_0, a_1, ..., a_k_minus_one, a_k, b_0, b_1, ..., b_k_minus_one}` is
- * reordered into the array
- * `{a_0, b_0, a_1, b_1, ..., a_k_minus_one, b_k_minus_one, a_k}`.  If `a_k` is
- * not in the original array, the result will be the same only excluding the
- * element `a_k` in the resulting array as well.
+ * `{a_0, a_1, ..., a_k_minus_1, a_k, b_0, b_1, ..., b_k_minus_1}` is reordered
+ * into the array `{a_0, b_0, a_1, b_1, ..., a_k_minus_1, b_k_minus_1, a_k}`.
+ * If `a_k` is not in the original array, the result will be the same only
+ * excluding the element `a_k` in the resulting array as well.
  *
  * Although the effect of this function can be achieved in linear time
  * complexity using additional arrays, this function uses only one extra

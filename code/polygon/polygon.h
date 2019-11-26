@@ -47,7 +47,7 @@
 #include "numeric.h"
 
 /**
- * Generate random points in a plane.
+ * Generate points in a plane.
  *
  * Use this function to generate a polygon if it is likely (or even certain)
  * that the generated array of points will be a polygon (if additional checkings
@@ -171,7 +171,7 @@ real_t* random_polygon (
 }
 
 /**
- * Generate random points in a plane so that no two line segments intersect.
+ * Generate points in a plane so that no two line segments intersect.
  *
  * Use this function to generate a polygon if it is not likely that the
  * generated array of points will be a polygon without additional checkings and
