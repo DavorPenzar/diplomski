@@ -26,7 +26,7 @@
 #include "numeric.h"
 
 /* Define the constant for the approximation of the mathematical constant pi. */
-#define PI 3.141592653589793
+#define PI  3.141592653589793
 
 /* Define constants for maximal numbers of iterations. */
 #define IN_ITER_MAX     1024U
@@ -37,9 +37,32 @@
  * Whether or not the polygon path should be printed.
  *
  */
-const bool print_polygon_path = true;
+const   bool    print_polygon_path  =   true;
 
 /* Define functions. */
+
+/**
+ * Generate a pseudorandom coordinate from the interval [0, 1].
+ *
+ * The function is actually only a wrapper around the `rrand` function.  The
+ * purpose of the function is to pass it as the argument to the `random_polygon`
+ * and the `smart smart_random_polygon` functions.
+ *
+ * @param i
+ *     Index of the point (vertex).
+ *
+ * @param coordinate
+ *     Coordinate of the point (0 being the x-coordinate and 1 being the
+ *     y-coordinate).
+ *
+ * @return
+ *     Value returned by calling `rrand()`.
+ *
+ */
+real_t random_coordinate (size_t i, size_t coordinate)
+{
+    return rrand();
+}
 
 /**
  * Normalise a polygon.
@@ -306,10 +329,7 @@ int main (int argc, char** argv)
         P = smart_random_polygon(
             n,
             (real_t*)(NULL),
-            -1.0,
-            1.0,
-            -1.0,
-            1.0,
+            random_coordinate,
             OUT_ITER_MAX,
             IN_ITER_MAX
         );
@@ -397,7 +417,7 @@ int main (int argc, char** argv)
             /* Print the path of the polygon. */
             printf("Polygon path:\n");
             for (i = 0U; i < n_true; ++i)
-                printf("\t%6.4fl @ %7.4fpi\n", *(l + i), *(phi + i) / (PI));
+                printf("\t%6.4f @ %7.4f pi\n", *(l + i), *(phi + i) / (PI));
 
             /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
             fflush(stdin);
