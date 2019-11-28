@@ -158,11 +158,7 @@ real_t* random_polygon (
 
         /* Fill the array with random coordinates. */
         for (i = 0U; (i >> 1U) < n; ++i)
-#if !defined(__cplusplus)
-            *(P + i) = generator(i >> 1U, (size_t)(i & 1U));
-#else
-            *(P + i) = generator(i >> 1U, static_cast< ::size_t >(i & 1U));
-#endif /* __cplusplus */
+            *(P + i) = generator(i >> 1U, i & 1U);
     }
     while (false);
 
@@ -522,16 +518,16 @@ real_t* smart_random_polygon (
                          * P_j0 P_j1 evaluated at points P_i0 and P_i1, and of
                          * the line P_i0 P_i1 evaluated at points P_j0 and
                          * P_j1. */
-                        s_i0 = sign(
+                        s_i0 = rsign(
                             dx_j * (*y_i0 - *y_j0) - dy_j * (*x_i0 - *x_j0)
                         );
-                        s_i1 = sign(
+                        s_i1 = rsign(
                             dx_j * (*y_i1 - *y_j0) - dy_j * (*x_i1 - *x_j0)
                         );
-                        s_j0 = sign(
+                        s_j0 = rsign(
                             dx_i * (*y_j0 - *y_i0) - dy_i * (*x_j0 - *x_i0)
                         );
-                        s_j1 = sign(
+                        s_j1 = rsign(
                             dx_i * (*y_j1 - *y_i0) - dy_i * (*x_j1 - *x_i0)
                         );
 
@@ -830,8 +826,8 @@ real_t* simplify_polygon (::size_t n, real_t* P)
 
         /* Compute the signs of the differences in coordinates of points P_0 and
          * P_1. */
-        sdx_1 = sign(dx_0_1);
-        sdy_1 = sign(dy_0_1);
+        sdx_1 = rsign(dx_0_1);
+        sdy_1 = rsign(dy_0_1);
 
         /* Find the first point that is not on the directed line P_0 P_1 after
          * the point P_1---point P_2.  For all the skipped points, decrement the
@@ -849,8 +845,8 @@ real_t* simplify_polygon (::size_t n, real_t* P)
 
             /* Compute the signs of the differences in coordinates of points P_1
              * and the `k`-th point. */
-            sdx_2 = sign(*x_2 - *x_1);
-            sdy_2 = sign(*y_2 - *y_1);
+            sdx_2 = rsign(*x_2 - *x_1);
+            sdy_2 = rsign(*y_2 - *y_1);
 
             /* If the `k`-th point is not on the line P_0 P_1 or if the signs of
              * the differences in coordinates of points P_1 and the `k`-th point
@@ -1231,13 +1227,13 @@ void correct_polygon_orientation (::size_t n, real_t* P)
          * element). */
 #if !defined(__cplusplus) || (__cplusplus) < 201103L
         if (
-            sign(
+            rsign(
                 (*x_v - *x_i) * (*y_j - *y_i) - (*x_j - *x_i) * (*y_v - *y_i)
             ) == minus
         )
 #else
         if (
-            sign(
+            rsign(
                 (*x_v - *x_i) * (*y_j - *y_i) - (*x_j - *x_i) * (*y_v - *y_i)
             ) == sign_t::minus
         )
@@ -1598,10 +1594,10 @@ bool check_polygon (::size_t n, const real_t* P)
             /* Compute the signs of expressions of the line P_j0 P_j1 evaluated
              * at points P_i0 and P_i1, and of the line P_i0 P_i1 evaluated at
              * points P_j0 and P_j1. */
-            s_i0 = sign(dx_j * (*y_i0 - *y_j0) - dy_j * (*x_i0 - *x_j0));
-            s_i1 = sign(dx_j * (*y_i1 - *y_j0) - dy_j * (*x_i1 - *x_j0));
-            s_j0 = sign(dx_i * (*y_j0 - *y_i0) - dy_i * (*x_j0 - *x_i0));
-            s_j1 = sign(dx_i * (*y_j1 - *y_i0) - dy_i * (*x_j1 - *x_i0));
+            s_i0 = rsign(dx_j * (*y_i0 - *y_j0) - dy_j * (*x_i0 - *x_j0));
+            s_i1 = rsign(dx_j * (*y_i1 - *y_j0) - dy_j * (*x_i1 - *x_j0));
+            s_j0 = rsign(dx_i * (*y_j0 - *y_i0) - dy_i * (*x_j0 - *x_i0));
+            s_j1 = rsign(dx_i * (*y_j1 - *y_i0) - dy_i * (*x_j1 - *x_i0));
 
             /* If all four points are on the same line, continue to the next
              * iteration (next points P_j0 and P_j1). */
@@ -2093,13 +2089,13 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
          * place in the array `phi`. */
 #if !defined(__cplusplus) || (__cplusplus) < 201103L
         *(phi + i) = (
-            sign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) == minus ?
+            rsign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) == minus ?
                 -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
                 racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
         );
 #else /* __cplusplus */
         *(phi + i) = (
-            sign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) ==
+            rsign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) ==
                 sign_t::minus ?
                 -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
                 racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
