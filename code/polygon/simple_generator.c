@@ -49,22 +49,28 @@
 #define OUT_ITER_MAX    1024U
 #define ATTEMPT_MAX     1024U
 
-/**
- * Whether or not the polygon path should be printed.
- *
- */
-const   bool    print_polygon_path  =   true;
+typedef
 
 /* Define functions. */
 
-size_t saved_number (const size_t* n)
+real_t saved_number (const real_t* x)
+{
+    static real_t saved_x = 0.0;
+
+    if (x)
+        saved_x = *x;
+
+    return *saved_x;
+}
+
+size_t saved_nn_integer (const size_t* n)
 {
     static size_t saved_n = 0U;
 
     if (n)
         saved_n = *n;
 
-    return saved_n;
+    return *saved_n;
 }
 
 const real_t* saved_polygon (const real_t* P)
@@ -97,6 +103,61 @@ const real_t* saved_angles (const real_t* phi)
     return saved_phi;
 }
 
+real_t (* saved_comb_function (real_t (* combiner) (real_t, real_t))) (real_t, real_t)
+{
+    static real_t (* saved_combiner) (real_t, real_t) = (real_t (*) (real_t, real_t))(NULL);
+
+    if (combiner)
+        saved_combiner = combiner;
+
+    return saved_combiner;
+}
+
+real_t constant_length (size_t i)
+{
+    return saved_number((real_t*)(NULL));
+}
+
+real_t combiner_length (size_t i)
+{
+    real_t return_value;
+
+    size_t n;
+
+    const real_t* l;
+
+    real_t (* combiner) (real_t, real_t);
+
+    return_value = 0.0;
+
+    n = 0U;
+
+    l = (real_t*)(NULL);
+
+    combiner = (real_t (*) (real_t, real_t))(NULL);
+
+    n = saved_nn_integer();
+
+    l = saved_lengths();
+
+    combiner = saved_comb_function((real_t (*) (real_t, real_t))(NULL));
+
+    if (i < n)
+        return_value = (*combiner)(*(l + i), *(l + incmod(i, n)));
+
+    return return_value;
+}
+
+real_t (* saved_len_generator (real_t (* generator) (size_t))) (size_t)
+{
+    static real_t (* saved_generator) (size_t) = (real_t (* generator) (size_t))(NULL);
+
+    if (generator)
+        saved_generator = generator;
+
+    return saved_generator;
+}
+
 real_t perturbate (size_t i, size_t coordinate)
 {
     static real_t r = 0.0;
@@ -112,7 +173,7 @@ real_t perturbate (size_t i, size_t coordinate)
     return_value = 0.0;
 
     if (
-        i < saved_number((size_t*)(NULL)) &&
+        i < saved_nn_integer((size_t*)(NULL)) &&
         (coordinate == 0U || coordinate == 1U)
     )
     {
@@ -123,7 +184,7 @@ real_t perturbate (size_t i, size_t coordinate)
         {
             r = (
                 rrandn() *
-                rmin(*(l + decmod(i, saved_number((size_t*)(NULL)))), *(l + i))
+                rmin(*(l + decmod(i, saved_nn_integer((size_t*)(NULL)))), *(l + i))
             );
             phi = (real_t)((long double)rrand() * (PI));
         }
@@ -572,7 +633,7 @@ int main (int argc, char** argv)
 
     /* Save the number of vertices, array of points and arrays of edges' lengths
      * and outer edges. */
-    saved_number(&n);
+    saved_nn_integer(&n);
     saved_polygon(P);
     saved_lengths(l);
     saved_angles(phi);

@@ -158,7 +158,7 @@ real_t* random_polygon (
 
         /* Fill the array with random coordinates. */
         for (i = 0U; (i >> 1U) < n; ++i)
-            *(P + i) = generator(i >> 1U, i & 1U);
+            *(P + i) = (*generator)(i >> 1U, i & 1U);
     }
     while (false);
 
@@ -439,8 +439,8 @@ real_t* smart_random_polygon (
             y_i0 = x_i0 + 1U;
 
             /* Generate random coordinates for the point P_i0. */
-            *x_i0 = generator(0U, 0U);
-            *y_i0 = generator(0U, 1U);
+            *x_i0 = (*generator)(0U, 0U);
+            *y_i0 = (*generator)(0U, 1U);
 
             /* If `n` == 1, break the `do while`-loop. */
             if (n == 1U)
@@ -451,8 +451,8 @@ real_t* smart_random_polygon (
             y_i1 = x_i1 + 1U;
 
             /* Generate random coordinates for the point P_i1. */
-            *x_i1 = generator(1U, 0U);
-            *y_i1 = generator(1U, 1U);
+            *x_i1 = (*generator)(1U, 0U);
+            *y_i1 = (*generator)(1U, 1U);
 
             /* Iterate over the rest of the points. */
             for (i = 2U; i < n; ++i)
@@ -479,8 +479,8 @@ real_t* smart_random_polygon (
                     bad = false;
 
                     /* Generate random coordinates for the point P_i1. */
-                    *x_i1 = generator(i, 0U);
-                    *y_i1 = generator(i, 1U);
+                    *x_i1 = (*generator)(i, 0U);
+                    *y_i1 = (*generator)(i, 1U);
 
                     /* Compute the differences in coordinates of points P_i0 and
                      * P_i1. */
