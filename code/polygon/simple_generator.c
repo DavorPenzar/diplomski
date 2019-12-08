@@ -49,30 +49,81 @@
 #define OUT_ITER_MAX    1024U
 #define ATTEMPT_MAX     1024U
 
-typedef
-
 /* Define functions. */
 
-real_t saved_number (const real_t* x)
-{
-    static real_t saved_x = 0.0;
-
-    if (x)
-        saved_x = *x;
-
-    return *saved_x;
-}
-
-size_t saved_nn_integer (const size_t* n)
+/**
+ * Save a non-negative integer or get the saved non-negative integer.
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param n
+ *     Non-negative integer to save.  If `n == 0`, the number `n` is not saved.
+ *
+ * @return
+ *     Last non-negative integer that was saved (if `n` != `0`, the value of `n`
+ *     is returned).  Initially 0 (before saving any non-negative integer).
+ *
+ */
+size_t saved_nn_integer (size_t n)
 {
     static size_t saved_n = 0U;
 
     if (n)
-        saved_n = *n;
+        saved_n = n;
 
-    return *saved_n;
+    return saved_n;
 }
 
+/**
+ * Save a real number or get the saved real number.
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param x
+ *     Real number to save.  If `rabs(x) == 0`, the number `x` is not saved.
+ *
+ * @return
+ *     Last real number that was saved (if `rabs(x)` != `0`, the value of `x` is
+ *     returned).  Initially 0 (before saving any real number).
+ *
+ * @see rabs
+ *
+ */
+real_t saved_number (real_t x)
+{
+    static real_t saved_x = 0.0;
+
+    if (!(rabs(x) == 0.0))
+        saved_x = x;
+
+    return saved_x;
+}
+
+/**
+ * Save an array of real numbers (preferably an array of coordinates of vertices
+ * of a polygon).
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param P
+ *     Array of real numbers to save.  If `P == NULL`, the "array" `P` is not
+ *     saved.
+ *
+ * @return
+ *     Last array of real number that was saved (if `P` != `NULL`, the value of
+ *     `P` is returned).  Initially `NULL` (before saving any array of real
+ *     numbers).
+ *
+ */
 const real_t* saved_polygon (const real_t* P)
 {
     static const real_t* saved_P = (real_t*)(NULL);
@@ -83,6 +134,25 @@ const real_t* saved_polygon (const real_t* P)
     return saved_P;
 }
 
+/**
+ * Save an array of real numbers (preferably an array of lengths of edges of a
+ * polygon).
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param l
+ *     Array of real numbers to save.  If `l == NULL`, the "array" `l` is not
+ *     saved.
+ *
+ * @return
+ *     Last array of real number that was saved (if `l` != `NULL`, the value of
+ *     `l` is returned).  Initially `NULL` (before saving any array of real
+ *     numbers).
+ *
+ */
 const real_t* saved_lengths (const real_t* l)
 {
     static const real_t* saved_l = (real_t*)(NULL);
@@ -93,6 +163,25 @@ const real_t* saved_lengths (const real_t* l)
     return saved_l;
 }
 
+/**
+ * Save an array of real numbers (preferably an array of outer angles of a
+ * polygon).
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param phi
+ *     Array of real numbers to save.  If `phi == NULL`, the "array" `phi` is
+ *     not saved.
+ *
+ * @return
+ *     Last array of real number that was saved (if `phi` != `NULL`, the value
+ *     of `phi` is returned).  Initially `NULL` (before saving any array of real
+ *     numbers).
+ *
+ */
 const real_t* saved_angles (const real_t* phi)
 {
     static const real_t* saved_phi = (real_t*)(NULL);
@@ -103,9 +192,36 @@ const real_t* saved_angles (const real_t* phi)
     return saved_phi;
 }
 
-real_t (* saved_comb_function (real_t (* combiner) (real_t, real_t))) (real_t, real_t)
+/**
+ * Save a function for combining two real numbers.
+ *
+ * A function for combinig two real numbers may be, for eample, `rmin`, `rmax`,
+ * a function that computes the average of the numbers, a constant...
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param combiner
+ *     Function for combinig two real numbers.  If `combiner == NULL`, the
+ *     "function" `combiner` is not saved.
+ *
+ * @return
+ *     Last function for combining two real numbers that was saved (if
+ *     `combiner` != `NULL`, the value of `combiner` is returned).  Initially
+ *     `NULL` (before saving any function for combining two real numbers).
+ *
+ * @see rmin
+ * @see rmax
+ *
+ */
+real_t (
+    * saved_comb_function (real_t (* combiner) (real_t, real_t))
+) (real_t, real_t)
 {
-    static real_t (* saved_combiner) (real_t, real_t) = (real_t (*) (real_t, real_t))(NULL);
+    static real_t (* saved_combiner) (real_t, real_t) =
+        (real_t (*) (real_t, real_t))(NULL);
 
     if (combiner)
         saved_combiner = combiner;
@@ -113,11 +229,90 @@ real_t (* saved_comb_function (real_t (* combiner) (real_t, real_t))) (real_t, r
     return saved_combiner;
 }
 
-real_t constant_length (size_t i)
+/**
+ * Save a function for generating lengths (real values).
+ *
+ * A function for generating lengths may be, for eample, `constant_length` or
+ * `combiner_length`.
+ *
+ * Caution: the function uses static variables to save the values. If more than
+ * one thread needs to call the function and it is likely that they will do it
+ * in the same time, use a blocking mechanism such as mutex to prevent
+ * interference.
+ *
+ * @param generator
+ *     Function for generating lengths.  If `generator == NULL`, the "function"
+ *     `generator` is not saved.
+ *
+ * @return
+ *     Last function for generating lengths that was saved (if
+ *     `generator` != `NULL`, the value of `generator` is returned).  Initially
+ *     `NULL` (before saving any function for generating lengths).
+ *
+ * @see constant_length
+ * @see combiner_length
+ *
+ */
+real_t (* saved_len_generator (real_t (* generator) (size_t))) (size_t)
 {
-    return saved_number((real_t*)(NULL));
+    static real_t (* saved_generator) (size_t) = (real_t (*) (size_t))(NULL);
+
+    if (generator)
+        saved_generator = generator;
+
+    return saved_generator;
 }
 
+/**
+ * Generate a constant length.
+ *
+ * The function is actually only a wrapper around the `saved_number` function
+ * (the returned value is generated by calling `saved_number(0.0)`).  The
+ * purpose of the function is to save it to the `saved_len_generator` function.
+ *
+ * The function is intended to be saved to the `saved_comb_function` function.
+ *
+ * @param i
+ *     Dummy argument.  Required for compatibility with the function
+ *     `saved_len_generator`.
+ *
+ * @return
+ *     A constant length (actually the number saved to the `saved_number`
+ *     function).
+ *
+ * @see saved_number
+ * @see saved_len_generator
+ *
+ */
+real_t constant_length (size_t i)
+{
+    return saved_number(0.0);
+}
+
+/**
+ * Generate a length by combinig lengths of edges of the saved polygon.
+ *
+ * The function generates the value by calling the `saved_comb_function`
+ * function.
+ *
+ * The function is intended to be saved to the `saved_comb_function`.
+ *
+ * @param i
+ *     Index of the vertex of the saved polygon.
+ *
+ * @return
+ *     The value generated by calling the function saved to the
+ *     `saved_comb_function` function by combining the (`(i` - 1) % `n`)-th and
+ *     the `i`-th value in the array saved to the `saved_lengths` function,
+ *     where `n` is the non-negative integer saved to the `saved_nn_integer`
+ *     function.
+ *
+ * @see saved_nn_integer
+ * @see saved_lengths
+ * @see saved_comb_function
+ * @see saved_len_generator
+ *
+ */
 real_t combiner_length (size_t i)
 {
     real_t return_value;
@@ -136,67 +331,84 @@ real_t combiner_length (size_t i)
 
     combiner = (real_t (*) (real_t, real_t))(NULL);
 
-    n = saved_nn_integer();
+    n = saved_nn_integer(0U);
 
-    l = saved_lengths();
+    l = saved_lengths((real_t*)(NULL));
 
     combiner = saved_comb_function((real_t (*) (real_t, real_t))(NULL));
 
     if (i < n)
-        return_value = (*combiner)(*(l + i), *(l + incmod(i, n)));
+        return_value = (*combiner)(*(l + decmod(i, n)), *(l + i));
 
     return return_value;
 }
 
-real_t (* saved_len_generator (real_t (* generator) (size_t))) (size_t)
+/**
+ * Scan the coordinate from the console.
+ *
+ * The coordinate is queried by printing using the `printf` function and scanned
+ * using the `scanf` function.
+ *
+ * The purpose of the function is to pass it as the argument to the
+ * `random_polygon` and the `smart smart_random_polygon` functions.
+ *
+ * @param i
+ *     Index of the point (vertex).
+ *
+ * @param coordinate
+ *     Coordinate of the point (0 being the x-coordinate and 1 being the
+ *     y-coordinate).
+ *
+ * @return
+ *     Value scanned from the console.
+ *
+ * @see printf
+ * @see scanf
+ *
+ */
+real_t scan_coordinate (size_t i, size_t coordinate)
 {
-    static real_t (* saved_generator) (size_t) = (real_t (* generator) (size_t))(NULL);
-
-    if (generator)
-        saved_generator = generator;
-
-    return saved_generator;
-}
-
-real_t perturbate (size_t i, size_t coordinate)
-{
-    static real_t r = 0.0;
-    static real_t phi = 0.0;
-
-    const real_t* P;
-    const real_t* l;
-
     real_t return_value;
-
-    P = (real_t*)(NULL);
 
     return_value = 0.0;
 
-    if (
-        i < saved_nn_integer((size_t*)(NULL)) &&
-        (coordinate == 0U || coordinate == 1U)
-    )
+    ++i;
+
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
+
+    printf(
+        "Enter %c-coordinate of the %lu%s point: ",
+            (coordinate == 0U) ? 'x' : ((coordinate == 1U) ? 'y' : '?'),
+            i,
+            (i % 100U == 11U || i % 100U == 12U || i % 100U == 13U) ?
+                "th" :
+                (
+                    (i % 10U == 1U) ?
+                        "st" :
+                        (
+                            (i % 10U == 2U) ?
+                                "nd" :
+                                ((i % 10U == 3U) ? "rd" : "th")
+                        )
+                )
+    );
+
+    do
     {
-        l = saved_lengths((real_t*)(NULL));
-        P = saved_polygon((real_t*)(NULL));
-
-        if (coordinate == 0U)
-        {
-            r = (
-                rrandn() *
-                rmin(*(l + decmod(i, saved_nn_integer((size_t*)(NULL)))), *(l + i))
-            );
-            phi = (real_t)((long double)rrand() * (PI));
-        }
-
-        return_value = *(P + 2U * i + coordinate);
-
-        return_value += (
-            (coordinate == 0U) ?
-                (r * rcos(phi)) :
-                ((coordinate == 1U) ? (r * rsin(phi)) : 0.0)
-        );
+        /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+        fflush(stdin);
+        fflush(stdout);
+        fflush(stderr);
     }
+    while (!(scanf(" %lf", &return_value) == 1));
+
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
 
     return return_value;
 }
@@ -218,10 +430,104 @@ real_t perturbate (size_t i, size_t coordinate)
  * @return
  *     Value returned by calling `rrand()`.
  *
+ * @see rrand
+ * @see random_polygon
+ * @see smart_random_polygon
+ *
  */
 real_t random_coordinate (size_t i, size_t coordinate)
 {
     return rrand();
+}
+
+/**
+ * Generate a coordinate by perturbating the saved coordinate.
+ *
+ * The coordinates are being generated by using the values saved to the
+ * `saved_polygon` function and perturbating them by generating a uniformly
+ * distributed angle from the interval [0, pi] (using the `rrand` function) and
+ * by generating a normally distributed length (using the `rrandn` function) and
+ * then translating the original point in the generated direction so that the
+ * distance from the original point and the generated point equals the absolute
+ * value of the generated length.  If the generated length is negative, the
+ * effect is the same as if the generated angle was incremented by pi and the
+ * length was positive (absolute value of the negative length).  The standard
+ * deviation of the generated length is computed by taking the absolute value
+ * (using the `rabs` function) of the value returned by the function saved to
+ * the `saved_len_generator` function by passing the value of the parameter `i`
+ * as the argument.  The angle and the length are generated only when the
+ * value of the parameter `coordinate` is 0 (when the x-coordinate is to be
+ * generated).
+ *
+ * The purpose of the function is to pass it as the argument to the
+ * `random_polygon` and the `smart smart_random_polygon` functions.
+ *
+ * Caution: the function uses static variables to save the generated values. If
+ * more than one thread needs to call the function and it is likely that they
+ * will do it in the same time, use a blocking mechanism such as mutex to
+ * prevent interference.
+ *
+ * @param i
+ *     Index of the point (vertex).
+ *
+ * @param coordinate
+ *     Coordinate of the point (0 being the x-coordinate and 1 being the
+ *     y-coordinate).
+ *
+ * @return
+ *     Perturbated coordinate.
+ *
+ * @see rabs
+ * @see rrand
+ * @see rrandn
+ * @see saved_len_generator
+ * @see random_polygon
+ * @see smart_random_polygon
+ *
+ */
+real_t perturbate (size_t i, size_t coordinate)
+{
+    /* Numerical approximation of the mathematical constant pi. */
+    static const real_t pi =
+        3.1415926535897932384626433832795028841971693993751058209749445923;
+
+    static real_t r = 0.0;
+    static real_t phi = 0.0;
+
+    real_t (* generator) (size_t);
+
+    const real_t* P;
+
+    real_t return_value;
+
+    generator = (real_t (*) (size_t))(NULL);
+
+    P = (real_t*)(NULL);
+
+    return_value = 0.0;
+
+    if (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U))
+    {
+        generator = saved_len_generator((real_t (*) (size_t))(NULL));
+
+        P = saved_polygon((real_t*)(NULL));
+
+        if (coordinate == 0U)
+        {
+            r = rrandn() * rabs((*generator)(i));
+            phi = (real_t)(rrand() * pi);
+        }
+
+        return_value = *(P + 2U * i + coordinate);
+
+        return_value += (
+            (coordinate == 0U) ?
+                (r * rcos(phi)) :
+                ((coordinate == 1U) ? (r * rsin(phi)) : 0.0)
+        );
+    }
+
+    return return_value;
 }
 
 /**
@@ -575,6 +881,11 @@ int main (int argc, char** argv)
     memset(l, 0, N * n * sizeof *l);
     memset(phi, 0, N * n * sizeof *phi);
 
+    /* Save values and functions for generating new values. */
+    saved_number(1.0);
+    saved_comb_function(rmin);
+    saved_len_generator(combiner_length);
+
     /* Attempt to generate an `n`-gon ATTEMPT_MAX times at the most. */
     for (i = 0U; i < (ATTEMPT_MAX); ++i)
     {
@@ -586,10 +897,14 @@ int main (int argc, char** argv)
         smart_random_polygon(
             n,
             P,
-            random_coordinate,
+            scan_coordinate,
             OUT_ITER_MAX,
             IN_ITER_MAX
         );
+
+        /* Reorder the vertices by flipping the array from index 2 to the
+         * end. */
+        flip(P + 2U, n - 1U, 2U * sizeof *P);
 
         /* Simplify and check the array for the polygon.  If the array
          * represents a true `n`-gon, break the `for`-loop. */
@@ -633,7 +948,7 @@ int main (int argc, char** argv)
 
     /* Save the number of vertices, array of points and arrays of edges' lengths
      * and outer edges. */
-    saved_nn_integer(&n);
+    saved_nn_integer(n);
     saved_polygon(P);
     saved_lengths(l);
     saved_angles(phi);
@@ -650,6 +965,10 @@ int main (int argc, char** argv)
             /* Generate an array of `n` points using the `random_polygon`
              * function. */
             random_polygon(n, P + 2U * j * n, perturbate);
+
+            /* Reorder the vertices by flipping the array from index 2 to the
+             * end. */
+            flip(P + 2U * j * n + 2U, n - 1U, 2U * sizeof *P);
 
             /* Simplify and check the array for the polygon.  If the array
              * represents a true `n`-gon, break the `for`-loop. */

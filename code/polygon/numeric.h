@@ -657,9 +657,8 @@ real_t rrandn ()
     /* DECLARATION OF VARIABLES */
 
     /* Numerical approximation of the mathematical constant pi. */
-    static const real_t pi = (real_t)(
-        3.1415926535897932384626433832795028841971693993751058209749445923L
-    );
+    static const real_t pi =
+        3.1415926535897932384626433832795028841971693993751058209749445923;
 
     /* Flag for indicating if the last call was an odd call. */
     static bool odd = false;
@@ -735,6 +734,8 @@ real_t rrandn ()
  *    If `x` and `y` are not null-pointers, value -1 if `*x` < `*y`, value 0 if
  *    `*x` == `*y` and value 1 if `*x` > `*y` (where `x` and `y` are viewed as
  *    pointers of type `const real_t*`).
+ *
+ * @see qsort
  *
  */
 #if !defined(__cplusplus)
