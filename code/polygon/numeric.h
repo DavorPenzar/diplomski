@@ -192,9 +192,13 @@ inline real_t rmin (real_t x, real_t y)
 constexpr inline real_t rmin (const real_t x, const real_t y)
 #endif /* __cplusplus */
 {
-    return (x < y) ?
+    return (x == y) ?
         ((x == 0.0) ? 0.0 : x) :
-        ((y < x) ? ((y == 0.0) ? 0.0 : y) : 0.0);
+        (
+            (x < y) ?
+                ((x == 0.0) ? 0.0 : x) :
+                ((y < x) ? ((y == 0.0) ? 0.0 : y) : 0.0)
+        );
 }
 
 /**
@@ -218,9 +222,13 @@ inline real_t rmax (real_t x, real_t y)
 constexpr inline real_t rmax (const real_t x, const real_t y)
 #endif /* __cplusplus */
 {
-    return (x < y) ?
+    return (x == y) ?
         ((y == 0.0) ? 0.0 : y) :
-        ((y < x) ? ((x == 0.0) ? 0.0 : x) : 0.0);
+        (
+            (x < y) ?
+                ((y == 0.0) ? 0.0 : y) :
+                ((y < x) ? ((x == 0.0) ? 0.0 : x) : 0.0)
+        );
 }
 
 /**
