@@ -140,9 +140,9 @@ real_t* random_polygon (
         /* Allocate the memory for the array `P` if necessary. */
         if (!P)
 #if !defined(__cplusplus)
-            P = (real_t*)malloc(2U * n * sizeof *P);
+            P = (real_t*)malloc((n << 1U) * sizeof *P);
 #else
-            P = new real_t[2U * n];
+            P = new real_t[n << 1U];
 #endif /* __cplusplus */
 
         /* If the memory allocation has failed, break the `do while`-loop. */
@@ -151,9 +151,9 @@ real_t* random_polygon (
 
         /* Initialise the array of points to zeros. */
 #if !defined(__cplusplus)
-        memset(P, 0, 2U * n * sizeof *P);
+        memset(P, 0, (n << 1U) * sizeof *P);
 #else
-        ::memset(P, 0, 2U * n * sizeof *P);
+        ::memset(P, 0, (n << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
         /* Fill the array with random coordinates. */
@@ -378,9 +378,9 @@ real_t* smart_random_polygon (
         /* Allocate the memory for the array `P` if necessary. */
         if (P_null)
 #if !defined(__cplusplus)
-            P = (real_t*)malloc(2U * n * sizeof *P);
+            P = (real_t*)malloc((n << 1U) * sizeof *P);
 #else
-            P = new real_t[2U * n];
+            P = new real_t[n << 1U];
 #endif /* __cplusplus */
 
         /* If the memory allocation has failed, break the `do while`-loop. */
@@ -389,9 +389,9 @@ real_t* smart_random_polygon (
 
         /* Initialise the array of points to zeros. */
 #if !defined(__cplusplus)
-        memset(P, 0, 2U * n * sizeof *P);
+        memset(P, 0, (n << 1U) * sizeof *P);
 #else
-        ::memset(P, 0, 2U * n * sizeof *P);
+        ::memset(P, 0, (n << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
         /* If the maximal number of outer and inner iterations is 0, set all
@@ -429,9 +429,9 @@ real_t* smart_random_polygon (
         {
             /* Initialise the array of points to zeros. */
 #if !defined(__cplusplus)
-            memset(P, 0, 2U * n * sizeof *P);
+            memset(P, 0, (n << 1U) * sizeof *P);
 #else
-            ::memset(P, 0, 2U * n * sizeof *P);
+            ::memset(P, 0, (n << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
             /* Extract the coordinates of the first point---point P_i0. */
@@ -462,7 +462,7 @@ real_t* smart_random_polygon (
                 y_i0 = y_i1;
 
                 /* Extract the coordinates of the `i`-th point---point P_i1. */
-                x_i1 = P + 2U * i;
+                x_i1 = P + (i << 1U);
                 y_i1 = x_i1 + 1U;
 
                 /* Set the flag `bad` to `true` (assume the requirements are not
@@ -493,12 +493,12 @@ real_t* smart_random_polygon (
                     {
                         /* Extract the coordinates of the `j`-th point---point
                          * P_j0. */
-                        x_j0 = P + 2U * j;
+                        x_j0 = P + (j << 1U);
                         y_j0 = x_j0 + 1U;
 
                         /* Extract the coordinates of the ((`j` + 1) mod n)-th
                          * point---point P_j1. */
-                        x_j1 = P + 2U * incmod(j, n);
+                        x_j1 = P + (incmod(j, n) << 1U);
                         y_j1 = x_j1 + 1U;
 
                         /* If the point P_j0 is in fact point P_i1 or the point
@@ -608,9 +608,9 @@ real_t* smart_random_polygon (
         {
             /* Clear the memory in the array. */
 #if !defined(__cplusplus)
-            memset(P, 0, 2U * n * sizeof *P);
+            memset(P, 0, (n << 1U) * sizeof *P);
 #else
-            ::memset(P, 0, 2U * n * sizeof *P);
+            ::memset(P, 0, (n << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
             /* Deallocate the memory. */
@@ -740,12 +740,28 @@ real_t* simplify_polygon (::size_t n, real_t* P)
     k = 0U;
 
     /* Auxiliary pointers to coordinates of points. */
-    x_0 = P;
-    y_0 = x_0 + 1U;
-    x_1 = P;
-    y_1 = x_1 + 1U;
-    x_2 = P;
-    y_2 = x_2 + 1U;
+#if !defined(__cplusplus)
+    x_0 = (real_t*)(NULL);
+    y_0 = (real_t*)(NULL);
+    x_1 = (real_t*)(NULL);
+    y_1 = (real_t*)(NULL);
+    x_2 = (real_t*)(NULL);
+    y_2 = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_0 = reinterpret_cast<real_t*>(NULL);
+    y_0 = reinterpret_cast<real_t*>(NULL);
+    x_1 = reinterpret_cast<real_t*>(NULL);
+    y_1 = reinterpret_cast<real_t*>(NULL);
+    x_2 = reinterpret_cast<real_t*>(NULL);
+    y_2 = reinterpret_cast<real_t*>(NULL);
+#else
+    x_0 = nullptr;
+    y_0 = nullptr;
+    x_1 = nullptr;
+    y_1 = nullptr;
+    x_2 = nullptr;
+    y_2 = nullptr;
+#endif /* __cplusplus */
 
     /* Differences in coordinates. */
     dx_0_1 = 0.0;
@@ -776,7 +792,7 @@ real_t* simplify_polygon (::size_t n, real_t* P)
     for (i = 0U; i < n; ++i)
     {
         /* Extract the coordinates of the `i`-th point---point P_0. */
-        x_0 = P + 2U * i;
+        x_0 = P + (i << 1U);
         y_0 = x_0 + 1U;
 
         /* Initialise the number `m` to the value of `n`. */
@@ -787,7 +803,7 @@ real_t* simplify_polygon (::size_t n, real_t* P)
         for (j = incmod(i, n); j != i; j = incmod(j, n))
         {
             /* Extract the coordinates of the `j`-th point. */
-            x_1 = P + 2U * j;
+            x_1 = P + (j << 1U);
             y_1 = x_1 + 1U;
 
             /* If the `j`-th point is different from the point P_0, break the
@@ -835,7 +851,7 @@ real_t* simplify_polygon (::size_t n, real_t* P)
         for (k = incmod(j, n); k != i; k = incmod(k, n))
         {
             /* Extract the coordinates of the `j`-th point. */
-            x_2 = P + 2U * k;
+            x_2 = P + (k << 1U);
             y_2 = x_2 + 1U;
 
             /* Compute the differences in coordinates of points P_0 and the
@@ -884,9 +900,9 @@ real_t* simplify_polygon (::size_t n, real_t* P)
 
         /* Allocate memory for an auxiliary array of points. */
 #if !defined(__cplusplus)
-        Q = (real_t*)malloc(2U * m * sizeof *Q);
+        Q = (real_t*)malloc((m << 1U) * sizeof *Q);
 #else
-        Q = new real_t[2U * m];
+        Q = new real_t[m << 1U];
 #endif /* __cplusplus */
 
         /* If the memory allocation has failed, break the `for`-loop. */
@@ -895,9 +911,9 @@ real_t* simplify_polygon (::size_t n, real_t* P)
 
         /* Initialise the auxiliary array of points to zeros. */
 #if !defined(__cplusplus)
-        memset(Q, 0, 2U * m * sizeof *Q);
+        memset(Q, 0, (m << 1U) * sizeof *Q);
 #else
-        ::memset(Q, 0, 2U * m * sizeof *Q);
+        ::memset(Q, 0, (m << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
         /* Set the coordinates of the 0th point in the auxiliary array to
@@ -913,46 +929,46 @@ real_t* simplify_polygon (::size_t n, real_t* P)
         if (n + 1U - k < m)
         {
 #if !defined(__cplusplus)
-            memcpy(Q + 2U, P + 2U * k, 2U * (n - k) * sizeof *P);
+            memcpy(Q + 2U, P + (k << 1U), ((n - k) << 1U) * sizeof *P);
             memcpy(
-                Q + 2U * (n - k) + 2U,
+                Q + ((n - k) << 1U) + 2U,
                 P,
-                (2U * (m + k - n) - 2U) * sizeof *P
+                (((m + k - n) << 1U) - 2U) * sizeof *P
             );
 #else
-            ::memcpy(Q + 2U, P + 2U * k, 2U * (n - k) * sizeof *P);
+            ::memcpy(Q + 2U, P + (k << 1U), ((n - k) << 1U) * sizeof *P);
             ::memcpy(
-                Q + 2U * (n - k) + 2U,
+                Q + ((n - k) << 1U) + 2U,
                 P,
-                (2U * (m + k - n) - 2U) * sizeof *P
+                (((m + k - n) << 1U) - 2U) * sizeof *P
             );
 #endif /* __cplusplus */
         }
         else
 #if !defined(__cplusplus)
-            memcpy(Q + 2U, P + 2U * k, (2U * m - 2U) * sizeof *P);
+            memcpy(Q + 2U, P + (k << 1U), ((m << 1U) - 2U) * sizeof *P);
 #else
-            ::memcpy(Q + 2U, P + 2U * k, (2U * m - 2U) * sizeof *P);
+            ::memcpy(Q + 2U, P + (k << 1U), ((m << 1U) - 2U) * sizeof *P);
 #endif /* __cplusplus */
 
         /* Copy the content from the auxiliary array to the beginning of the
          * original array. */
 #if !defined(__cplusplus)
-        memcpy(P, Q, 2U * m * sizeof *Q);
+        memcpy(P, Q, (m << 1U) * sizeof *Q);
 #else
-        ::memcpy(P, Q, 2U * m * sizeof *Q);
+        ::memcpy(P, Q, (m << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
         /* Annul all the points from the index `m` until the end in the original
          * array. */
-        for (j = 2U * m; (j >> 1U) < n; ++j)
+        for (j = (m << 1U); (j >> 1U) < n; ++j)
             *(P + j) = lambda;
 
         /* Clear the memory in the auxiliary array. */
 #if !defined(__cplusplus)
-        memset(Q, 0, 2U * m * sizeof *Q);
+        memset(Q, 0, (m << 1U) * sizeof *Q);
 #else
-        ::memset(Q, 0, 2U * m * sizeof *Q);
+        ::memset(Q, 0, (m << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
         /* Deallocate the memory allocated for the auxiliary array. */
@@ -977,7 +993,7 @@ real_t* simplify_polygon (::size_t n, real_t* P)
     }
 
     /* Return the pointer to the first deleted point (if any). */
-    return P + 2U * n;
+    return P + (n << 1U);
 }
 
 /**
@@ -1082,14 +1098,34 @@ void correct_polygon_orientation (::size_t n, real_t* P)
     j = 0U;
 
     /* Pointers to coordinates of the first point. */
-    x_v = P;
-    y_v = x_v + 1U;
+#if !defined(__cplusplus)
+    x_v = (real_t*)(NULL);
+    y_v = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_v = reinterpret_cast<real_t*>(NULL);
+    y_v = reinterpret_cast<real_t*>(NULL);
+#else
+    x_v = nullptr;
+    y_v = nullptr;
+#endif /* __cplusplus */
 
     /* Auxiliary pointers to coordinates of points. */
-    x_i = P;
-    y_i = x_i + 1U;
-    x_j = P;
-    y_j = x_j + 1U;
+#if !defined(__cplusplus)
+    x_i = (real_t*)(NULL);
+    y_i = (real_t*)(NULL);
+    x_j = (real_t*)(NULL);
+    y_j = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_i = reinterpret_cast<real_t*>(NULL);
+    y_i = reinterpret_cast<real_t*>(NULL);
+    x_j = reinterpret_cast<real_t*>(NULL);
+    y_j = reinterpret_cast<real_t*>(NULL);
+#else
+    x_i = nullptr;
+    y_i = nullptr;
+    x_j = nullptr;
+    y_j = nullptr;
+#endif /* __cplusplus */
 
     /* ALGORITHM */
 
@@ -1113,12 +1149,18 @@ void correct_polygon_orientation (::size_t n, real_t* P)
         if (n < 2U)
             break;
 
+        /* Initialise the index `v` to 0 and pointers to coordinates of the
+         * point P_v to coordinates of the first point. */
+        v = 0U;
+        x_v = P;
+        y_v = x_v + 1U;
+
         /* Iterate over the rest of the points to find the true first point
          * (when the array is correctly ordered). */
         for (i = 1U; i < n; ++i)
         {
             /* Extract the coordinates of the `i`-th point---point P_i. */
-            x_i = P + 2U * i;
+            x_i = P + (i << 1U);
             y_i = x_i + 1U;
 
             /* If the second coordinate of the point P_i is strictly smaller
@@ -1146,9 +1188,9 @@ void correct_polygon_orientation (::size_t n, real_t* P)
 
         /* Extract the (pointers to the) last and the second point in the
          * array. */
-        x_i = P + 2U * i;
+        x_i = P + (i << 1U);
         y_i = x_i + 1U;
-        x_j = P + 2U * j;
+        x_j = P + (j << 1U);
         y_j = x_j + 1U;
 
         /* If the index `v` is not 0 (if another point must be on the beginning
@@ -1157,9 +1199,9 @@ void correct_polygon_orientation (::size_t n, real_t* P)
         {
             /* Allocate memory for the auxiliary array of points. */
 #if !defined(__cplusplus)
-            Q = (real_t*)malloc(2U * n * sizeof *Q);
+            Q = (real_t*)malloc((n << 1U) * sizeof *Q);
 #else
-            Q = new real_t[2U * n];
+            Q = new real_t[n << 1U];
 #endif /* __cplusplus */
 
             /* If the memory allocation has failed, break the
@@ -1169,34 +1211,34 @@ void correct_polygon_orientation (::size_t n, real_t* P)
 
             /* Initialise the auxiliary array of points to zeros. */
 #if !defined(__cplusplus)
-            memset(Q, 0, 2U * n * sizeof *Q);
+            memset(Q, 0, (n << 1U) * sizeof *Q);
 #else
-            ::memset(Q, 0, 2U * n * sizeof *Q);
+            ::memset(Q, 0, (n << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
             /* Copy the content from the original array to the auxiliary
              * array. */
 #if !defined(__cplusplus)
-            memcpy(Q, P + 2U * v, 2U * (n - v) * sizeof *P);
-            memcpy(Q + 2U * (n - v), P, 2U * v * sizeof *P);
+            memcpy(Q, P + (v << 1U), ((n - v) << 1U) * sizeof *P);
+            memcpy(Q + ((n - v) << 1U), P, (v << 1U) * sizeof *P);
 #else
-            ::memcpy(Q, P + 2U * v, 2U * (n - v) * sizeof *P);
-            ::memcpy(Q + 2U * (n - v), P, 2U * v * sizeof *P);
+            ::memcpy(Q, P + (v << 1U), ((n - v) << 1U) * sizeof *P);
+            ::memcpy(Q + ((n - v) << 1U), P, (v << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
             /* Copy the content from the auxiliary array to the original
              * array. */
 #if !defined(__cplusplus)
-            memcpy(P, Q, 2U * n * sizeof *Q);
+            memcpy(P, Q, (n << 1U) * sizeof *Q);
 #else
-            ::memcpy(P, Q, 2U * n * sizeof *Q);
+            ::memcpy(P, Q, (n << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
             /* Clear the memory in the auxiliary array. */
 #if !defined(__cplusplus)
-            memset(Q, 0, 2U * n * sizeof *Q);
+            memset(Q, 0, (n << 1U) * sizeof *Q);
 #else
-            ::memset(Q, 0, 2U * n * sizeof *Q);
+            ::memset(Q, 0, (n << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
             /* Deallocate the memory allocated for the auxiliary array. */
@@ -1238,7 +1280,7 @@ void correct_polygon_orientation (::size_t n, real_t* P)
             ) == sign_t::minus
         )
 #endif /* __cplusplus */
-            flip(P + 2U, n - 1U, 2U * sizeof *P);
+            flip(P + 2U, n - 1U, (sizeof *P) << 1U);
     }
     while (false);
 }
@@ -1308,8 +1350,16 @@ void centralise_polygon (::size_t n, real_t* P)
     i = 0U;
 
     /* Auxiliary pointers to coordinates of points. */
-    x_i = P;
-    y_i = x_i + 1U;
+#if !defined(__cplusplus)
+    x_i = (real_t*)(NULL);
+    y_i = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_i = reinterpret_cast<real_t*>(NULL);
+    y_i = reinterpret_cast<real_t*>(NULL);
+#else
+    x_i = nullptr;
+    y_i = nullptr;
+#endif /* __cplusplus */
 
     /* ALGORITHM */
 
@@ -1337,15 +1387,15 @@ void centralise_polygon (::size_t n, real_t* P)
          * point. */
         x_min = *P;
         y_min = *(P + 1U);
-        x_max = *P;
-        y_max = *(P + 1U);
+        x_max = x_min;
+        y_max = y_min;
 
         /* Iterate over the rest of the points to find the most extreme
          * coordinates. */
         for (i = 1U; i < n; ++i)
         {
             /* Extract the coordinates of the `i`-th point. */
-            x_i = P + 2U * i;
+            x_i = P + (i << 1U);
             y_i = x_i + 1U;
 
             /* If either of the current point's coordinates is more extreme than
@@ -1466,14 +1516,34 @@ bool check_polygon (::size_t n, const real_t* P)
     j = 0U;
 
     /* Auxiliary pointers to coordinates of points. */
-    x_i0 = P;
-    y_i0 = x_i0 + 1U;
-    x_i1 = P;
-    y_i1 = x_i1 + 1U;
-    x_j0 = P;
-    y_j0 = x_j0 + 1U;
-    x_j1 = P;
-    y_j1 = x_j1 + 1U;
+#if !defined(__cplusplus)
+    x_i0 = (real_t*)(NULL);
+    y_i0 = (real_t*)(NULL);
+    x_i1 = (real_t*)(NULL);
+    y_i1 = (real_t*)(NULL);
+    x_j0 = (real_t*)(NULL);
+    y_j0 = (real_t*)(NULL);
+    x_j1 = (real_t*)(NULL);
+    y_j1 = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_i0 = reinterpret_cast<real_t*>(NULL);
+    y_i0 = reinterpret_cast<real_t*>(NULL);
+    x_i1 = reinterpret_cast<real_t*>(NULL);
+    y_i1 = reinterpret_cast<real_t*>(NULL);
+    x_j0 = reinterpret_cast<real_t*>(NULL);
+    y_j0 = reinterpret_cast<real_t*>(NULL);
+    x_j1 = reinterpret_cast<real_t*>(NULL);
+    y_j1 = reinterpret_cast<real_t*>(NULL);
+#else
+    x_i0 = nullptr;
+    y_i0 = nullptr;
+    x_i1 = nullptr;
+    y_i1 = nullptr;
+    x_j0 = nullptr;
+    y_j0 = nullptr;
+    x_j1 = nullptr;
+    y_j1 = nullptr;
+#endif /* __cplusplus */
 
     /* Differences in coordinates. */
     dx_i = 0.0;
@@ -1521,12 +1591,12 @@ bool check_polygon (::size_t n, const real_t* P)
     for (i = 0U; answer && i < n; ++i)
     {
         /* Extract the coordinates of the `i`-th point---point P_i0. */
-        x_i0 = P + 2U * i;
+        x_i0 = P + (i << 1U);
         y_i0 = x_i0 + 1U;
 
         /* Extract the coordinates of the ((`i` + 1) mod n)-th point---point
          * P_i1. */
-        x_i1 = P + 2U * incmod(i, n);
+        x_i1 = P + (incmod(i, n) << 1U);
         y_i1 = x_i1 + 1U;
 
         /* If the points P_i0 and P_i1 are coordinately the same, set the answer
@@ -1545,7 +1615,7 @@ bool check_polygon (::size_t n, const real_t* P)
         j = decmod(i, n);
 
         /* Extract the coordinates of the `j`-th point. */
-        x_j1 = P + 2U * j;
+        x_j1 = P + (j << 1U);
         y_j1 = x_j1 + 1U;
 
         /* If the point P_i0 is on the line through the `j`-th point and the
@@ -1571,12 +1641,12 @@ bool check_polygon (::size_t n, const real_t* P)
         for (j = i + 2U; j < n; ++j)
         {
             /* Extract the coordinates of the `j`-th point---point P_j0. */
-            x_j0 = P + 2U * j;
+            x_j0 = P + (j << 1U);
             y_j0 = x_j0 + 1U;
 
             /* Extract the coordinates of the ((`j` + 1) mod n)-th point---
              * point P_j1. */
-            x_j1 = P + 2U * incmod(j, n);
+            x_j1 = P + (incmod(j, n) << 1U);
             y_j1 = x_j1 + 1U;
 
             /* If the point P_j0 is in fact point P_i1 or the point P_j1 is in
@@ -1715,9 +1785,9 @@ bool simplify_check_polygon (::size_t* n, real_t* P)
 
         /* Simplify the array and update the number `*n`. */
 #if !defined(__cplusplus)
-        *n = (size_t)(simplify_polygon(*n, P) - P) / 2U;
+        *n = (size_t)(simplify_polygon(*n, P) - P) >> 1U;
 #else
-        *n = static_cast<size_t>(simplify_polygon(*n, P) - P) / 2U;
+        *n = static_cast<size_t>(simplify_polygon(*n, P) - P) >> 1U;
 #endif /* __cplusplus */
 
         /* Check for the polygon and update the answer. */
@@ -1795,10 +1865,22 @@ real_t diameter_polygon (::size_t n, const real_t* P, bool sq)
     j = 0U;
 
     /* Auxiliary pointers to coordinates of points. */
-    x_0 = P;
-    y_0 = x_0 + 1U;
-    x_1 = P;
-    y_1 = x_1 + 1U;
+#if !defined(__cplusplus)
+    x_0 = (real_t*)(NULL);
+    y_0 = (real_t*)(NULL);
+    x_1 = (real_t*)(NULL);
+    y_1 = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_0 = reinterpret_cast<real_t*>(NULL);
+    y_0 = reinterpret_cast<real_t*>(NULL);
+    x_1 = reinterpret_cast<real_t*>(NULL);
+    y_1 = reinterpret_cast<real_t*>(NULL);
+#else
+    x_0 = nullptr;
+    y_0 = nullptr;
+    x_1 = nullptr;
+    y_1 = nullptr;
+#endif /* __cplusplus */
 
     /* Differences in coordinates. */
     dx = 0.0;
@@ -1819,7 +1901,7 @@ real_t diameter_polygon (::size_t n, const real_t* P, bool sq)
     for (i = 0U; i < n; ++i)
     {
         /* Extract the coordinates of the `i`-th point. */
-        x_0 = P + 2U * i;
+        x_0 = P + (i << 1U);
         y_0 = x_0 + 1U;
 
         /* Iterate over the remaining points and check the distances from the
@@ -1827,7 +1909,7 @@ real_t diameter_polygon (::size_t n, const real_t* P, bool sq)
         for (j = i + 1U; j < n; ++j)
         {
             /* Extract the coordinates of the `j`-th point. */
-            x_1 = P + 2U * j;
+            x_1 = P + (j << 1U);
             y_1 = x_1 + 1U;
 
             /* Compute the differences in coordinates of the `i`-th and the
@@ -1910,7 +1992,7 @@ void standardise_polygon (::size_t n, real_t* P)
 
     /* If the diameter is 0, iterate over the points and set their coordinates
      * to (0, 0). */
-    if (d == 0)
+    if (d == 0.0)
         for (i = 0U; (i >> 1U) < n; ++i)
             *(P + i) = 0.0;
     /* Otherwise iterate over the points and divide their coordinates by `d`. */
@@ -2017,12 +2099,28 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
     k = 0U;
 
     /* Auxiliary pointers to coordinates of points. */
-    x_i = P;
-    y_i = x_i + 1U;
-    x_j = P;
-    y_j = x_i + 1U;
-    x_k = P;
-    y_k = x_i + 1U;
+#if !defined(__cplusplus)
+    x_i = (real_t*)(NULL);
+    y_i = (real_t*)(NULL);
+    x_j = (real_t*)(NULL);
+    y_j = (real_t*)(NULL);
+    x_k = (real_t*)(NULL);
+    y_k = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_i = reinterpret_cast<real_t*>(NULL);
+    y_i = reinterpret_cast<real_t*>(NULL);
+    x_j = reinterpret_cast<real_t*>(NULL);
+    y_j = reinterpret_cast<real_t*>(NULL);
+    x_k = reinterpret_cast<real_t*>(NULL);
+    y_k = reinterpret_cast<real_t*>(NULL);
+#else
+    x_i = nullptr;
+    y_i = nullptr;
+    x_j = nullptr;
+    y_j = nullptr;
+    x_k = nullptr;
+    y_k = nullptr;
+#endif /* __cplusplus */
 
     /* Differences in coordinates. */
     dx_i = 0.0;
@@ -2060,11 +2158,11 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
 
         /* Ektract the coordinates of the `i`-th, the `j`-th and the `k`-th
          * points---points `P_i`, `P_j` and `P_k` respectively. */
-        x_i = P + 2U * i;
+        x_i = P + (i << 1U);
         y_i = x_i + 1U;
-        x_j = P + 2U * j;
+        x_j = P + (j << 1U);
         y_j = x_j + 1U;
-        x_k = P + 2U * k;
+        x_k = P + (k << 1U);
         y_k = x_k + 1U;
 
         /* Compute the diferences in coordinates of points P_i and P_j, and

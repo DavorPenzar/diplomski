@@ -212,7 +212,7 @@ int main (int argc, char** argv)
     }
 
     /* Allocate the memory for the polygons. */
-    P = (real_t*)malloc(2U * N * n * sizeof *P);
+    P = (real_t*)malloc(((N * n) << 1U) * sizeof *P);
 
     /* If the memory allocation has failed, print the error message and exit
      * with a non-zero value. */
@@ -226,7 +226,7 @@ int main (int argc, char** argv)
     }
 
     /* Initialise the array `P` to zeros. */
-    memset(P, 0, 2U * N * n * sizeof *P);
+    memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
     /* Allocate memory for the arrays of the edges' lengths and the outer
      * angles. */
@@ -277,14 +277,14 @@ int main (int argc, char** argv)
         smart_random_polygon(
             n,
             P,
-            scan_coordinate,
+            random_coordinate,
             OUT_ITER_MAX,
             IN_ITER_MAX
         );
 
         /* Reorder the vertices by flipping the array from index 2 to the
          * end. */
-        flip(P + 2U, n - 1U, 2U * sizeof *P);
+        flip(P + 2U, n - 1U, (sizeof *P) << 1U);
 
         /* Simplify and check the array for the polygon.  If the array
          * represents a true `n`-gon, break the `for`-loop. */
@@ -293,7 +293,7 @@ int main (int argc, char** argv)
                 break;
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 2U * n * sizeof *P);
+        memset(P, 0, ((N * n) << 1U) * sizeof *P);
     }
 
     /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
@@ -309,7 +309,7 @@ int main (int argc, char** argv)
         printf("No true %lu-gon found.\n", n);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 2U * N * n * sizeof *P);
+        memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
         /* Deallocate the memory allocated for the array of points. */
         free(P);
@@ -337,20 +337,20 @@ int main (int argc, char** argv)
 
             /* Generate an array of `n` points using the `random_polygon`
              * function. */
-            random_polygon(n, P + 2U * j * n, perturbate_coordinate);
+            random_polygon(n, P + ((j * n) << 1U), perturbate_coordinate);
 
             /* Reorder the vertices by flipping the array from index 2 to the
              * end. */
-            flip(P + 2U * j * n + 2U, n - 1U, 2U * sizeof *P);
+            flip(P + ((j * n) << 1U) + 2U, n - 1U, (sizeof *P) << 1U);
 
             /* Simplify and check the array for the polygon.  If the array
              * represents a true `n`-gon, break the `for`-loop. */
-            if (simplify_check_polygon(&n_true, P + 2U * j * n))
+            if (simplify_check_polygon(&n_true, P + ((j * n) << 1U)))
                 if (n_true == n)
                     break;
 
             /* Clear the memory in the array of points. */
-            memset(P + 2U * j * n, 0, 2U * n * sizeof *P);
+            memset(P + ((j * n) << 1U), 0, (n << 1U) * sizeof *P);
         }
 
         /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
@@ -378,7 +378,7 @@ int main (int argc, char** argv)
             phi = (real_t*)(NULL);
 
             /* Clear the memory in the array of points. */
-            memset(P, 0, 2U * N * n * sizeof *P);
+            memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
             /* Deallocate the memory allocated for the array of points. */
             free(P);
@@ -389,11 +389,11 @@ int main (int argc, char** argv)
         }
 
         /* Normalise the perturbated polygon. */
-        normalise_polygon(n, P + 2U * j * n);
+        normalise_polygon(n, P + ((j * n) << 1U));
 
         /* Compute the edges' lengths and the outer angles of the original
          * polygon. */
-        describe_polygon(n, P + 2U * j * n, l + j * n, phi + j * n);
+        describe_polygon(n, P + ((j * n) << 1U), l + j * n, phi + j * n);
     }
 
     /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
@@ -408,7 +408,7 @@ int main (int argc, char** argv)
     /* Clear the memory in the arrays of the edges' lengths and the outer
      * angles. */
     memset(l, 0, N * n * sizeof *l);
-    memset(phi, 0, N * n * sizeof *l);
+    memset(phi, 0, N * n * sizeof *phi);
 
     /* Deallocate the memory allocated for the arrays of the edges' lengths and
      * the outer angles. */
@@ -418,7 +418,7 @@ int main (int argc, char** argv)
     phi = (real_t*)(NULL);
 
     /* Clear the memory in the array of points. */
-    memset(P, 0, 2U * j * n * sizeof *P);
+    memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
     /* Deallocate the memory allocated for the array of points. */
     free(P);

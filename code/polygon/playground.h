@@ -503,7 +503,7 @@ inline real_t copy_coordinate(::size_t i, ::size_t coordinate)
 #if !defined (__cplusplus)
     return (
         (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
-            *(saved_polygon((real_t*)(NULL)) + 2U * i + coordinate) :
+            *(saved_polygon((real_t*)(NULL)) + (i << 1U) + coordinate) :
             0.0
     );
 #elif (__cplusplus) < 201103L
@@ -511,7 +511,7 @@ inline real_t copy_coordinate(::size_t i, ::size_t coordinate)
         (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
             *(
                 saved_polygon(reinterpret_cast<real_t*>(NULL)) +
-                2U * i +
+                (i << 1U) +
                 coordinate
             ) :
             0.0
@@ -519,7 +519,7 @@ inline real_t copy_coordinate(::size_t i, ::size_t coordinate)
 #else
     return (
         (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
-            *(saved_polygon(nullptr) + 2U * i + coordinate) :
+            *(saved_polygon(nullptr) + (i << 1U) + coordinate) :
             0.0
     );
 #endif /* __cplusplus */
@@ -856,7 +856,7 @@ real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
         }
 
         /* Set the coordinate to the coordinate of the original point. */
-        return_value = *(P + 2U * i + coordinate);
+        return_value = *(P + (i << 1U) + coordinate);
 
         /* Translate the coordinate for the right value. */
         return_value += (
@@ -1024,12 +1024,12 @@ int display (::size_t n, const real_t* P, ::size_t N)
         /* Allocate the memory for the command. */
 #if !defined(__cplusplus)
         command = (char*)malloc(
-            (base_length + N * 16U * n + (N - 1U) * delim_length + 1U) *
+            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
             sizeof *command
         );
 #else
         command = new char[
-            base_length + N * 16U * n + (N - 1U) * delim_length + 1U
+            base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U
         ];
 #endif /* __cplusplus */
 
@@ -1042,15 +1042,15 @@ int display (::size_t n, const real_t* P, ::size_t N)
         memset(
             command,
             0,
-            (base_length + N * 16U * n + (N - 1U) * delim_length + 1U) *
-                sizeof command
+            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
+                sizeof *command
         );
 #else
         ::memset(
             command,
             0,
-            (base_length + N * 16U * n + (N - 1U) * delim_length + 1U) *
-                sizeof command
+            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
+                sizeof *command
         );
 #endif /* __cplusplus */
 
@@ -1064,21 +1064,26 @@ int display (::size_t n, const real_t* P, ::size_t N)
         /* Iterate over the arrays and print the coordinates to the command. */
         for (j = 0U; (j >> 1U) < n; ++j)
 #if !defined(__cplusplus)
-            sprintf(command + base_length + 8U * j, " %7.4f", *(P + j));
+            sprintf(command + base_length + (j << 3U), " %7.4f", *(P + j));
 #else
-            ::sprintf(command + base_length + 8U * j, " %7.4f", *(P + j));
+            ::sprintf(command + base_length + (j << 3U), " %7.4f", *(P + j));
 #endif /* __cplusplus */
         for (i = 1U; i < N; ++i)
         {
 #if !defined(__cplusplus)
             sprintf(
-                command + base_length + 16U * i * n + delim_length * (i - 1U),
+                command +
+                    base_length +
+                    ((i * n) << 4U) +
+                    (i - 1U) * delim_length,
                 "%s",
                     delim
             );
 #else
             ::sprintf(
-                command + base_length + 16U * i * n + delim_length * (i - 1U),
+                command +
+                    base_length +
+                    (i - 1U) * delim_length,
                 "%s",
                     delim
             );
@@ -1088,19 +1093,21 @@ int display (::size_t n, const real_t* P, ::size_t N)
                 sprintf(
                     command +
                         base_length +
-                        i * (16U * n + delim_length) +
-                        8U * j,
+                        ((i * n) << 4U) +
+                        i * delim_length +
+                        (j << 3U),
                     " %7.4f",
-                        *(P + 2U * i * n + j)
+                        *(P + ((i * n) << 1U) + j)
                 );
 #else
                 ::sprintf(
                     command +
                         base_length +
-                        i * (16U * n + delim_length) +
-                        8U * j,
+                        ((i * n) << 4U) +
+                        i * delim_length +
+                        (j << 3U),
                     " %7.4f",
-                        *(P + 2U * i * n + j)
+                        *(P + ((i * n) << 1U) + j)
                 );
 #endif /* __cplusplus */
         }
@@ -1117,15 +1124,15 @@ int display (::size_t n, const real_t* P, ::size_t N)
         memset(
             command,
             0,
-            (base_length + N * 16U * n + (N - 1U) * delim_length + 1U) *
-                sizeof command
+            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
+                sizeof *command
         );
 #else
         ::memset(
             command,
             0,
-            (base_length + N * 16U * n + (N - 1U) * delim_length + 1U) *
-                sizeof command
+            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
+                sizeof *command
         );
 #endif /* __cplusplus */
 
