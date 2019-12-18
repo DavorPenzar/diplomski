@@ -60,5 +60,8 @@ mesh Th = buildmesh(
   Gamma5(14)
 );
 
+// Plot the mesh.
+plot(Th, cmm = "Mesh", wait = true, value = true);
+
 // Compute the first eigenvalue.
 include "numeric.idp"
