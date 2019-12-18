@@ -16,7 +16,7 @@ To plot multiple polygons, seperate their coordinates by a plus, i. e. the
 character `'+'`.  For example, to plot two triangles, use
     ./display x_11 y_11 x_12 y_12 x_13 y_13 + x_21 y_21 x_22 y_22 x_23 y_23
 where (x_ij, y_ij) are coordinates of the j-th vertex of the i-th triangle.
-Do not put a plus on the beginning of the command line arguments or at the end.
+Do not put a plus at the beginning of the command line arguments or at the end.
 
 """
 
@@ -70,7 +70,7 @@ pipes.append(len(sys.argv))
 pipes = copy.deepcopy(pipes)
 
 # Set the style for Matplotlib.
-plt.style.use('bmh')
+#plt.style.use('classic')
 
 # Create a Matplotlib figure and an axis in the figure.
 fig = plt.figure(num = 'Polygon', figsize = (8, 4.5))
