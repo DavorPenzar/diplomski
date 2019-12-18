@@ -1,0 +1,64 @@
+/****************************************************************************/
+/* This file is part of Davor Penzar's master thesis programing.            */
+/*                                                                          */
+/* The file gives an example of how to use the file numeric.idp.  In this   */
+/* file the border of an irregular convex pentagon is defined and a mesh of */
+/* the pentagon is built. At the end of the script the file numeric is      */
+/* included which then computes the Laplace eigenvalue problem on the       */
+/* pentagon.  The vertices of the pentagon are:                             */
+/*     V1 = (0.5, 0.0)                                                      */
+/*     V2 = (2.5, 0.5)                                                      */
+/*     V3 = (2.0, 1.5)                                                      */
+/*     V4 = (0.5, 2.0)                                                      */
+/*     V5 = (0.0, 0.5)                                                      */
+/****************************************************************************/
+
+// Define the global parameters.
+verbosity = 0;
+
+// Define the label of the border.
+int Gamma = 0;
+
+// Define the border.
+border Gamma1 (t = 0.0, 1.0)
+{
+  x = 0.5 + 2.0 * t;
+  y = 0.0 + 0.5 * t;
+  label = Gamma;
+}
+border Gamma2 (t = 0.0, 1.0)
+{
+  x = 2.5 - 0.5 * t;
+  y = 0.5 + 1.0 * t;
+  label = Gamma;
+}
+border Gamma3 (t = 0.0, 1.0)
+{
+  x = 2.0 - 1.5 * t;
+  y = 1.5 + 0.5 * t;
+  label = Gamma;
+}
+border Gamma4 (t = 0.0, 1.0)
+{
+  x = 0.5 - 0.5 * t;
+  y = 2.0 - 1.5 * t;
+  label = Gamma;
+}
+border Gamma5 (t = 0.0, 1.0)
+{
+  x = 0.0 + 0.5 * t;
+  y = 0.5 - 0.5 * t;
+  label = Gamma;
+}
+
+// Build the mesh.
+mesh Th = buildmesh(
+  Gamma1(41) +
+  Gamma2(22) +
+  Gamma3(32) +
+  Gamma4(32) +
+  Gamma5(14)
+);
+
+// Compute the first eigenvalue.
+include "numeric.idp"
