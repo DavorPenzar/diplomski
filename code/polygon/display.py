@@ -16,7 +16,7 @@ NaN or infinite.
 
 To plot multiple polygons, seperate their coordinates by a plus, i. e. the
 character `'+'`.  For example, to plot two triangles, use
-    ./display x_11 y_11 x_12 y_12 x_13 y_13 + x_21 y_21 x_22 y_22 x_23 y_23
+    ./display.py x_11 y_11 x_12 y_12 x_13 y_13 + x_21 y_21 x_22 y_22 x_23 y_23
 where (x_ij, y_ij) are coordinates of the j-th vertex of the i-th triangle.
 Do not put a plus at the beginning of the command line arguments or at the end.
 
