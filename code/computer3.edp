@@ -6,8 +6,8 @@
 /* Usage:                                                                   */
 /*     $ FreeFem++ computer3.edp [-i filein] [-o fileout]                   */
 /* Arguments:                                                               */
-/*     -i: [filename]  path to the input file (default: "in.tsv")           */
-/*     -o: [filename]  path to the output file (default: "out.csv")         */
+/*     -i: <filename>  path to the input file (default: "in.tsv")           */
+/*     -o: <filename>  path to the output file (default: "out.csv")         */
 /* Other arguments are ignored.                                             */
 /*                                                                          */
 /* Consider an open nonempty set $ \Omega \subseteq \mathbb{R}^{2} $ such   */
@@ -49,10 +49,9 @@
 /* plotting of the border and the definition of the mesh.                   */
 /*                                                                          */
 /* Eigenvalues are printed to the output file in the same order as the      */
-/* polygons were defined in the input file, separated by a comma (no        */
-/* whitespace).  An extra new line (empty) is added at the end of the       */
-/* output file.  The precision of the output is hard coded in the script    */
-/* (global parameter `prec`).                                               */
+/* polygons were defined in the input file, each in its own line.  An extra */
+/* new line (empty) is added at the end of the output file.  The precision  */
+/* of the output is hard coded in the script (global parameter `prec`).     */
 /*                                                                          */
 /* The whole input file is read before any computation and the information  */
 /* is stored in arrays (consuming RAM).  Also, the first eigenvalues are    */
@@ -256,13 +255,8 @@ cout << "Computing: " << (t1 - t0) << "s." << endl;
     t0 = clock();
 
     // Print to the output file.
-    if (np > 0)
-    {
-        out << ev0[0];
-        for (int i = 1; i < np; ++i)
-            out << "," << ev0[i];
-        out << endl;
-    }
+    for (int i = 1; i < np; ++i)
+        out << ev0[i] << endl;
 
     // Get time in seconds.
     t1 = clock();
