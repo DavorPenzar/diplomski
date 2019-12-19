@@ -8,7 +8,7 @@ Python script for displaying polygons.
 This file is part of Davor Penzar's master thesis programing.
 
 Usage:
-    ./display.py [x_1 y_1 x_2 y_2 ... x_n y_n]
+    ./display.py x_1 y_1 x_2 y_2 ... x_n y_n
 where (x_i, y_i) are coordinates of the i-th vertex of the polygon.  The
 coordinates are given in decimal format.  The vertices are given in a cyclical
 order.  There must be at least three distinct vertices and no coordinate may be
@@ -24,6 +24,7 @@ Do not put a plus at the beginning of the command line arguments or at the end.
 
 # Import standard library modules.
 import copy
+import inspect
 import sys
 
 # Import SciPy packages.
@@ -54,6 +55,14 @@ try:
     del arg
 except (NameError, UnboundLocalError):
     pass
+
+# If no command line arguments were given, print the documentation and exit.
+if len(sys.argv) == 1:
+    # Print the documentation.
+    print(inspect.cleandoc(__doc__))
+
+    # Exit.
+    sys.exit(0)
 
 # Extract the indices of pluses (characters, actually strings `'+'`) among
 # command line arguments.  Assume pluses are also on indices 0 and
