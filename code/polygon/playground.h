@@ -1,6 +1,8 @@
 /**
  * Functions to test the library and to "play" with the generators.
  *
+ * This file is part of Davor Penzar's master thesis programing.
+ *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
  * @package polygon

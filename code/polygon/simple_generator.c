@@ -1,10 +1,13 @@
 /**
  * Program for generating and displaying polygons.
  *
+ * This file is part of Davor Penzar's master thesis programing.
+ *
  * Usage:
- *     ./generate n
- * where "./generate" is the command of the compiled program and n is the
- * decimal representation of the number of vertices (>= 3).
+ *     ./generate m n
+ * where "./generate" is the command of the compiled program, m is the
+ * decimal representation of the number of polygons (>= 1) and n is the decimal
+ * representation of the number of vertices (>= 3).
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0

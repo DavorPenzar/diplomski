@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ##  Compile a C or a C++ code using GCC.
+##
+##  This file is part of Davor Penzar's master thesis programing.
 ##
 ##  Possible usage:
 ##     ./compile code.c -o program

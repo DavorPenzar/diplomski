@@ -1,4 +1,6 @@
 /****************************************************************************/
+/* FreeFEM script for computing Laplace eigenvalues on polygons.            */
+/*                                                                          */
 /* This file is part of Davor Penzar's master thesis programing.            */
 /*                                                                          */
 /* Usage:                                                                   */

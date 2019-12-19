@@ -1,6 +1,8 @@
 /**
  * Type declaration and constants for boolean values.
  *
+ * This file is part of Davor Penzar's master thesis programing.
+ *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
  * @package polygon
@@ -41,6 +43,11 @@
 
 /**
  * Enumeration type for representing boolean values.
+ *
+ * Do not check conditions like `if (t == true)`, use `if (t)` instead (also use
+ * `if (!t)`, not `if (t == false)` or `if (t != true)`).  Not only is it
+ * strange in languages supporting a boolean type, but the program then makes
+ * two checks instead of one and results may be unexpected.
  *
  */
 typedef enum
