@@ -23,11 +23,11 @@
 #include <time.h>
 
 /* Include package headers. */
-#include "array.h"
-#include "boolean.h"
-#include "numeric.h"
-#include "polygon.h"
-#include "playground.h"
+#include "include/array.h"
+#include "include/boolean.h"
+#include "include/numeric.h"
+#include "include/polygon.h"
+#include "include/playground.h"
 
 /* Define constants for the numerical approximation of the mathematical constant
  * pi and some of its fractions. */
