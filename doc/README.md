@@ -9,13 +9,13 @@
 5.  K. Eidolon, G. Oman, *A Short Proof of the Bolzano Weierstrass Theorem*, The College Mathematics Journal 48.4 (2017), 288&ndash;289.
 6.  Z. Fattah, M. Berrada, *Eigenvalues of Dirichlet Laplacian within the Class of Open Sets with Constant Diameter*, 2018, arXiv: [`1801.04133 [math.SP]`](https://arxiv.org/abs/1801.04133).
 7.  *FreeFEM Documentation*. *Release 4.2.1*, 4. izdanje, 2019, dostupno na [`https://doc.freefem.org/introduction/index.html`](https://doc.freefem.org/introduction/index.html).
-7.  G. Harris, C. Martin, *The Roots of a Polynomial Vary Continuously as a Function of the Coefficients*, Proceedings of the American Mathematical Society 100.2 (1987), 390&ndash;392.
-8.  R. S. Laugesen, B. Siudeja, *Dirichlet Eigenvalue Sums on Triangles Are Minimal for Equilaterals*, 2010, arXiv: [`1008.1316 [math.SP]`](https://arxiv.org/abs/1008.1316).
-9.  K. Mills, M. Spanner, I. Tamblyn, *Deep Learning and the Schr&ouml;dinger Equation*, 2017, arXiv: [`1702.01361 [cond-mat.mtrl-sci]`](https://arxiv.org/abs/1702.01361).
-10. Multiphysics Encyclopedia, Eigenfrequncy Analysis, COMSOL Multiphysics, 2018, dostupno na [`https://www.comsol.com/multiphysics/eigenfrequency-analysis`](https://www.comsol.com/multiphysics/eigenfrequency-analysis).
-11. B. Nica, *The Mazur-Ulam Theorem*, Expositiones Mathematicae 30.4 (2013), 397&ndash;398.
-12. M. Reuter, F.-E. Wolter, M. Shenton, M. Niethammer, *Laplace-Beltrami Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape Analysis*, Computer-Aided Design 41.10 (2009), 739&ndash;755.
-13. H. Tverberg, *A Proof of the Jordan Curve Theorem*, Bulletin of the London Mathematical Society 12.1 (1980), 34&ndash;38.
-14. E. W. Weisstein, Curve Orientation, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/CurveOrientation.html`](http://mathworld.wolfram.com/CurveOrientation.html).
-15. E. W. Weisstein, Polygon, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/Polygon.html`](http://mathworld.wolfram.com/Polygon.html).
-16. M. Žepić, *Latinsko-hrvatski rječnik* (Lj. Tomljenović-Biškupić, ur.), 11. izdanje, Školska knjiga, Zagreb, 1991.
+8.  G. Harris, C. Martin, *The Roots of a Polynomial Vary Continuously as a Function of the Coefficients*, Proceedings of the American Mathematical Society 100.2 (1987), 390&ndash;392.
+9.  R. S. Laugesen, B. Siudeja, *Dirichlet Eigenvalue Sums on Triangles Are Minimal for Equilaterals*, 2010, arXiv: [`1008.1316 [math.SP]`](https://arxiv.org/abs/1008.1316).
+10.  K. Mills, M. Spanner, I. Tamblyn, *Deep Learning and the Schr&ouml;dinger Equation*, 2017, arXiv: [`1702.01361 [cond-mat.mtrl-sci]`](https://arxiv.org/abs/1702.01361).
+11. Multiphysics Encyclopedia, Eigenfrequncy Analysis, COMSOL Multiphysics, 2018, dostupno na [`https://www.comsol.com/multiphysics/eigenfrequency-analysis`](https://www.comsol.com/multiphysics/eigenfrequency-analysis).
+12. B. Nica, *The Mazur-Ulam Theorem*, Expositiones Mathematicae 30.4 (2013), 397&ndash;398.
+13. M. Reuter, F.-E. Wolter, M. Shenton, M. Niethammer, *Laplace-Beltrami Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape Analysis*, Computer-Aided Design 41.10 (2009), 739&ndash;755.
+14. H. Tverberg, *A Proof of the Jordan Curve Theorem*, Bulletin of the London Mathematical Society 12.1 (1980), 34&ndash;38.
+15. E. W. Weisstein, Curve Orientation, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/CurveOrientation.html`](http://mathworld.wolfram.com/CurveOrientation.html).
+16. E. W. Weisstein, Polygon, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/Polygon.html`](http://mathworld.wolfram.com/Polygon.html).
+17. M. Žepić, *Latinsko-hrvatski rječnik* (Lj. Tomljenović-Biškupić, ur.), 11. izdanje, Školska knjiga, Zagreb, 1991.
