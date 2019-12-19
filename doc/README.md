@@ -1,6 +1,6 @@
 #   Metode strojnog učenja u predviđanju najniže svojstvene vrijednosti Laplaceovog operatora
 
-##  Bibliografija
+##  Literatura
 
 Neki od izvora vjerojatno nisu legalno objavljeni ovdje. Ti će izvori biti maknuti iz repozitorija.
 
