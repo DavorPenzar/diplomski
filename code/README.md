@@ -34,22 +34,7 @@ FreeFem++ computer.edp [-i filein] [-o fileout]
 
 Argumenti:
 
-* `i <filename>` lokacija ulazne datoteke (zadana vrijednost: *in.tsv*)
+* `-i <filename>` lokacija ulazne datoteke (zadana vrijednost: *in.tsv*)
 * `-o <filename>` lokacija izlazne datoteke (zadana vrijednost: *out.csv*)
 
 Ostali argumenti se ignoriraju.
-
-Skripta čita definicije poligona i ispisuje numeričke aproksimacije prve svojstvene vrijednosti Laplaceovog operatora na poligonima.
-
-Svaki poligon u ulaznoj datoteci mora biti zadan kao
-```
-x0 y0 lx0 ly0 nm0 x1 y1 lx1 ly1 nm1 ... xn yn lxn lyn nmn
-```
-gdje su:
-
-* *n* + 1 je broj vrhova,
-* *x*<sub>*i*</sub> je *x*-koordinata *i*-tog vrha,
-* *y*<sub>*i*</sub> je *y*-koordinata *i*-tog vrha,
-* *lx*<sub>*i*</sub> je razlika u *x*-koordinatama ((*i* + 1) mod *n* + 1)-tog vrha i *i*-tog vrha,
-* *ly*<sub>*i*</sub> je razlika u *y*-koordinatama ((*i* + 1) mod *n* + 1)-tog vrha i *i*-tog vrha,
-* *nm*<sub>*i*</sub> je broj diskretizacijskih točaka na stranici od ((*i* + 1) mod *n* + 1)-tog vrha do *i*-tog vrha.
