@@ -6,7 +6,7 @@ Neki od izvora vjerojatno nisu legalno objavljeni ovdje. Ti će izvori biti makn
 
 1.  C. Audet, J. E. Dennis, Jr. [*Mesh Adaptive Direct Search Algorithms for Constrained Optimization*](10.1.1.413.9526.pdf), SIAM Journal on Optimization 17.1 (2006), 188&ndash;217.
 2.  C. Blatter, Rigorous Definition of Positive Curve in **R**<sup>*n*</sup>, 2012, dostupno na [`https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn`](https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn).
-3.  R. Courant, D. Hilbert, [*Methods of Mathematical Physics*](Hilbert-Methods_of_mathematical_physics), sv. 1, Interscience Publishers, Inc., New York, 1953.
+3.  R. Courant, D. Hilbert, [*Methods of Mathematical Physics*](Hilbert-Methods_of_mathematical_physics.pdf), sv. 1, Interscience Publishers, Inc., New York, 1953.
 4.  R. Donoso Benguria, Dirichlet Eigenvalue, Enyclopedia of Mathematics, dostupno na [`https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue`](https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue).
 5.  K. Eidolon, G. Oman, [*A Short Proof of the Bolzano Weierstrass Theorem*](A short proof of the Bolzano-Weierstrass Theorem.pdf), The College Mathematics Journal 48.4 (2017), 288&ndash;289.
 6.  Z. Fattah, M. Berrada, [*Eigenvalues of Dirichlet Laplacian within the Class of Open Sets with Constant Diameter*](1801.04133.pdf), 2018, arXiv: [`1801.04133 [math.SP]`](https://arxiv.org/abs/1801.04133).
