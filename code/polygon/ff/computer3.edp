@@ -52,6 +52,15 @@
 /* output file.  The precision of the output is hard coded in the script    */
 /* (global parameter `prec`).                                               */
 /*                                                                          */
+/* The whole input file is read before any computation and the information  */
+/* is stored in arrays (consuming RAM).  Also, the first eigenvalues are    */
+/* stored in an array and no first eigenvalue is printed before the         */
+/* computation ends on all polygons.  The reason for this is to get a       */
+/* a better sense of time needed to compute the eigenvalues.  If there is   */
+/* not enough RAM to store all the information needed for a large number of */
+/* polygons, split the input file in multiple smaller files and run the     */
+/* script on each of the smaller inputs.                                    */
+/*                                                                          */
 /* The current number of vertices is 3 (hence the name of the script        */
 /* "computer3.edp").                                                        */
 /*                                                                          */
