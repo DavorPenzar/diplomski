@@ -36,6 +36,7 @@ Argumenti:
 
 * `i <filename>` lokacija ulazne datoteke (zadana vrijednost: *in.tsv*)
 * `-o <filename>` lokacija izlazne datoteke (zadana vrijednost: *out.csv*)
+
 Ostali argumenti se ignoriraju.
 
 Skripta čita definicije poligona i ispisuje numeričke aproksimacije prve svojstvene vrijednosti Laplaceovog operatora na poligonima.
