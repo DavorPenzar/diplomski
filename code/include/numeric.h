@@ -664,7 +664,7 @@ real_t rrandn (void)
 real_t rrandn ()
 #endif /* __cplusplus */
 {
-    /* DECLARATION OF VARIABLES */
+    /* DECLARATION OF STATIC VARIABLES */
 
     /* Numerical approximation of the mathematical constant pi. */
     static const real_t pi =
@@ -677,6 +677,8 @@ real_t rrandn ()
     static real_t x = 0.0;
     static real_t y = 0.0;
 
+    /* DECLARATION OF VARIABLES */
+
     /* Value to return. */
     real_t return_value;
 
@@ -684,6 +686,8 @@ real_t rrandn ()
 
     /* Value to return. */
     return_value = 0.0;
+
+    /* ALGORITHM */
 
     /* If the last call was odd, set the flag `odd` to `false` and set the
      * `return_value` to the cached value of `y`. */

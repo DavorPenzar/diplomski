@@ -497,9 +497,9 @@ real_t combiner_length (::size_t i)
  *
  */
 #if !defined(__cplusplus)
-real_t copy_coordinate(size_t i, size_t coordinate)
+real_t copy_coordinate (size_t i, size_t coordinate)
 #else
-inline real_t copy_coordinate(::size_t i, ::size_t coordinate)
+inline real_t copy_coordinate (::size_t i, ::size_t coordinate)
 #endif /* __cplusplus */
 {
 #if !defined (__cplusplus)
@@ -664,6 +664,59 @@ real_t scan_coordinate (::size_t i, ::size_t coordinate)
 
     /* Return the scanned value. */
     return return_value;
+}
+
+/**
+ * Generate a coordinate of a regular polygon.
+ *
+ * The function returns the coordinate of a regular polygon with the number of
+ * vertices saved to the `saved_nn_integer` function.  If no number has been
+ * saved, division by 0 may occur. The purpose of the function is to pass it as
+ * the argument to the `random_polygon` and the `smart_random_polygon`
+ * functions.
+ *
+ * @param i
+ *     Index of the point (vertex).
+ *
+ * @param coordinate
+ *     Coordinate of the point (0 being the x-coordinate and 1 being the
+ *     y-coordinate).
+ *
+ * @return
+ *     The wanted coordinate of the wanted regular polygon if `i` is strictly
+ *     less than the number saved to the `saved_nn_integer` function and
+ *     `coordinate` is 0 or 1; 0 otherwise.
+ *
+ * @see rrand
+ * @see saved_nn_integer
+ * @see random_polygon
+ * @see smart_random_polygon
+ *
+ */
+#if !defined(__cplusplus)
+real_t regular_coordinate (size_t i, size_t coordinate)
+#else
+real_t regular_coordinate (::size_t i, ::size_t coordinate)
+#endif /* __cplusplus */
+{
+  /* Numerical approximation of the mathematical constant pi. */
+  static const real_t pi =
+      3.1415926535897932384626433832795028841971693993751058209749445923;
+
+      /* Compute and return the coordinate. */
+      return (
+          (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
+              (
+                  (coordinate == 0U) ?
+                      rcos((i << 1U) * pi / saved_nn_integer(0U)) :
+                      (
+                          (coordinate == 1U) ?
+                              rsin((i << 1U) * pi / saved_nn_integer(0U)) :
+                              0.0
+                      )
+              ) :
+              0.0
+      );
 }
 
 /**

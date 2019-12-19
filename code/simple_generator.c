@@ -63,7 +63,7 @@ void initialise_generators ()
 {
     saved_number(1.0);
     saved_comb_function(rmin);
-    saved_len_generator(combiner_length);
+    saved_len_generator(constant_length);
 }
 
 /**
@@ -265,6 +265,7 @@ int main (int argc, char** argv)
 
     /* Save values and pointers to arrays for generating new values. */
     saved_nn_integer(n);
+    saved_number(1.0 / (real_t)n);
     saved_polygon(P);
     saved_lengths(l);
     saved_angles(phi);
@@ -280,7 +281,7 @@ int main (int argc, char** argv)
         smart_random_polygon(
             n,
             P,
-            random_coordinate,
+            regular_coordinate,
             OUT_ITER_MAX,
             IN_ITER_MAX
         );
