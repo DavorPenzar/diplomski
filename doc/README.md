@@ -8,6 +8,7 @@
 4.  R. Donoso Benguria, Dirichlet Eigenvalue, Enyclopedia of Mathematics, dostupno na [`https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue`](https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue).
 5.  K. Eidolon, G. Oman, *A Short Proof of the Bolzano Weierstrass Theorem*, The College Mathematics Journal 48.4 (2017), 288&ndash;289.
 6.  Z. Fattah, M. Berrada, *Eigenvalues of Dirichlet Laplacian within the Class of Open Sets with Constant Diameter*, 2018, arXiv: [`1801.04133 [math.SP]`](https://arxiv.org/abs/1801.04133).
+7.  *FreeFEM Documentation*. *Release 4.2.1*, 4. izdanje, 2019, dostupno na [`https://doc.freefem.org/introduction/index.html`](https://doc.freefem.org/introduction/index.html).
 7.  G. Harris, C. Martin, *The Roots of a Polynomial Vary Continuously as a Function of the Coefficients*, Proceedings of the American Mathematical Society 100.2 (1987), 390&ndash;392.
 8.  R. S. Laugesen, B. Siudeja, *Dirichlet Eigenvalue Sums on Triangles Are Minimal for Equilaterals*, 2010, arXiv: [`1008.1316 [math.SP]`](https://arxiv.org/abs/1008.1316).
 9.  K. Mills, M. Spanner, I. Tamblyn, *Deep Learning and the Schr&ouml;dinger Equation*, 2017, arXiv: [`1702.01361 [cond-mat.mtrl-sci]`](https://arxiv.org/abs/1702.01361).
