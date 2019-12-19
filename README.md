@@ -1,4 +1,4 @@
-# Metode strojnog učenja u predviđanju najniže svojstvene vrijednosti Laplaceovog operatora
+#   Metode strojnog učenja u predviđanju najniže svojstvene vrijednosti Laplaceovog operatora
 
 *Diplomski rad*
 
@@ -11,17 +11,17 @@
 
 *Zagreb, 2019.*
 
-## Opis repozitorija
+##  Opis repozitorija
 
 Materijali mog diplomskog rada u nastajanju.
 
-## Sadržaj repozitorija
+##  Sadržaj repozitorija
 
 1.  [**doc**](doc/) &ndash; literatura,
 2.  [**code**](code/) &ndash; izvorni k&ocirc;dovi programa,
 3.  [**latex**](latex/) &ndash; izvorni *LaTeX* k&ocirc;d diplomskog rada.
 
-## Literatura
+##  Literatura
 
 1.  C. Audet, J. E. Dennis, Jr. *Mesh Adaptive Direct Search Algorithms for Constrained Optimization*, SIAM Journal on Optimization 17.1 (2006), 188&ndash;217.
 2.  C. Blatter, Rigorous Definition of Positive Curve in **R**<sup>*n*</sup>, 2012, dostupno na [`https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn`](https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn).
