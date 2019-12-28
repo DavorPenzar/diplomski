@@ -16,14 +16,16 @@
 ##      -Wall               --  print all warnings,
 ##      -O                  --  optimisation level 1
 ##      -lm                 --  link mathematical functions (math.h or cmath),
-##      -pthread            --  compile with pthread.h functions.
+##      -pthread            --  compile with pthread.h functions,
+##      -lblas              --  link BLAS functions,
+##      -llapack            --  link LAPACK functions.
 ##
 
 # Compile the C code.
-gcc -std=c89 -pedantic-errors -Wall -O $@ -lm -pthread
-#gcc -std=c90 -pedantic-errors -Wall -O $@ -lm -pthread
-#gcc -std=c99 -pedantic-errors -Wall -O $@ -lm -pthread
+gcc -std=c89 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
+#gcc -std=c90 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
+#gcc -std=c99 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
 
 # Compile the C++ code.
-#g++ -std=c++98 -pedantic-errors -Wall -O $@ -lm -pthread
-#g++ -std=c++11 -pedantic-errors -Wall -O $@ -lm -pthread
+#g++ -std=c++98 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
+#g++ -std=c++11 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack

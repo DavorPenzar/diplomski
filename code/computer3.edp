@@ -30,6 +30,9 @@
 /* approximations of the first eigenvalues of the Laplace operator on the   */
 /* polygons.                                                                */
 /*                                                                          */
+/* The number of polygons read from the input file is hard coded in the     */
+/* script.  To change it, update the global parameter `np`.                 */
+/*                                                                          */
 /* Each polygon must be formated in the input file as                       */
 /*     x0 y0 lx0 ly0 nm0 x1 y1 lx1 ly1 nm1 ... xn yn lxn lyn nmn            */
 /* where:                                                                   */
@@ -45,7 +48,7 @@
 /* Whitespaces may differ (they may even be spaces, tabs, newlines...).     */
 /* All of the polygons must have the same number of vertices; moreover, the */
 /* number is hard coded in the script.  To change the number of vertices,   */
-/* update the global parameter `np`, the definition of the border, the      */
+/* update the global parameter `nv`, the definition of the border, the      */
 /* plotting of the border and the definition of the mesh.                   */
 /*                                                                          */
 /* Eigenvalues are printed to the output file in the same order as the      */
@@ -78,7 +81,7 @@ verbosity = 0;      // Verbosity level 0.
 int prec = 8;       // Precision of the output.
 real tol = 1.0e-12; // Tolerance for the solution.
 real eps = 1.0e-24; // Epsilon for the CG solver.
-int np = 1;         // Number of polygons.
+int np = 20;        // Number of polygons.
 int nv = 3;         // Number of vertices (change code acccordingly).
 int nev = 1;        // Number of eigenvalues to compute.
 
@@ -255,7 +258,7 @@ cout << "Computing: " << (t1 - t0) << "s." << endl;
     t0 = clock();
 
     // Print to the output file.
-    for (int i = 1; i < np; ++i)
+    for (int i = 0; i < np; ++i)
         out << ev0[i] << endl;
 
     // Get time in seconds.

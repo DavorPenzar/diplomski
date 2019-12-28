@@ -29,25 +29,6 @@
 #include "include/polygon.h"
 #include "include/playground.h"
 
-/* Define constants for the numerical approximation of the mathematical constant
- * pi and some of its fractions. */
-#define PI      3.1415926535897932384626433832795028841971693993751058209749445923L
-#define PI_2    1.5707963267948966192313216916397514420985846996875529104874722962L
-#define PI_3    1.0471975511965977461542144610931676280657231331250352736583148641L
-#define PI_4    0.7853981633974483096156608458198757210492923498437764552437361481L
-#define PI_5    0.7853981633974483096156608458198757210492923498437764552437361481L
-#define PI_6    0.5235987755982988730771072305465838140328615665625176368291574321L
-#define PI_7    0.4487989505128276054946633404685004120281670570535865458535635132L
-#define PI_8    0.3926990816987241548078304229099378605246461749218882276218680740L
-#define PI_9    0.3490658503988659153847381536977225426885743777083450912194382880L
-#define PI_10   0.3141592653589793238462643383279502884197169399375105820974944592L
-#define PI_11   0.2855993321445266580420584893890457167451972181250096200886313266L
-#define PI_12   0.2617993877991494365385536152732919070164307832812588184145787160L
-
-/* Define constants for converting radians to degrees and vice versa. */
-#define DEG_TO_RAD  57.295779513082320876798154814105170332405472466564321549160243861L
-#define RAD_TO_DEG   0.017453292519943295769236907684886127134428718885417254560971914L
-
 /* Define constants for maximal numbers of iterations. */
 #define IN_ITER_MAX     1024U
 #define OUT_ITER_MAX    1024U
@@ -61,9 +42,60 @@ void initialise_generators (void)
 void initialise_generators ()
 #endif /* __cplusplus */
 {
-    saved_number(1.0);
+    saved_number(0.1);
     saved_comb_function(rmin);
     saved_len_generator(constant_length);
+}
+
+void print_formatted (
+    const char* outname,
+    size_t n,
+    const real_t* P,
+    const real_t* dx,
+    const real_t* dy,
+    const real_t* l,
+    const real_t* phi,
+    size_t N
+)
+{
+    FILE* out;
+
+    size_t i;
+    size_t j;
+
+    out = (FILE*)(NULL);
+
+    i = 0U;
+    j = 0U;
+
+    do
+    {
+        if (!(outname && n && P && dx && dy && l && phi && N))
+            break;
+
+        out = fopen(outname, "wt");
+
+        if (!out)
+            break;
+
+        for (i = 0U; i < N; ++i)
+        {
+            for (j = 0U; j < n; ++j)
+                fprintf(
+                    out,
+                    "%.4f\t%.4f\t%.4f\t%.4f\t%lu\n",
+                        *(P + ((i * n + j) << 1U)),
+                        *(P + ((i * n + j) << 1U) + 1U),
+                        *(dx + i * n + j),
+                        *(dy + i * n + j),
+                        (size_t)(*(l + i * n + j) * 50 + 0.5)
+                );
+            fprintf(out, "\n");
+        }
+
+        fclose(out);
+    }
+    while (false);
 }
 
 /**
@@ -98,6 +130,10 @@ int main (int argc, char** argv)
     /* Array of vertices. */
     real_t* P;
 
+    /* Arrays of differences in coordinates. */
+    real_t* dx;
+    real_t* dy;
+
     /* Arrays of the edges' lengths and the outer angles. */
     real_t* l;
     real_t* phi;
@@ -120,6 +156,10 @@ int main (int argc, char** argv)
 
     /* Array of vertices. */
     P = (real_t*)(NULL);
+
+    /* Arrays of differences in coordinates. */
+    dx = (real_t*)(NULL);
+    dy = (real_t*)(NULL);
 
     /* Arrays of the edges' lengths and the outer angles. */
     l = (real_t*)(NULL);
@@ -231,20 +271,26 @@ int main (int argc, char** argv)
     /* Initialise the array `P` to zeros. */
     memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
-    /* Allocate memory for the arrays of the edges' lengths and the outer
-     * angles. */
+    /* Allocate memory for the arrays of the differences in coordinates, edges'
+     * lengths and the outer angles. */
+    dx = (real_t*)malloc(N * n * sizeof *dx);
+    dy = (real_t*)malloc(N * n * sizeof *dy);
     l = (real_t*)malloc(N * n * sizeof *l);
     phi = (real_t*)malloc(N * n * sizeof *phi);
 
     /* If the memory allocation has failed, print the error message and exit
      * with a non-zero value. */
-    if (!(l && phi))
+    if (!(dx && dy && l && phi))
     {
         /* Print the error message. */
         fprintf(stderr, "Memory allocation fail.\n");
 
-        /* Deallocate the memory allocated for the arrays of the edges' lengths
-         * and the outer angles. */
+        /* Deallocate the memory allocated for the arrays of the differences in
+         * coordinates, edges' lengths and the outer angles. */
+        free(dx);
+        dx = (real_t*)(NULL);
+        free(dy);
+        dy = (real_t*)(NULL);
         free(l);
         l = (real_t*)(NULL);
         free(phi);
@@ -258,14 +304,16 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Initialise the arrays of the edges' lengths and the outer engles to
-     * zeros. */
+    /* Initialise the arrays of the differences in coordinates, edges' lengths
+     * and the outer angles. */
+    memset(dx, 0, N * n * sizeof *dx);
+    memset(dy, 0, N * n * sizeof *dy);
     memset(l, 0, N * n * sizeof *l);
     memset(phi, 0, N * n * sizeof *phi);
 
     /* Save values and pointers to arrays for generating new values. */
     saved_nn_integer(n);
-    saved_number(1.0 / (real_t)n);
+    /*saved_number(1.0 / (real_t)n);*/
     saved_polygon(P);
     saved_lengths(l);
     saved_angles(phi);
@@ -312,6 +360,24 @@ int main (int argc, char** argv)
         /* Inform the user. */
         printf("No true %lu-gon found.\n", n);
 
+        /* Clear the memory in the arrays of the differences in coordinates,
+         * edges' lengths and the outer angles. */
+        memset(dx, 0, N * n * sizeof *dx);
+        memset(dy, 0, N * n * sizeof *dy);
+        memset(l, 0, N * n * sizeof *l);
+        memset(phi, 0, N * n * sizeof *phi);
+
+        /* Deallocate the memory allocated for the arrays of the differences in
+         * coordinates, edges' lengths and the outer angles. */
+        free(dx);
+        dx = (real_t*)(NULL);
+        free(dy);
+        dy = (real_t*)(NULL);
+        free(l);
+        l = (real_t*)(NULL);
+        free(phi);
+        phi = (real_t*)(NULL);
+
         /* Clear the memory in the array of points. */
         memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
@@ -328,8 +394,9 @@ int main (int argc, char** argv)
 
     /* Compute the edges' lengths and the outer angles of the original
      * polygon. */
-    describe_polygon(n, P, l, phi);
+    describe_polygon(n, P, dx, dy, l, phi);
 
+    /* Generate perturbated polygons. */
     for (j = 1U; j < N; ++j)
     {
         /* Attempt to generate an `n`-gon ATTEMPT_MAX times at the most by
@@ -369,13 +436,19 @@ int main (int argc, char** argv)
             /* Inform the user. */
             printf("Generation of the perturbated polygon (%lu) failed.\n", j);
 
-            /* Clear the memory in the arrays of the edges' lengths and the
-             * outer angles. */
+            /* Clear the memory in the arrays of the differences in coordinates,
+             * edges' lengths and the outer angles. */
+            memset(dx, 0, N * n * sizeof *dx);
+            memset(dy, 0, N * n * sizeof *dy);
             memset(l, 0, N * n * sizeof *l);
             memset(phi, 0, N * n * sizeof *phi);
 
-            /* Deallocate the memory allocated for the arrays of the edges'
-             * lengths and the outer angles. */
+            /* Deallocate the memory allocated for the arrays of the differences in
+             * coordinates, edges' lengths and the outer angles. */
+            free(dx);
+            dx = (real_t*)(NULL);
+            free(dy);
+            dy = (real_t*)(NULL);
             free(l);
             l = (real_t*)(NULL);
             free(phi);
@@ -397,7 +470,14 @@ int main (int argc, char** argv)
 
         /* Compute the edges' lengths and the outer angles of the original
          * polygon. */
-        describe_polygon(n, P + ((j * n) << 1U), l + j * n, phi + j * n);
+        describe_polygon(
+            n,
+            P + ((j * n) << 1U),
+            dx + j * n,
+            dy + j * n,
+            l + j * n,
+            phi + j * n
+        );
     }
 
     /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
@@ -409,13 +489,21 @@ int main (int argc, char** argv)
     return_value = display(n, P, N);
     printf("Returned: %d (0x%03X)\n", return_value, return_value);
 
-    /* Clear the memory in the arrays of the edges' lengths and the outer
-     * angles. */
+    print_formatted("test.tsv", n, P, dx, dy, l, phi, N);
+
+    /* Clear the memory in the arrays of the differences in coordinates,
+     * edges' lengths and the outer angles. */
+    memset(dx, 0, N * n * sizeof *dx);
+    memset(dy, 0, N * n * sizeof *dy);
     memset(l, 0, N * n * sizeof *l);
     memset(phi, 0, N * n * sizeof *phi);
 
-    /* Deallocate the memory allocated for the arrays of the edges' lengths and
-     * the outer angles. */
+    /* Deallocate the memory allocated for the arrays of the differences in
+     * coordinates, edges' lengths and the outer angles. */
+    free(dx);
+    dx = (real_t*)(NULL);
+    free(dy);
+    dy = (real_t*)(NULL);
     free(l);
     l = (real_t*)(NULL);
     free(phi);

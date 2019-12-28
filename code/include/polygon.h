@@ -1288,143 +1288,6 @@ void correct_polygon_orientation (::size_t n, real_t* P)
 }
 
 /**
- * Translate an array of points so that all the coordinates stretch inside a
- * Certesian product of two symmetric closed intervals.
- *
- * All the x-coordinates of the points are decremented by
- * (`x_min` + `x_max`) / 2, and all the y-coordinates are decremented by
- * (`y_min` + `y_max`) / 2, where `x_min`, `x_max`, `y_min` and `y_max` are the
- * smallest and the largest x-coordinates and the smallest and the largest
- * y-coordinates respectively.
- *
- * The function mutates the given array.
- *
- * @param n
- *     Number of points.
- *
- * @param P
- *     Array of points of size at least 2 * `n`.  The array is organised as
- *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
- *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
- *     that the first and the last points are neighbouring.
- *
- *     Caution: the array `P` is mutated in the function.
- *
- */
-#if !defined(__cplusplus)
-void centralise_polygon (size_t n, real_t* P)
-#else
-void centralise_polygon (::size_t n, real_t* P)
-#endif /* __cplusplus */
-{
-    /* DECLARATION OF VARIABLES */
-
-    /* Extreme and middle coordinates of points. */
-    real_t x_min;
-    real_t y_min;
-    real_t x_mid;
-    real_t y_mid;
-    real_t x_max;
-    real_t y_max;
-
-    /* Iteration index. */
-#if !defined(__cplusplus)
-    size_t i;
-#else
-    ::size_t i;
-#endif /* __cplusplus */
-
-    /* Auxiliary pointers to coordinates of points. */
-    real_t* x_i;
-    real_t* y_i;
-
-    /* INITIALISATION OF VARIABLES */
-
-    /* Extreme and middle coordinates of points. */
-    x_min = 0.0;
-    y_min = 0.0;
-    x_mid = 0.0;
-    y_mid = 0.0;
-    x_max = 0.0;
-    y_max = 0.0;
-
-    /* Iteration index. */
-    i = 0U;
-
-    /* Auxiliary pointers to coordinates of points. */
-#if !defined(__cplusplus)
-    x_i = (real_t*)(NULL);
-    y_i = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    x_i = reinterpret_cast<real_t*>(NULL);
-    y_i = reinterpret_cast<real_t*>(NULL);
-#else
-    x_i = nullptr;
-    y_i = nullptr;
-#endif /* __cplusplus */
-
-    /* ALGORITHM */
-
-    /* To avoid using the `goto` command and additional `return` commands, the
-     * algorithm is enclosed in a `do while`-loop with a false terminating
-     * statement. */
-    do
-    {
-        /* If the pointer `P` is a null-pointer, set the number `n` to 0 and
-         * break the `do while`-loop. */
-        if (!P)
-        {
-            /* Set the numbre `n` to 0. */
-            n = 0U;
-
-            /* Break the `do while`-loop. */
-            break;
-        }
-
-        /* If the number of points is 0, break the `do while`-loop. */
-        if (!n)
-            break;
-
-        /* Initialise the extreme coordinates to the coordinates of the first
-         * point. */
-        x_min = *P;
-        y_min = *(P + 1U);
-        x_max = x_min;
-        y_max = y_min;
-
-        /* Iterate over the rest of the points to find the most extreme
-         * coordinates. */
-        for (i = 1U; i < n; ++i)
-        {
-            /* Extract the coordinates of the `i`-th point. */
-            x_i = P + (i << 1U);
-            y_i = x_i + 1U;
-
-            /* If either of the current point's coordinates is more extreme than
-             * the most extreme coordinates so far, update the extreme
-             * coordinates accordingly. */
-            if (*x_i < x_min)
-                x_min = *x_i;
-            if (x_max < *x_i)
-                x_max = *x_i;
-            if (*y_i < y_min)
-                y_min = *y_i;
-            if (y_max < *y_i)
-                y_max = *y_i;
-        }
-
-        /* Compute the middle coordinates. */
-        x_mid = x_min + 0.5 * (x_max - x_min);
-        y_mid = y_min + 0.5 * (y_max - y_min);
-
-        /* Iterate over the points and translate their coordinates. */
-        for (i = 0U; (i >> 1U) < n; ++i)
-            *(P + i) -= (i & 1U) ? y_mid : x_mid;
-    }
-    while (false);
-}
-
-/**
  * Check if an array of points is an ordered set of true vertices of a polygon.
  *
  * If any three consecutive points are on the same line (or are the same point),
@@ -1936,6 +1799,521 @@ real_t diameter_polygon (::size_t n, const real_t* P, bool sq)
 }
 
 /**
+ * Reflex a set of points over axes.
+ *
+ * Reflexion over the x-axis changes the signs of the x-coordinates of the
+ * vertices and reflexion over the y-axis changes the signs of the y-coordinates
+ * of the vertices.
+ *
+ * @param n
+ *     Number of points.
+ *
+ * @param P
+ *     Array of points of size at least 2 * `n`.  The array is organised as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
+ *     that the first and the last points are neighbouring.
+ *
+ *     Caution: the array `P` is mutated in the function.  The order of points
+ *     is preserved (the `i`-th point after the transformation is the point into
+ *     which the original `i`-th point was transformed).
+ *
+ * @param x
+ *     Whether or not the reflexion over the x-axis should be done.
+ *
+ * @param y
+ *     Whether or not the reflexion over the y-axis should be done.
+ *
+ */
+#if !defined(__cplusplus)
+void reflex_polygon (size_t n, real_t* P, bool x, bool y)
+#else
+void reflex_polygon (::size_t n, real_t* P, bool x, bool y)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Iteration index. */
+#if !defined(__cplusplus)
+    size_t i;
+#else
+    ::size_t i;
+#endif /* __cplusplus */
+
+    /* Auxiliary pointer to coordinate of a point. */
+    real_t* aux;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Iteration index. */
+    i = 0U;
+
+    /* Auxiliary pointer to coordinate of a point. */
+#if !defined(__cplusplus)
+    aux = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    aux = reinterpret_cast<real_t*>(NULL);
+#else
+    aux = nullptr;
+#endif /* __cplusplus */
+
+    /* ALGORITHM */
+
+    /* If the pointer `P` is a null-pointer, set the number `n` to 0. */
+    if (!P)
+        n = 0U;
+
+    /* If the reflexion over the x-axis is to be done, change signs of the
+     * x-coordinates of the vertices. */
+    if (x)
+        /* Iterate over the points and transform them. */
+        for (i = 0U; i < n; ++i)
+        {
+            /* Extract the x-coordinate of the `i`-th point. */
+            aux = P + (i << 1U);
+
+            /* Reflex the x-coordinate of the `i`-th point. */
+            *aux = (*aux == 0.0) ? 0.0 : -*aux;
+        }
+
+    /* If the reflexion over the y-axis is to be done, change signs of the
+     * y-coordinates of the vertices. */
+    if (y)
+        /* Iterate over the points and transform them. */
+        for (i = 0U; i < n; ++i)
+        {
+            /* Extract the y-coordinate of the `i`-th point. */
+            aux = P + (i << 1U) + 1U;
+
+            /* Reflex the y-coordinate of the `i`-th point. */
+            *aux = (*aux == 0.0) ? 0.0 : -*aux;
+        }
+}
+
+/**
+ * Rotate a set of points around the origin by a rectangular rotation.
+ *
+ * Use this function instead of the function `rotate_polygon` if the rotation
+ * angle is a multiple of pi / 2 because no sines or cosines are computed in
+ * this function.
+ *
+ * @param n
+ *     Number of points.
+ *
+ * @param P
+ *     Array of points of size at least 2 * `n`.  The array is organised as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
+ *     that the first and the last points are neighbouring.
+ *
+ *     Caution: the array `P` is mutated in the function.  The order of points
+ *     is preserved (the `i`-th point after the transformation is the point into
+ *     which the original `i`-th point was transformed).
+ *
+ * @param k
+ *     Multiplier of pi / 2 for the rotation angle.  The points are rotated by
+ *     `k` * pi / 2.
+ *
+ * @see rotate_polygon
+ *
+ */
+#if !defined(__cplusplus)
+void rect_rotate_polygon (size_t n, real_t* P, int k)
+#else
+void rect_rotate_polygon (::size_t n, real_t* P, int k)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Iteration index. */
+#if !defined(__cplusplus)
+    size_t i;
+#else
+    ::size_t i;
+#endif /* __cplusplus */
+
+    /* Auxiliary pointers to coordinates of points. */
+    real_t* x;
+    real_t* y;
+
+    /* Auxiliary value. */
+    real_t aux;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Iteration index. */
+    i = 0U;
+
+    /* Auxiliary pointers to coordinates of points. */
+#if !defined(__cplusplus)
+    x = (real_t*)(NULL);
+    y = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x = reinterpret_cast<real_t*>(NULL);
+    y = reinterpret_cast<real_t*>(NULL);
+#else
+    x = nullptr;
+    y = nullptr;
+#endif /* __cplusplus */
+
+    /* Auxiliary value. */
+    aux = 0.0;
+
+    /* ALGORITHM */
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+        /* If the pointer `P` is a null-pointer, set the number `n` to 0 and
+         * break the `do while`-loop. */
+        if (!P)
+        {
+            /* Set the numbre `n` to 0. */
+            n = 0U;
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* If the number of points is less than 2, break the `do while`-loop. */
+        if (!n)
+            break;
+
+        /* Compute `k` mod 4 and do the right transformation according to the
+         * result. */
+        switch (k % 4)
+        {
+            /* If `k` mod 4 == 0, no transformation needs to be done. */
+            case  0:
+                break;
+
+            /* If `k` mod 4 == 1, set x-coordinates to y-coordinates but with
+             * changed signs and set y-coordinates to x-coordinates. */
+            case  1:
+            case -3:
+                /* Iterate over the points and transform them. */
+                for (i = 0U; i < n; ++i)
+                {
+                    /* Extract coordinates of the `i`-th point. */
+                    x = P + (i << 1U);
+                    y = x + 1U;
+
+                    /* Transform coordinates of the `i`-th point using the
+                     * auxiliary value. */
+                    aux = *x;
+                    *x = (*y == 0.0) ? 0.0 : -*y;
+                    *y = aux;
+                }
+
+                /* Break the `switch`. */
+                break;
+
+            /* If `k` mod 4 == 2, change signs of coordinates. */
+            case  2:
+            case -2:
+                /* Iterate over the points and transform them. */
+                for (i = 0U; i < n; ++i)
+                {
+                    /* Extract coordinates of the `i`-th point. */
+                    x = P + (i << 1U);
+                    y = x + 1U;
+
+                    /* Transform coordinates of the `i`-th point. */
+                    *x = (*x == 0.0) ? 0.0 : -*x;
+                    *y = (*y == 0.0) ? 0.0 : -*y;
+                }
+
+                /* Break the `switch`. */
+                break;
+
+            /* If `k` mod 4 == 3, set x-coordinates to y-coordinates and set
+             * y-coordinates to x-coordinates but with changed signs. */
+            case  3:
+            case -1:
+                /* Iterate over the points and transform them. */
+                for (i = 0U; i < n; ++i)
+                {
+                    /* Extract coordinates of the `i`-th point. */
+                    x = P + (i << 1U);
+                    y = x + 1U;
+
+                    /* Transform coordinates of the `i`-th point using the
+                     * auxiliary value. */
+                    aux = *x;
+                    *x = *y;
+                    *y = (*x == 0.0) ? 0.0 : -*x;
+                }
+
+                /* Break the `switch`. */
+                break;
+
+            /* By default, do nothing (all cases were actually explicitly
+             * caught---default case will never be reached). */
+            default:
+                break;
+        }
+    }
+    while (false);
+}
+
+/**
+ * Rotate a set of points around the origin.
+ *
+ * If the angle is a multiple of pi / 2, use the function `rect_rotate_polygon`
+ * instead to avoid computing sines and cosines.
+ *
+ * @param n
+ *     Number of points.
+ *
+ * @param P
+ *     Array of points of size at least 2 * `n`.  The array is organised as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
+ *     that the first and the last points are neighbouring.
+ *
+ *     Caution: the array `P` is mutated in the function.  The order of points
+ *     is preserved (the `i`-th point after the transformation is the point into
+ *     which the original `i`-th point was transformed).
+ *
+ * @param phi
+ *     Angle of rotation.
+ *
+ * @see rect_rotate_polygon
+ *
+ */
+#if !defined(__cplusplus)
+void rotate_polygon (size_t n, real_t* P, real_t phi)
+#else
+void rotate_polygon (::size_t n, real_t* P, real_t phi)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Sine and cosine of the angle of rotation. */
+    real_t sin_phi;
+    real_t cos_phi;
+
+    /* Iteration index. */
+#if !defined(__cplusplus)
+    size_t i;
+#else
+    ::size_t i;
+#endif /* __cplusplus */
+
+    /* Auxiliary pointers to coordinates of points. */
+    real_t* x;
+    real_t* y;
+
+    /* Auxiliary value. */
+    real_t aux;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Sine and cosine of the angle of rotation. */
+    sin_phi = 0.0;
+    cos_phi = 0.0;
+
+    /* Iteration index. */
+    i = 0U;
+
+    /* Auxiliary pointers to coordinates of points. */
+#if !defined(__cplusplus)
+    x = (real_t*)(NULL);
+    y = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x = reinterpret_cast<real_t*>(NULL);
+    y = reinterpret_cast<real_t*>(NULL);
+#else
+    x = nullptr;
+    y = nullptr;
+#endif /* __cplusplus */
+
+    /* Auxiliary value. */
+    aux = 0.0;
+
+    /* ALGORITH */
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+        /* If the pointer `P` is a null-pointer, set the number `n` to 0 and
+         * break the `do while`-loop. */
+        if (!P)
+        {
+            /* Set the numbre `n` to 0. */
+            n = 0U;
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* If the number of points is less than 2, break the `do while`-loop. */
+        if (!n)
+            break;
+
+        /* Compute the sine and the cosine of the angle of rotation. */
+        sin_phi = rsin(phi);
+        cos_phi = rcos(phi);
+
+        /* Iterate over the points and rotate them. */
+        for (i = 0U; i < n; ++i)
+        {
+            /* Extract coordinates of the `i`-th point. */
+            x = P + (i << 1U);
+            y = x + 1U;
+
+            /* Rotate coordinates of the `i`-th point using the auxiliary
+             * value. */
+            aux = *x;
+            *x = cos_phi * aux - sin_phi * *y;
+            *y = sin_phi * aux + cos_phi * *y;
+        }
+    }
+    while (false);
+}
+
+/**
+ * Translate an array of points so that all the coordinates stretch inside a
+ * Certesian product of two symmetric closed intervals.
+ *
+ * All the x-coordinates of the points are decremented by
+ * (`x_min` + `x_max`) / 2, and all the y-coordinates are decremented by
+ * (`y_min` + `y_max`) / 2, where `x_min`, `x_max`, `y_min` and `y_max` are the
+ * smallest and the largest x-coordinates and the smallest and the largest
+ * y-coordinates respectively.
+ *
+ * The function mutates the given array.
+ *
+ * @param n
+ *     Number of points.
+ *
+ * @param P
+ *     Array of points of size at least 2 * `n`.  The array is organised as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th point and `y_i` is its y-coordinate.  Note
+ *     that the first and the last points are neighbouring.
+ *
+ *     Caution: the array `P` is mutated in the function.
+ *
+ */
+#if !defined(__cplusplus)
+void centralise_polygon (size_t n, real_t* P)
+#else
+void centralise_polygon (::size_t n, real_t* P)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Extreme and middle coordinates of points. */
+    real_t x_min;
+    real_t y_min;
+    real_t x_mid;
+    real_t y_mid;
+    real_t x_max;
+    real_t y_max;
+
+    /* Iteration index. */
+#if !defined(__cplusplus)
+    size_t i;
+#else
+    ::size_t i;
+#endif /* __cplusplus */
+
+    /* Auxiliary pointers to coordinates of points. */
+    real_t* x_i;
+    real_t* y_i;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Extreme and middle coordinates of points. */
+    x_min = 0.0;
+    y_min = 0.0;
+    x_mid = 0.0;
+    y_mid = 0.0;
+    x_max = 0.0;
+    y_max = 0.0;
+
+    /* Iteration index. */
+    i = 0U;
+
+    /* Auxiliary pointers to coordinates of points. */
+#if !defined(__cplusplus)
+    x_i = (real_t*)(NULL);
+    y_i = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    x_i = reinterpret_cast<real_t*>(NULL);
+    y_i = reinterpret_cast<real_t*>(NULL);
+#else
+    x_i = nullptr;
+    y_i = nullptr;
+#endif /* __cplusplus */
+
+    /* ALGORITHM */
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+        /* If the pointer `P` is a null-pointer, set the number `n` to 0 and
+         * break the `do while`-loop. */
+        if (!P)
+        {
+            /* Set the numbre `n` to 0. */
+            n = 0U;
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* If the number of points is 0, break the `do while`-loop. */
+        if (!n)
+            break;
+
+        /* Initialise the extreme coordinates to the coordinates of the first
+         * point. */
+        x_min = *P;
+        y_min = *(P + 1U);
+        x_max = x_min;
+        y_max = y_min;
+
+        /* Iterate over the rest of the points to find the most extreme
+         * coordinates. */
+        for (i = 1U; i < n; ++i)
+        {
+            /* Extract the coordinates of the `i`-th point. */
+            x_i = P + (i << 1U);
+            y_i = x_i + 1U;
+
+            /* If either of the `i`-th point's coordinates is more extreme than
+             * the most extreme coordinates so far, update the extreme
+             * coordinates accordingly. */
+            if (*x_i < x_min)
+                x_min = *x_i;
+            if (x_max < *x_i)
+                x_max = *x_i;
+            if (*y_i < y_min)
+                y_min = *y_i;
+            if (y_max < *y_i)
+                y_max = *y_i;
+        }
+
+        /* Compute the middle coordinates. */
+        x_mid = x_min + 0.5 * (x_max - x_min);
+        y_mid = y_min + 0.5 * (y_max - y_min);
+
+        /* Iterate over the points and translate their coordinates. */
+        for (i = 0U; (i >> 1U) < n; ++i)
+            *(P + i) -= (i & 1U) ? y_mid : x_mid;
+    }
+    while (false);
+}
+
+/**
  * Standardise an array of points by dividing all the coordinates by the
  * diameter of the set of the points.
  *
@@ -2036,6 +2414,18 @@ void standardise_polygon (::size_t n, real_t* P)
  *     that the first and the last points are neighbouring.  The points
  *     represent the vertices of the polygon.
  *
+ * @param dx
+ *     Array of the differences in x-coordinates of points.  The array is filled
+ *     as
+ *     {x_1 - x_0, x_2 - x_1, ..., x_n_minus_1 - x_n_minus_2,
+ *     x_0 - x_n_minus_1}.
+ *
+ * @param dy
+ *     Array of the differences in y-coordinates of points.  The array is filled
+ *     as
+ *     {y_1 - y_0, y_2 - y_1, ..., y_n_minus_1 - y_n_minus_2,
+ *     y_0 - y_n_minus_1}.
+ *
  * @param l
  *     Array of the edges' lengths of size at least 2 * `n`.  The array is
  *     filled as
@@ -2060,7 +2450,25 @@ void standardise_polygon (::size_t n, real_t* P)
  * @see correct_polygon_orientation
  *
  */
-void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
+#if !defined(__cplusplus)
+void describe_polygon (
+    size_t n,
+    const real_t* P,
+    real_t* dx,
+    real_t* dy,
+    real_t* l,
+    real_t* phi
+)
+#else
+void describe_polygon (
+    ::size_t n,
+    const real_t* P,
+    real_t* dx,
+    real_t* dy,
+    real_t* l,
+    real_t* phi
+)
+#endif /* __cplusplus */
 {
     /* DECLARATION OF VARIABLES */
 
@@ -2083,15 +2491,18 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
     const real_t* x_k;
     const real_t* y_k;
 
-    /* Differences in coordinates. */
-    real_t dx_i;
-    real_t dy_i;
-    real_t dx_j;
-    real_t dy_j;
+    /* Auxiliary pointers to differences in coordinates. */
+    real_t* dx_i;
+    real_t* dy_i;
+    real_t* dx_j;
+    real_t* dy_j;
 
     /* Auxiliary pointers to lengths of edges. */
     real_t* l_i;
     real_t* l_j;
+
+    /* Auxiliary pointer to outer edge. */
+    real_t* phi_i;
 
     /* INITIALISATION OF VARIABLES */
 
@@ -2124,28 +2535,61 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
     y_k = nullptr;
 #endif /* __cplusplus */
 
-    /* Differences in coordinates. */
-    dx_i = 0.0;
-    dy_i = 0.0;
-    dx_j = 0.0;
-    dy_j = 0.0;
+    /* Auxiliary pointers to differences in coordinates. */
+#if !defined(__cplusplus)
+    dx_i = (real_t*)(NULL);
+    dy_i = (real_t*)(NULL);
+    dx_j = (real_t*)(NULL);
+    dy_j = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    dx_i = reinterpret_cast<real_t*>(NULL);
+    dy_i = reinterpret_cast<real_t*>(NULL);
+    dx_j = reinterpret_cast<real_t*>(NULL);
+    dy_j = reinterpret_cast<real_t*>(NULL);
+#else
+    dx_i = nullptr;
+    dy_i = nullptr;
+    dx_j = nullptr;
+    dy_j = nullptr;
+#endif /* __cplusplus */
 
     /* Auxiliary pointers to lengths of edges. */
-    l_i = l;
-    l_j = l;
+#if !defined(__cplusplus)
+    l_i = (real_t*)(NULL);
+    l_j = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    l_i = reinterpret_cast<real_t*>(NULL);
+    l_j = reinterpret_cast<real_t*>(NULL);
+#else
+    l_i = nullptr;
+    l_j = nullptr;
+#endif /* __cplusplus */
+
+    /* Auxiliary pointer to outer edge. */
+#if !defined(__cplusplus)
+    phi_i = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    phi_i = reinterpret_cast<real_t*>(NULL);
+#else
+    phi_i = nullptr;
+#endif /* __cplusplus */
 
     /* ALGORITHM */
 
-    /* If either of the pointers `P`, `l` and `phi` is a null-pointer, set the
-     * number `n` to 0. */
-    if (!(P && l && phi))
+    /* If either of the pointers `P`, `dx`, `dy`, `l` and `phi` is a
+     * null-pointer, set the number `n` to 0. */
+    if (!(P && dx && dy && l && phi))
         n = 0U;
 
-    /* Initialise the arrays `l` and `phi` to zeros. */
+    /* Initialise the arrays `dx`, `dy`, `l` and `phi` to zeros. */
 #if !defined(__cplusplus)
+    memset(dx, 0, n * sizeof *dx);
+    memset(dy, 0, n * sizeof *dy);
     memset(l, 0, n * sizeof *l);
     memset(phi, 0, n * sizeof *phi);
 #else
+    ::memset(dx, 0, n * sizeof *dx);
+    ::memset(dy, 0, n * sizeof *dy);
     ::memset(l, 0, n * sizeof *l);
     ::memset(phi, 0, n * sizeof *phi);
 #endif /* __cplusplus */
@@ -2167,12 +2611,23 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
         x_k = P + (k << 1U);
         y_k = x_k + 1U;
 
-        /* Compute the diferences in coordinates of points P_i and P_j, and
+        /* Extract the differences in lengths of coordinates from points P_i and
+         * P_j. */
+        dx_i = dx + i;
+        dy_i = dy + i;
+        dx_j = dx + j;
+        dy_j = dy + j;
+
+        /* Compute the differences in coordinates of points P_i and P_j, and
          * points P_j and P_k. */
-        dx_i = *x_j - *x_i;
-        dy_i = *y_j - *y_i;
-        dx_j = *x_k - *x_j;
-        dy_j = *y_k - *y_j;
+        if (*dx_i == 0.0)
+            *dx_i = *x_j - *x_i;
+        if (*dy_i == 0.0)
+            *dy_i = *y_j - *y_i;
+        if (*dx_j == 0.0)
+            *dx_j = *x_k - *x_j;
+        if (*dy_j == 0.0)
+            *dy_j = *y_k - *y_j;
 
         /* Extract the lengths of edges P_i P_j and P_j P_k. */
         l_i = l + i;
@@ -2181,25 +2636,26 @@ void describe_polygon (size_t n, const real_t* P, real_t* l, real_t* phi)
         /* If the lengths of edge P_i P_j is currently set to 0, compute it; do
          * the same with the edge P_j P_k if its length is set to 0. */
         if (*l_i == 0.0)
-            *l_i = rsqrt(dx_i * dx_i + dy_i * dy_i);
+            *l_i = rsqrt(*dx_i * *dx_i + *dy_i * *dy_i);
         if (*l_j == 0.0)
-            *l_j = rsqrt(dx_j * dx_j + dy_j * dy_j);
+            *l_j = rsqrt(*dx_j * *dx_j + *dy_j * *dy_j);
+
+        /* Extract the outer angle at the `i`-th point. */
+        phi_i = phi + i;
 
         /* Compute the angle at the point P_j and save its value on the `i`-th
          * place in the array `phi`. */
 #if !defined(__cplusplus) || (__cplusplus) < 201103L
-        *(phi + i) = (
-            rsign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) == minus ?
-                -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
-                racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
-        );
+        *phi_i = racos((*dx_i * *dx_j + *dy_i * *dy_j) / (*l_i * *l_j));
+        if (rsign(*dx_i * (*y_k - *y_i) - (*x_k - *x_i) * *dy_i) == minus)
+            *phi_i = -*phi_i;
 #else /* __cplusplus */
-        *(phi + i) = (
-            rsign(dx_i * (*y_k - *y_i) - (*x_k - *x_i) * dy_i) ==
-                sign_t::minus ?
-                -racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j)) :
-                racos((dx_i * dx_j + dy_i * dy_j) / (*l_i * *l_j))
-        );
+        *phi_i = racos((*dx_i * *dx_j + *dy_i * *dy_j) / (*l_i * *l_j));
+        if (
+            rsign(*dx_i * (*y_k - *y_i) - (*x_k - *x_i) * *dy_i) ==
+            sign_t::minus
+        )
+            *phi_i = -*phi_i;
 #endif /* __cplusplus */
     }
 }
