@@ -742,14 +742,14 @@ void* build_matrix (
             for (r = 0U, s = n_; r < n; ++r, --s)
 #if !defined(__cplusplus)
                 memcpy(
-                    *((unsigned char*)A + (k + r) * size),
-                    *((unsigned char*)A + (j + s) * size),
+                    (unsigned char*)A + (k + r) * size,
+                    (unsigned char*)A + (j + s) * size,
                     size
                 );
 #else
                 ::memcpy(
-                    *(reinterpret_cast<unsigned char*>(A) + (k + r) * size),
-                    *(reinterpret_cast<unsigned char*>(A) + (j + s) * size),
+                    reinterpret_cast<unsigned char*>(A) + (k + r) * size,
+                    reinterpret_cast<unsigned char*>(A) + (j + s) * size,
                     size
                 );
 #endif /* __cplusplus */

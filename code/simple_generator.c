@@ -36,41 +36,33 @@
 
 /* Define functions. */
 
-#if !defined(__cplusplus)
-void initialise_generators (void)
-#else
 void initialise_generators ()
-#endif /* __cplusplus */
 {
-    saved_number(0.1);
+    saved_nn_integer(3U);
+    saved_number(1.0 / 12.0);
     saved_comb_function(rmin);
     saved_len_generator(constant_length);
 }
 
-void print_formatted (
-    const char* outname,
-    size_t n,
-    const real_t* P,
-    const real_t* dx,
-    const real_t* dy,
-    const real_t* l,
-    const real_t* phi,
-    size_t N
-)
+void print_formatted (const char* outname, size_t n, const real_t* P, size_t N)
 {
+    static const size_t prec = 4U;
+
     FILE* out;
 
     size_t i;
     size_t j;
+    size_t k;
 
     out = (FILE*)(NULL);
 
     i = 0U;
     j = 0U;
+    k = 0U;
 
     do
     {
-        if (!(outname && n && P && dx && dy && l && phi && N))
+        if (!(outname && n && P && N))
             break;
 
         out = fopen(outname, "wt");
@@ -80,16 +72,10 @@ void print_formatted (
 
         for (i = 0U; i < N; ++i)
         {
-            for (j = 0U; j < n; ++j)
-                fprintf(
-                    out,
-                    "%.4f\t%.4f\t%.4f\t%.4f\t%lu\n",
-                        *(P + ((i * n + j) << 1U)),
-                        *(P + ((i * n + j) << 1U) + 1U),
-                        *(dx + i * n + j),
-                        *(dy + i * n + j),
-                        (size_t)(*(l + i * n + j) * 50 + 0.5)
-                );
+            j = i << 1U;
+            fprintf(out, "%.*f", (int)prec, *(P + j * n));
+            for (k = 1U; (k >> 1U) < n; ++k)
+                fprintf(out, "\t%.*f", (int)prec, *(P + j * n + k));
             fprintf(out, "\n");
         }
 
@@ -489,7 +475,7 @@ int main (int argc, char** argv)
     return_value = display(n, P, N);
     printf("Returned: %d (0x%03X)\n", return_value, return_value);
 
-    print_formatted("test.tsv", n, P, dx, dy, l, phi, N);
+    print_formatted("test.tsv", n, P, N);
 
     /* Clear the memory in the arrays of the differences in coordinates,
      * edges' lengths and the outer angles. */
