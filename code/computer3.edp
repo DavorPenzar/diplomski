@@ -4,16 +4,16 @@
 /* This file is part of Davor Penzar's master thesis programing.            */
 /*                                                                          */
 /* Usage:                                                                   */
-/*     $ FreeFem++ computer3.edp [-i filein] [-o fileout]                   */
+/*     $ FreeFem++ computer3.edp [-i file_in] [-o file_out]                 */
 /* Arguments:                                                               */
 /*     -i: <filename>  path to the input file (default: "in.tsv")           */
-/*     -o: <filename>  path to the output file (default: "out.csv")         */
+/*     -o: <filename>  path to the output file (default: "out.tsv")         */
 /* Other arguments are ignored.                                             */
 /*                                                                          */
 /* Consider an open nonempty set $ \Omega \subseteq \mathbb{R}^{2} $ such   */
 /* that its boundary $ \partial \Omega $ is piecewise smooth.  A value      */
 /* $ \lambda \in \mathbb{R}^{2} $ is called the EIGENVALUE OF THE LAPLACE   */
-/* OPERATOR (ON $ \OMEGA $) if there exists a continuous nonconstant        */
+/* OPERATOR (ON $ \Omega $) if there exists a continuous nonconstant        */
 /* function $ u \colon \overline{\Omega} \to \mathbb{R}^{2} $ twice         */
 /* differential on $ \Omega $ such that                                     */
 /*     $ \Delta u = \lambda u $ on $ \Omega $,                              */
@@ -34,32 +34,26 @@
 /* script.  To change it, update the global parameter `np`.                 */
 /*                                                                          */
 /* Each polygon must be formated in the input file as                       */
-/*     x0 y0 lx0 ly0 nm0 x1 y1 lx1 ly1 nm1 ... xn yn lxn lyn nmn            */
+/*     x0 y0 x1 y1 ... xn yn                                                */
 /* where:                                                                   */
 /*     n + 1   is the number of vertices,                                   */
-/*     xi  is the x-coordinate of the i-th vertex,                          */
-/*     yi  is the y-coordinate of the i-th vertex,                          */
-/*     lxi is the difference in x-coordinates of the                        */
-/*         ((i + 1) mod n + 1)-th vertex and the i-th vertex,               */
-/*     lyi is the difference in y-coordinates of the                        */
-/*         ((i + 1) mod n + 1)-th vertex and the i-th vertex,               */
-/*     nmi is the number of mesh points to generate on the edge spanning    */
-/*         from the ((i + 1) mod n + 1)-th vertex to the i-th vertex.       */
-/* Whitespaces may differ (they may even be spaces, tabs, newlines...).     */
+/*     xi      is the x-coordinate of the i-th vertex,                      */
+/*     yi      is the y-coordinate of the i-th vertex.                      */
+/* Whitespaces may differ (they may even be spaces, tabs, line breaks...).  */
 /* All of the polygons must have the same number of vertices; moreover, the */
 /* number is hard coded in the script.  To change the number of vertices,   */
 /* update the global parameter `nv`, the definition of the border, the      */
 /* plotting of the border and the definition of the mesh.                   */
 /*                                                                          */
 /* Eigenvalues are printed to the output file in the same order as the      */
-/* polygons were defined in the input file, each in its own line.  An extra */
+/* polygons are defined in the input file, each in its own line.  An extra  */
 /* new line (empty) is added at the end of the output file.  The precision  */
 /* of the output is hard coded in the script (global parameter `prec`).     */
 /*                                                                          */
 /* The whole input file is read before any computation and the information  */
-/* is stored in arrays (consuming RAM).  Also, the first eigenvalues are    */
-/* stored in an array and no first eigenvalue is printed before the         */
-/* computation ends on all polygons.  The reason for this is to get a       */
+/* is stored in global arrays (consuming RAM).  Also, the first eigenvalues */
+/* are stored in a global array and no first eigenvalue is printed before   */
+/* the computation ends on all polygons.  The reason for this is to get a   */
 /* a better sense of time needed to compute the eigenvalues.  If there is   */
 /* not enough RAM to store all the information needed for a large number of */
 /* polygons, split the input file in multiple smaller files and run the     */
@@ -81,16 +75,14 @@ verbosity = 0;      // Verbosity level 0.
 int prec = 8;       // Precision of the output.
 real tol = 1.0e-12; // Tolerance for the solution.
 real eps = 1.0e-24; // Epsilon for the CG solver.
-int np = 20;        // Number of polygons.
+int np = 1;         // Number of polygons.
 int nv = 3;         // Number of vertices (change code acccordingly).
+int unit = 20;      // Number of mesh points on an edge of length 1.
 int nev = 1;        // Number of eigenvalues to compute.
 
 // Declare input/output arrays.
 real[int, int] Px(np, nv);  // x-coordinates of vertices.
 real[int, int] Py(np, nv);  // y-coordinates of vertices.
-real[int, int] lx(np, nv);  // Differences in x-coordinates of vertices.
-real[int, int] ly(np, nv);  // Differences in y-coordinates of vertices.
-real[int, int] nm(np, nv);  // Numbers of mesh points on edges.
 real[int] ev0(np);          // The first eigenvalues.
 
 // Declare variables to store time.
@@ -108,7 +100,7 @@ real t1 = 0.0;
     // Read from the input file.
     for (int i = 0; i < np; ++i)
         for (int j = 0; j < nv; ++j)
-            in >> Px(i, j) >> Py(i, j) >> lx(i, j) >> ly(i, j) >> nm(i, j);
+            in >> Px(i, j) >> Py(i, j);
 
     // Get time in seconds.
     t1 = clock();
@@ -123,40 +115,53 @@ t0 = clock();
 // Compute the eigenvalues.
 for (int i = 0; i < np; ++i)
 {
+    // Declare auxiliary arrays for border parameters.
+    real[int] lx(nv);   // Differences in x-coordinates of vertices.
+    real[int] ly(nv);   // Differences in y-coordinates of vertices.
+    int[int] nm(nv);    // Numbers of mesh points on edges.
+
+    // Compute border parameters.
+    for (int j = 0; j < nv; ++j)
+    {
+        lx(j) = Px(i, (j + 1) % nv) - Px(i, j);
+        ly(j) = Py(i, (j + 1) % nv) - Py(i, j);
+        nm(j) = max(round(unit * dist(lx(j), ly(j))), 2.0);
+    }
+
     // Define the border.
     border Gamma0 (t = 0.0, 1.0)
     {
-        x = Px(i, 0) + lx(i, 0) * t;
-        y = Py(i, 0) + ly(i, 0) * t;
+        x = Px(i, 0) + lx(0) * t;
+        y = Py(i, 0) + ly(0) * t;
         label = i;
     }
     border Gamma1 (t = 0.0, 1.0)
     {
-        x = Px(i, 1) + lx(i, 1) * t;
-        y = Py(i, 1) + ly(i, 1) * t;
+        x = Px(i, 1) + lx(1) * t;
+        y = Py(i, 1) + ly(1) * t;
         label = i;
     }
     border Gamma2 (t = 0.0, 1.0)
     {
-        x = Px(i, 2) + lx(i, 2) * t;
-        y = Py(i, 2) + ly(i, 2) * t;
+        x = Px(i, 2) + lx(2) * t;
+        y = Py(i, 2) + ly(2) * t;
         label = i;
     }
 
 //  // Plot the border.
 //  plot(
-//      Gamma0(nm(i, 0)) +
-//      Gamma1(nm(i, 1)) +
-//      Gamma2(nm(i, 2)),
+//      Gamma0(nm(0)) +
+//      Gamma1(nm(1)) +
+//      Gamma2(nm(2)),
 //      cmm = "Polygon " + i + ": Border",
 //      wait = true
 //  );
 
     // Build the mesh.
     mesh Th = buildmesh(
-        Gamma0(nm(i, 0)) +
-        Gamma1(nm(i, 1)) +
-        Gamma2(nm(i, 2))
+        Gamma0(nm(0)) +
+        Gamma1(nm(1)) +
+        Gamma2(nm(2))
     );
 
 //  // Plot the mesh.
@@ -236,7 +241,7 @@ for (int i = 0; i < np; ++i)
 //  }
 
     // Save the first eigenvalue.
-    ev0[i] = (k > 0) ? ev[0] : 0.0;
+    ev0[i] = k ? ev[0] : 0.0;
 }
 
 // Get time in seconds.
@@ -248,7 +253,7 @@ cout << "Computing: " << (t1 - t0) << "s." << endl;
 // Print the output.
 {
     // Open the output file.
-    ofstream out(getARGV("-o", "out.csv"));
+    ofstream out(getARGV("-o", "out.tsv"));
 
     // Set the precision of the output.
     out.fixed;
