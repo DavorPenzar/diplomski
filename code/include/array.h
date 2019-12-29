@@ -724,17 +724,21 @@ void* build_matrix (
 #if !defined(__cplusplus)
             memcpy(
                 (unsigned char*)A + j * size,
-                (unsigned char*)a + i * size,
+                (const unsigned char*)a + i * size,
                 (n - i) * size
             );
             memcpy((unsigned char*)A + (j + n - i) * size, a, i * size);
 #else
             ::memcpy(
                 reinterpret_cast<unsigned char*>(A) + j * size,
-                reinterpret_cast<unsigned char*>(a) + i * size,
+                reinterpret_cast<const unsigned char*>(a) + i * size,
                 (n - i) * size
             );
-            ::memcpy(A + (j + n - i) * size, a, i * size);
+            ::memcpy(
+                reinterpret_cast<unsigned char*>(A) + (j + n - i) * size,
+                a,
+                i * size
+            );
 #endif /* __cplusplus */
 
             /* Fill the (2 * `i` + 1)-th row of the matrix by copying from the
