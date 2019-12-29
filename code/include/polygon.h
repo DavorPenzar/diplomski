@@ -131,12 +131,9 @@ real_t* random_polygon (
      * statement. */
     do
     {
-        /* If `n` == 0, break the `do while`-loop. */
-        if (!n)
-            break;
-
-        /* If `generator` is a null-pointer, break the `do while` loop. */
-        if (!generator)
+        /* If `n` == 0 or if `generator` is a null-pointer, break the
+         * `do while`-loop. */
+        if (!(n && generator))
             break;
 
         /* Allocate the memory for the array `P` if necessary. */
@@ -2645,18 +2642,16 @@ void describe_polygon (
 
         /* Compute the angle at the point P_j and save its value on the `i`-th
          * place in the array `phi`. */
+        *phi_i = racos((*dx_i * *dx_j + *dy_i * *dy_j) / (*l_i * *l_j));
 #if !defined(__cplusplus) || (__cplusplus) < 201103L
-        *phi_i = racos((*dx_i * *dx_j + *dy_i * *dy_j) / (*l_i * *l_j));
         if (rsign(*dx_i * (*y_k - *y_i) - (*x_k - *x_i) * *dy_i) == minus)
-            *phi_i = -*phi_i;
-#else /* __cplusplus */
-        *phi_i = racos((*dx_i * *dx_j + *dy_i * *dy_j) / (*l_i * *l_j));
+#else
         if (
             rsign(*dx_i * (*y_k - *y_i) - (*x_k - *x_i) * *dy_i) ==
             sign_t::minus
         )
-            *phi_i = -*phi_i;
 #endif /* __cplusplus */
+            *phi_i = -*phi_i;
     }
 }
 

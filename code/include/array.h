@@ -548,4 +548,217 @@ void intertwine (void* a, ::size_t n, ::size_t size)
     while (false);
 }
 
+/**
+ * Generate the matrix of the unoriented circular representation of an array.
+ *
+ * The matrix of the unoriented circular representation of the array
+ * {a_0, a_1, ..., a_n_minus_1} is the matrix
+ *     a_0         a_1         ... a_n_minus_2 a_n_minus_1
+ *     a_n_minus_1 a_n_minus_2 ... a_1         a_0
+ *     a_1         a_2         ... a_n_minus_1 a_0
+ *     a_0         a_n_minus_1 ... a_2         a_1
+ *     .           .           .   .           .
+ *     .           .            .  .           .
+ *     .           .             . .           .
+ *     a_n_minus_1 a_0         ... a_n_minus_3 a_n_minus_2
+ *     a_n_minus_2 a_n_minus_3 ... a_0         a_n_minus_1
+ * i. e. the (2 * i)-th row of the matrix is the array
+ * {a_i, a_i_plus_one, ..., a_n_minus_1, a_0, a_1, ..., a_i_minus_one} and the
+ * (2 * i + 1)-th row is (2 * i)-th row flipped for all indices i in
+ * {0, 1, ..., `n` - 1}.
+ *
+ * If any of the parameters `nr`, `nc` and `ld` is a null-pointer or if `n` is
+ * 0, the function returns the given pointer `A` immediately without allocating
+ * memory or changing any of the variables.
+ *
+ * Caution: if pointers `nr`, `nc` and `ld` do not point to three distinct
+ * variables, the result may be unexpected---even the segmentation fault may
+ * occur in the function.  This is not checked in the function, it is the user's
+ * responsibility to make sure the pointers are distinct.
+ *
+ * Caution: the function may fail if memory cannot be allocated for the
+ * resulting matrix.  If that happens, the null-pointer is returned.  Exceptions
+ * thrown by failed memory allocation in C++ are not caught.
+ *
+ * @param A
+ *     Pointer to the first element of the resulting matrix.  The matrix is
+ *     filled row-wise and its dimensions are 2 * `n` by `n`.  However, the size
+ *     of the array should be at least `*ld` by `n`---see parameter `ld` for the
+ *     explanation.  The `i`-th row of the matrix starts at position
+ *     `i` * `*ld`, NOT on position `i` * `n`.
+ *
+ *     If a null-pointer is passed, the memory is dynamically allocated using
+ *     the `malloc` function in C and by calling the `new[]` operator in C++.
+ *
+ * @param nr
+ *     Pointer to the variable of the number of rows of the matrix.  The number
+ *     is set to 2 * `n`.
+ *
+ * @param nc
+ *     Pointer to the variable of the number of columns of the matrix.  The
+ *     number is set to `n`.
+ *
+ * @param ld
+ *     Pointer to the variable of the leading dimension of the matrix.  The
+ *     number is set to ceil(`n` / 64) * 64.
+ *
+ * @param a
+ *     Pointer to the beginning of the original array.
+ *
+ * @param n
+ *     Length of the original array (number of elements).
+ *
+ * @param
+ *     Size in bytes of each element in the array `a`.
+ *
+ */
+#if !defined(__cplusplus)
+void* build_matrix (
+    void* A,
+    size_t* nr,
+    size_t* nc,
+    size_t* ld,
+    const void* a,
+    size_t n,
+    size_t size
+)
+#else
+void* build_matrix (
+    void* A,
+    ::size_t* nr,
+    ::size_t* nc,
+    ::size_t* ld,
+    const void* a,
+    ::size_t n,
+    ::size_t size
+)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Auxiliary length variable. */
+#if !defined(__cplusplus)
+    size_t n_;
+#else
+    ::size_t n_;
+#endif /* __cplusplus */
+
+    /* Iteration indices. */
+#if !defined(__cplusplus)
+    size_t i;
+    size_t j;
+    size_t k;
+    size_t r;
+    size_t s;
+#else
+    ::size_t i;
+    ::size_t j;
+    ::size_t k;
+    ::size_t r;
+    ::size_t s;
+#endif /* __cplusplus */
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Auxiliary length variable. */
+    n_ = 0U;
+
+    /* Iteration indices. */
+    i = 0U;
+    j = 0U;
+    k = 0U;
+    r = 0U;
+    s = 0U;
+
+    /* ALGORITHM */
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+        /* If the array is empty, if any of its elements is empty or if pointers
+         * to dimension variables are null-pointers, break the
+         * `do while`-loop. */
+        if (!(a && n && size && nr && nc && ld))
+            break;
+
+        /* Compute `n` - 1 and set the auxiliary length variable `n_` to the
+         * result. */
+        n_ = n - 1U;
+
+        /* Compute and save dimensions of the matrix. */
+        *nr = n << 1U;
+        *nc = n;
+        *ld = ((n + 63U) >> 6U) << 6U;
+
+        /* Allocate the memory for the array `A` if necessary. */
+        if (!A)
+#if !defined(__cplusplus)
+            A = malloc(*nr * *ld * size);
+#else
+            A = new unsigned char[*nr * *ld * size];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, break the `do while`-loop. */
+        if (!A)
+            break;
+
+        /* Initialise the matrix to zeros. */
+#if !defined(__cplusplus)
+        memset(A, 0, *nr * *ld * size);
+#else
+        ::memset(A, 0, *nr * *ld * size);
+#endif /* __cplusplus */
+
+        /* Fill the matrix. */
+        for (i = 0U; i < n; ++i)
+        {
+            /* Set the index `j` to 2 * `i` * `*ld` and index k to
+             * `j` + `*ld`. */
+            j = (i << 1U) * *ld;
+            k = j + *ld;
+
+            /* Fill the (2 * `i`)-th row of the matrix by copying from the
+             * original array `a`. */
+#if !defined(__cplusplus)
+            memcpy(
+                (unsigned char*)A + j * size,
+                (unsigned char*)a + i * size,
+                (n - i) * size
+            );
+            memcpy((unsigned char*)A + (j + n - i) * size, a, i * size);
+#else
+            ::memcpy(
+                reinterpret_cast<unsigned char*>(A) + j * size,
+                reinterpret_cast<unsigned char*>(a) + i * size,
+                (n - i) * size
+            );
+            ::memcpy(A + (j + n - i) * size, a, i * size);
+#endif /* __cplusplus */
+
+            /* Fill the (2 * `i` + 1)-th row of the matrix by copying from the
+             * (2 * `i`)-th row of the matrix. */
+            for (r = 0U, s = n_; r < n; ++r, --s)
+#if !defined(__cplusplus)
+                memcpy(
+                    *((unsigned char*)A + (k + r) * size),
+                    *((unsigned char*)A + (j + s) * size),
+                    size
+                );
+#else
+                ::memcpy(
+                    *(reinterpret_cast<unsigned char*>(A) + (k + r) * size),
+                    *(reinterpret_cast<unsigned char*>(A) + (j + s) * size),
+                    size
+                );
+#endif /* __cplusplus */
+        }
+    }
+    while (false);
+
+    /* Return the generated matrix. */
+    return A;
+}
+
 #endif /* __ARRAY_H__INCLUDED */

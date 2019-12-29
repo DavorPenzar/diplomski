@@ -9,15 +9,6 @@
 
 #define LEN_MAX 1024U
 
-typedef enum
-{
-    all     =   65,
-    first   =   83,
-    over    =   79,
-    none    =   78
-}
-job_t;
-
 size_t compute_ld (size_t m, size_t n)
 {
     return m ? (((m + 63U) >> 6U) << 6U) : 1U;
