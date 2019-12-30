@@ -48,6 +48,71 @@
 #include "boolean.h"
 #include "numeric.h"
 
+/* Check if the macro _DGESVD_DRIVER is properly defined. */
+#if !(defined(_DGESVD_DRIVER) && (_DGESVD_DRIVER) == 0)
+
+/* If the macro _DGESVD_DRIVER has been defined unproperly, undefine it. */
+#if defined(_DGESVD_DRIVER)
+#undef _DGESVD_DRIVER
+#endif /* _DGESVD_DRIVER */
+
+/* Define the macro _DGESVD_DRIVER as 0. */
+#define _DGESVD_DRIVER 0
+
+#endif /* _DGESVD_DRIVER */
+
+/* Check if the macro _DGESDD_DRIVER is properly defined. */
+#if !(defined(_DGESDD_DRIVER) && (_DGESDD_DRIVER) == 1)
+
+/* If the macro _DGESDD_DRIVER has been defined unproperly, undefine it. */
+#if defined(_DGESDD_DRIVER)
+#undef _DGESDD_DRIVER
+#endif /* _DGESDD_DRIVER */
+
+/* Define the macro _DGESDD_DRIVER as 1. */
+#define _DGESDD_DRIVER 1
+
+#endif /* _DGESDD_DRIVER */
+
+/* Import the SVD driver. */
+#if defined(_USE_SVD_DRIVER)
+#if (_USE_SVD_DRIVER) == (_DGESVD_DRIVER)
+extern void dgesvd_ (
+    char* JOBU,
+    char* JOBVT,
+    int* M,
+    int* N,
+    double* A,
+    int* LDA,
+    double* S,
+    double* U,
+    int* LDU,
+    double* VT,
+    int* LDVT,
+    double* WORK,
+    int* LWORK,
+    int* INFO
+);
+#elif (_USE_SVD_DRIVER) == (_DGESDD_DRIVER)
+extern void dgesdd_ (
+    char* JOBZ,
+    int* M,
+    int* N,
+    double* A,
+    int* LDA,
+    double* S,
+    double* U,
+    int* LDU,
+    double* VT,
+    int* LDVT,
+    double* WORK,
+    int* LWORK,
+    int* IWORK,
+    int* INFO
+);
+#endif /* _USE_SVD_DRIVER */
+#endif /* _USE_SVD_DRIVER */
+
 /**
  * Generate points in a plane.
  *
@@ -259,9 +324,10 @@ real_t* smart_random_polygon (
 {
     /* DECLARATION OF VARIABLES */
 
-    /* Flags for checking if the given pointer is a null-pointer and for
-     * checking the requirements. */
+    /* Flag for checking if the given pointer is a null-pointer. */
     bool P_null;
+
+    /* Flag for checking the requirements. */
     bool bad;
 
     /* Iteration indices. */
@@ -374,7 +440,7 @@ real_t* smart_random_polygon (
         if (!n)
             break;
 
-        /* Allocate the memory for the array `P` if necessary. */
+        /* Allocate memory for the array `P` if necessary. */
         if (P_null)
 #if !defined(__cplusplus)
             P = (real_t*)malloc((n << 1U) * sizeof *P);
@@ -2653,6 +2719,750 @@ void describe_polygon (
 #endif /* __cplusplus */
             *phi_i = -*phi_i;
     }
+}
+
+#if !defined(__cplusplus)
+real_t* svd_polygon (size_t n, const real_t* a, real_t* s, real_t* A)
+#else
+real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Dimension variable. */
+    size_t n2;
+
+    /* Leading dimension variable. */
+#if !defined(__cplusplus)
+    size_t ld_A;
+#else
+    ::size_t ld_A;
+#endif /* __cplusplus */
+
+    /* Flag for checking if the given pointer `A` is a null-pointer. */
+    bool A_null;
+
+    /* Auxiliary dimension variables (of type `int`). */
+    int int_n;
+    int int_n2;
+
+    /* Auxiliary leading dimension variable (of type `int`). */
+    int int_ld_A;
+
+    /* Job string for SVD drivers. */
+    char job[2U];
+
+    /* Dimension of the workspace for SVD drivers. */
+    int lwork;
+
+    /* Workspace for SVD drivers. */
+    real_t* work;
+
+#if (_USE_SVD_DRIVER) == (_DGESDD_DRIVER)
+    /* Integer workspace for DGESDD driver. */
+    int* iwork;
+#endif /* _USE_SVD_DRIVER */
+
+    /* Information from SVD drivers. */
+    int info;
+
+    /* Dummy integer for SVD drivers. */
+    int dummy;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Dimension variable. */
+    n2 = 0U;
+
+    /* Leading dimension variable. */
+    ld_A = 0U;
+
+    /* Flag for checking if the given pointer `A` is a null-pointer. */
+    A_null = false;
+
+    /* Auxiliary dimension variables (of type `int`). */
+    int_n = 0;
+    int_n2 = 0;
+
+    /* Auxiliary leading dimension variable (of type `int`). */
+    int_ld_A = 0;
+
+    /* Dimension of the workspace for SVD drivers. */
+    lwork = 0;
+
+    /* Workspace for SVD drivers. */
+#if !defined(__cplusplus)
+    work = (real_t*)(NULL);
+#elif (__cplusplus) < 201103L
+    work = reinterpret_cast<real_t*>(NULL);
+#else
+    work = nullptr;
+#endif /* __cplusplus */
+
+#if (_USE_SVD_DRIVER) == (_DGESDD_DRIVER)
+    /* Integer workspace for DGESDD driver. */
+#if !defined(__cplusplus)
+    iwork = (int*)(NULL);
+#elif (__cplusplus) < 201103L
+    iwork = reinterpret_cast<int*>(NULL);
+#else
+    iwork = nullptr;
+#endif /* __cplusplus */
+#endif /* _USE_SVD_DRIVER */
+
+    /* Information from SVD drivers. */
+    info = 0;
+
+    /* Dummy integer for SVD drivers. */
+    dummy = 0;
+
+    /* ALGORITHM */
+
+    /* Fill the job string for SVD drivers with null-characters. */
+#if !defined(__cplusplus)
+    memset(job, 0, 2U * sizeof *job);
+#else
+    ::memset(job, 0, 2U * sizeof *job);
+#endif /* __cplusplus */
+
+    /* If the given pointer `A` is a null-pointer, set the flag for checking it
+     * to `true`. */
+    if (!A)
+        A_null = true;
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+        /* If the pointer `a` is a null-pointer, set the number `n` to 0 and
+         * break the `do while`-loop. */
+        if (!a)
+        {
+            /* Set the numbre `n` to 0. */
+            n = 0U;
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* If the number of values is 0, break the `do while`-loop. */
+        if (!n)
+            break;
+
+        /* Set the first character of the job string to `'N'` making it the
+         * string `"N"`. */
+        *job = 'N';
+
+        /* Allocate the memory for the array `P` if necessary. */
+        if (!s)
+#if !defined(__cplusplus)
+            s = (real_t*)malloc(n * sizeof *s);
+#else
+            s = new real_t[n];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, break the `do while`-loop. */
+        if (!s)
+            break;
+
+        /* Initialise the array of singular values to zeros. */
+#if !defined(__cplusplus)
+        memset(s, 0, n * sizeof *s);
+#else
+        ::memset(s, 0, n * sizeof *s);
+#endif /* __cplusplus */
+
+        /* Build the matrix of the unoriented circular representation of the
+         * array `a` on `A`. */
+#if !defined(__cplusplus)
+        A = (real_t*)(
+            build_unorient_circ_matrix(A, &n2, &n, &ld_A, a, n, sizeof *a)
+        );
+#else
+        A = reinterpret_cast<real_t*>(
+            build_unorient_circ_matrix(A, &n2, &n, &ld_A, a, n, sizeof *a)
+        );
+#endif /* __cplusplus */
+
+        /* If the pointer `A` is a null-pointer, break the `do while`-loop. */
+        if (!A)
+            break;
+
+        /* Extract the auxiliary dimension variables. */
+        int_n = (int)n;
+        int_n2 = (int)n2;
+
+        /* Extract the auxiliary leading dimension variable. */
+        int_ld_A = (int)ld_A;
+
+        /* Set the dummy integer of for the SVD drivers to the maximum of
+         * 64 * ceil(`n` / 32) and the leading dimension of the matrix `A`. */
+        dummy = (n2 < ld_A) ? int_ld_A : (int)(((n2 + 63U) >> 6U) << 6U);
+
+        /* Compute the singular values using the right driver. */
+
+#if (_USE_SVD_DRIVER) == (_DGESVD_DRIVER)
+
+        /* Allocate memory for the initial workspace (for the query). */
+#if !defined(__cplusplus)
+        work = (real_t*)malloc(sizeof *work);
+#else
+        work = new real_t[1U];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, clear the memory if necessary
+         * and break the `do while`-loop. */
+        if (!work)
+        {
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Initialise the initial workspace to zeros. */
+#if !defined(__cplusplus)
+        memset(work, 0, sizeof *work);
+#else
+        ::memset(work, 0, sizeof *work);
+#endif /* __cplusplus */
+
+        /* Set the dimension of the workspace to -1 to query the optimal
+         * dimension. */
+        lwork = -1;
+
+        /* Query the optimal dimension of the workspace. */
+#if !defined(__cplusplus)
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            (real_t*)(NULL),
+            &dummy,
+            (real_t*)(NULL),
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#elif (__cplusplus) < 201103L
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#else
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            nullptr,
+            &dummy,
+            nullptr,
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#endif /* __cplusplus */
+
+        /* If the query succeeded, extract the optimal dimension of the
+         * workspace. */
+        if (!info)
+            lwork = (int)(*work);
+
+        /* Clear the memory in the initial workspace. */
+#if !defined(__cplusplus)
+        memset(work, 0, sizeof *work);
+#else
+        ::memset(work, 0, sizeof *work);
+#endif /* __cplusplus */
+
+        /* Free the memory allocated for the initial workspace. */
+#if !defined(__cplusplus)
+        free(work);
+        work = (real_t*)(NULL);
+#else
+        delete[] work;
+#if (__cplusplus) < 201103L
+        work = reinterpret_cast<real_t*>(NULL);
+#else
+        work = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+        /* If the query has not suceeded, clear the memory if necessary and
+         * break the `do while`-loop. */
+        if (info)
+        {
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Allocate memory for the workspace. */
+#if !defined(__cplusplus)
+        work = (real_t*)malloc((size_t)lwork * sizeof *work);
+#else
+        work = new real_t[(size_t)lwork];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, clear the memory if necessary
+         * and break the `do while`-loop. */
+        if (!work)
+        {
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Initialise the workspace to zeros. */
+#if !defined(__cplusplus)
+        memset(work, 0, (size_t)lwork * sizeof *work);
+#else
+        ::memset(work, 0, (size_t)lwork * sizeof *work);
+#endif /* __cplusplus */
+
+        /* Compute the singular values. */
+#if !defined(__cplusplus)
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            (real_t*)(NULL),
+            &dummy,
+            (real_t*)(NULL),
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#elif (__cplusplus) < 201103L
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#else
+        dgesvd_(
+            job,
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            nullptr,
+            &dummy,
+            nullptr,
+            &dummy,
+            work,
+            &lwork,
+            &info
+        );
+#endif /* __cplusplus */
+
+        /* Clear the memory in the workspace. */
+#if !defined(__cplusplus)
+        memset(work, 0, (size_t)lwork * sizeof *work);
+#else
+        ::memset(work, 0, (size_t)lwork * sizeof *work);
+#endif /* __cplusplus */
+
+        /* Free the memory allocated for the workspace. */
+#if !defined(__cplusplus)
+        free(work);
+        work = (real_t*)(NULL);
+#else
+        delete[] work;
+#if (__cplusplus) < 201103L
+        work = reinterpret_cast<real_t*>(NULL);
+#else
+        work = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#elif (_USE_SVD_DRIVER) == (_DGESDD_DRIVER)
+
+        /* Allocate memory for the initial workspace (for the query). */
+#if !defined(__cplusplus)
+        work = (real_t*)malloc(sizeof *work);
+        iwork = (int*)malloc((n << 3U) * sizeof *work);
+#else
+        work = new real_t[1U];
+        iwork = new int[n << 3U];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, clear the memory if necessary
+         * and break the `do while`-loop. */
+        if (!(work && iwork))
+        {
+            /* Deallocate memory. */
+#if !defined(__cplusplus)
+            free(work);
+            free(iwork);
+            work = (real_t*)(NULL);
+            iwork = (int*)(NULL);
+#else
+            delete[] work;
+            delete[] iwork;
+#if (__cplusplus) < 201103L
+            work = reinterpret_cast<real_t*>(NULL);
+            iwork = reinterpret_cast<int*>(NULL);
+#else
+            work = nullptr;
+            iwork = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Initialise the initial workspace to zeros. */
+#if !defined(__cplusplus)
+        memset(work, 0, sizeof *work);
+        memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#else
+        ::memset(work, 0, sizeof *work);
+        ::memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#endif /* __cplusplus */
+
+        /* Set the dimension of the workspace to -1 to query the optimal
+         * dimension. */
+        lwork = -1;
+
+        /* Query the optimal dimension of the workspace. */
+#if !defined(__cplusplus)
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            (real_t*)(NULL),
+            &dummy,
+            (real_t*)(NULL),
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#elif (__cplusplus) < 201103L
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#else
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            nullptr,
+            &dummy,
+            nullptr,
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#endif /* __cplusplus */
+
+        /* If the query succeeded, extract the optimal dimension of the
+         * workspace. */
+        if (!info)
+            lwork = (int)(*work);
+
+        /* Clear the memory in the initial workspace. */
+#if !defined(__cplusplus)
+        memset(work, 0, sizeof *work);
+        memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#else
+        ::memset(work, 0, sizeof *work);
+        ::memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#endif /* __cplusplus */
+
+        /* Free the memory allocated for the initial workspace. */
+#if !defined(__cplusplus)
+        free(work);
+        work = (real_t*)(NULL);
+#else
+        delete[] work;
+#if (__cplusplus) < 201103L
+        work = reinterpret_cast<real_t*>(NULL);
+#else
+        work = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+        /* If the query has not suceeded, clear the memory if necessary and
+         * break the `do while`-loop. */
+        if (info)
+        {
+            /* Free the memory allocated for the integer workspace. */
+#if !defined(__cplusplus)
+            free(iwork);
+            iwork = (int*)(NULL);
+#else
+            delete[] iwork;
+#if (__cplusplus) < 201103L
+            iwork = reinterpret_cast<int*>(NULL);
+#else
+            iwork = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Allocate memory for the workspace. */
+#if !defined(__cplusplus)
+        work = (real_t*)malloc((size_t)lwork * sizeof *work);
+#else
+        work = new real_t[(size_t)lwork];
+#endif /* __cplusplus */
+
+        /* If the memory allocation has failed, clear the memory if necessary
+         * and break the `do while`-loop. */
+        if (!work)
+        {
+            /* Free the memory allocated for the integer workspace. */
+#if !defined(__cplusplus)
+            free(iwork);
+            iwork = (int*)(NULL);
+#else
+            delete[] iwork;
+#if (__cplusplus) < 201103L
+            iwork = reinterpret_cast<int*>(NULL);
+#else
+            iwork = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+            /* If the given pointer `A` was a null-pointer, clear the memory in
+             * the array `A`. */
+            if (A_null)
+#if !defined(__cplusplus)
+                memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+                ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+
+            /* Break the `do while`-loop. */
+            break;
+        }
+
+        /* Initialise the workspace to zeros. */
+        memset(work, 0, (size_t)lwork * sizeof *work);
+
+        /* Compute the singular values. */
+#if !defined(__cplusplus)
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            (real_t*)(NULL),
+            &dummy,
+            (real_t*)(NULL),
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#elif (__cplusplus) < 201103L
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            reinterpret_cast<real_t*>(NULL),
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#else
+        dgesdd_(
+            job,
+            &int_n,
+            &int_n2,
+            A,
+            &int_ld_A,
+            s,
+            nullptr,
+            &dummy,
+            nullptr,
+            &dummy,
+            work,
+            &lwork,
+            iwork,
+            &info
+        );
+#endif /* __cplusplus */
+
+        /* Clear the memory in the workspace. */
+#if !defined(__cplusplus)
+        memset(work, 0, sizeof *work);
+        memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#else
+        ::memset(work, 0, sizeof *work);
+        ::memset(iwork, 0, (n << 3U) * sizeof *iwork);
+#endif /* __cplusplus */
+
+        /* Free the memory allocated for the workspace. */
+#if !defined(__cplusplus)
+        free(work);
+        free(iwork);
+        work = (real_t*)(NULL);
+        iwork = (int*)(NULL);
+#else
+        delete[] work;
+        delete[] iwork;
+#if (__cplusplus) < 201103L
+        work = reinterpret_cast<real_t*>(NULL);
+        iwork = reinterpret_cast<int*>(NULL);
+#else
+        work = nullptr;
+        iwork = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _USE_SVD_DRIVER */
+
+        /* If the given pointer `A` was a null-pointer, clear the memory in the
+         * array `A`. */
+        if (A_null)
+#if !defined(__cplusplus)
+            memset(A, 0, n2 * ld_A * sizeof *A);
+#else
+            ::memset(A, 0, n2 * ld_A * sizeof *A);
+#endif /* __cplusplus */
+    }
+    while (false);
+
+    /* If the given pointer `A` was a null-pointer, free the memroy allocated
+     * for the array `A`. */
+    if (A_null)
+    {
+#if !defined(__cplusplus)
+        free(A);
+        work = (real_t*)(NULL);
+#else
+        delete[] A;
+#if (__cplusplus) < 201103L
+        A = reinterpret_cast<real_t*>(NULL);
+#else
+        A = nullptr;
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+    }
+
+    /* Return the array of the singular values. */
+    return s;
 }
 
 #endif /* __POLYGON_H__INCLUDED */

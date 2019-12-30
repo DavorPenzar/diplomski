@@ -22,6 +22,8 @@
 #include <string.h>
 #include <time.h>
 
+#define _USE_SVD_DRIVER 0
+
 /* Include package headers. */
 #include "include/array.h"
 #include "include/boolean.h"
@@ -315,7 +317,7 @@ int main (int argc, char** argv)
         smart_random_polygon(
             n,
             P,
-            regular_coordinate,
+            random_coordinate,
             OUT_ITER_MAX,
             IN_ITER_MAX
         );

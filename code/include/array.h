@@ -600,7 +600,7 @@ void intertwine (void* a, ::size_t n, ::size_t size)
  *
  * @param ld
  *     Pointer to the variable of the leading dimension of the matrix.  The
- *     number is set to ceil(`n` / 64) * 64.
+ *     number is set to 64 * ceil(`n` / 64).
  *
  * @param a
  *     Pointer to the beginning of the original array.
@@ -613,7 +613,7 @@ void intertwine (void* a, ::size_t n, ::size_t size)
  *
  */
 #if !defined(__cplusplus)
-void* build_matrix (
+void* build_unorient_circ_matrix (
     void* A,
     size_t* nr,
     size_t* nc,
@@ -623,7 +623,7 @@ void* build_matrix (
     size_t size
 )
 #else
-void* build_matrix (
+void* build_unorient_circ_matrix (
     void* A,
     ::size_t* nr,
     ::size_t* nc,
@@ -636,7 +636,7 @@ void* build_matrix (
 {
     /* DECLARATION OF VARIABLES */
 
-    /* Auxiliary length variable. */
+    /* Auxiliary index. */
 #if !defined(__cplusplus)
     size_t n_;
 #else
@@ -660,7 +660,7 @@ void* build_matrix (
 
     /* INITIALISATION OF VARIABLES */
 
-    /* Auxiliary length variable. */
+    /* Auxiliary index. */
     n_ = 0U;
 
     /* Iteration indices. */
@@ -683,8 +683,7 @@ void* build_matrix (
         if (!(a && n && size && nr && nc && ld))
             break;
 
-        /* Compute `n` - 1 and set the auxiliary length variable `n_` to the
-         * result. */
+        /* Compute `n` - 1 and set the auxiliary index `n_` to the result. */
         n_ = n - 1U;
 
         /* Compute and save dimensions of the matrix. */
