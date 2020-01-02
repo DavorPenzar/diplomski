@@ -49,28 +49,28 @@
 #include "numeric.h"
 
 /* Check if the macro _DGESVD_DRIVER is properly defined. */
-#if !(defined(_DGESVD_DRIVER) && (_DGESVD_DRIVER) == 0)
+#if !(defined(_DGESVD_DRIVER) && (_DGESVD_DRIVER) == 1)
 
 /* If the macro _DGESVD_DRIVER has been defined unproperly, undefine it. */
 #if defined(_DGESVD_DRIVER)
 #undef _DGESVD_DRIVER
 #endif /* _DGESVD_DRIVER */
 
-/* Define the macro _DGESVD_DRIVER as 0. */
-#define _DGESVD_DRIVER 0
+/* Define the macro _DGESVD_DRIVER as 1. */
+#define _DGESVD_DRIVER 1
 
 #endif /* _DGESVD_DRIVER */
 
 /* Check if the macro _DGESDD_DRIVER is properly defined. */
-#if !(defined(_DGESDD_DRIVER) && (_DGESDD_DRIVER) == 1)
+#if !(defined(_DGESDD_DRIVER) && (_DGESDD_DRIVER) == 2)
 
 /* If the macro _DGESDD_DRIVER has been defined unproperly, undefine it. */
 #if defined(_DGESDD_DRIVER)
 #undef _DGESDD_DRIVER
 #endif /* _DGESDD_DRIVER */
 
-/* Define the macro _DGESDD_DRIVER as 1. */
-#define _DGESDD_DRIVER 1
+/* Define the macro _DGESDD_DRIVER as 2. */
+#define _DGESDD_DRIVER 2
 
 #endif /* _DGESDD_DRIVER */
 
@@ -2454,7 +2454,7 @@ void standardise_polygon (::size_t n, real_t* P)
  *
  * The memory for the arrays of the edges' lengths and the outer angles must be
  * preallocated.  If either of the arguments passed is a null-pointer, no effect
- * will be made.  If the memory locations of either of the three arrays overlap,
+ * will be made.  If the memory locations of either of the five arrays overlap,
  * the results will be unexpected.
  *
  * The results may also be unexpected if the array of points is not an array of
@@ -2721,10 +2721,85 @@ void describe_polygon (
     }
 }
 
+/**
+ * Compute the singular values of the lengths or the outer edges of a polygon.
+ *
+ * Consider a polygon of n angles.  Choose a vertex and positive or negative
+ * orientation.  Denote the polygons vertices starting from the chosen vertex in
+ * the chosen orientation V_0, V_1, ..., V_n_minus_one.  Construct a vector
+ * (l_0, l_1, ..., l_n_minus_one) such that l_i is the length of the edge
+ * V_i V_i_plus_one and a vector (phi_0, phi_1, ..., phi_n_minus_1) such thah
+ * phi_i is the outer angle of the polygon at the vertex V_i.  Construct the
+ * matrices L, Phi of the unoriented circular representations of the vectors
+ * (arrays)---see the `build_unorient_circ_matrix` function.  The singular
+ * values of the lengths of edges of the polygon are singular values of the
+ * constructed matrix L and the singular values of the outer angles of the
+ * polygon are singular values of the constructed matrix Phi.
+ *
+ * Since the algorithm is the same, a single function is used to calculate both
+ * singular values vectors.  Moreover, the function can be used for any array of
+ * real values, it does not have to be an array of the lengths of edges or the
+ * outer angles of a polygon.
+ *
+ * If the memory locations of either of the three arrays overlap, the results
+ * will be unexpected.
+ *
+ * The array `a` is not mutated in the function, but the array `A` is.
+ *
+ * Caution: the function may fail if memory must be allocated for the resulting
+ * array, but the allocation failed.  If that happens, the null-pointer is
+ * returned.  Exceptions thrown by failed memory allocation in C++ are not
+ * caught.
+ *
+ * @param n
+ *     Number of vertices (length of the array `a`).
+ *
+ * @param a
+ *     Array of the lengths of edges or the outer angles (arbitrary array of
+ *     finite values none of which is NaN).
+ *
+ * @param s
+ *     Pointer to the first singular value in the array of size at least `n`.
+ *
+ *     If a null-pointer is passed, the memory is dynamically allocated using
+ *     the `malloc` function in C and by calling the `new[]` operator in C++.
+ *
+ *     Caution: the array is mutated in the function.
+ *
+ * @param A
+ *     Pointer to the first element of the constructed matrix in the array of
+ *     size needed for the matrix using the `build_unorient_circ_matrix`
+ *     function for an array of size `n`.
+ *
+ *     If a null-pointer is passed, the memory is dynamically allocated using
+ *     the `malloc` function in C and by calling the `new[]` operator in C++ and
+ *     deallocated adequately before the function returns.
+ *
+ *     Caution: the array is mutated in the function.
+ *
+ * @param info
+ *     Pointer to the variable for storing the information from the SVD driver.
+ *     A null-pointer is an illegal argument, but this is checked before
+ *     the driver is called (segmentation fault will not occur).
+ *
+ * @return
+ *     Array of the singular values.
+ *
+ * @see DGESVD
+ * @see DGESDD
+ * @see build_unorient_circ_matrix
+ *
+ */
 #if !defined(__cplusplus)
-real_t* svd_polygon (size_t n, const real_t* a, real_t* s, real_t* A)
+real_t* svd_polygon (size_t n, const real_t* a, real_t* s, real_t* A, int* info)
 #else
-real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
+real_t* svd_polygon (
+    ::size_t n,
+    const real_t* a,
+    real_t* s,
+    real_t* A,
+    int* info
+)
 #endif /* __cplusplus */
 {
     /* DECLARATION OF VARIABLES */
@@ -2762,9 +2837,6 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
     /* Integer workspace for DGESDD driver. */
     int* iwork;
 #endif /* _USE_SVD_DRIVER */
-
-    /* Information from SVD drivers. */
-    int info;
 
     /* Dummy integer for SVD drivers. */
     int dummy;
@@ -2810,9 +2882,6 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
 #endif /* __cplusplus */
 #endif /* _USE_SVD_DRIVER */
 
-    /* Information from SVD drivers. */
-    info = 0;
-
     /* Dummy integer for SVD drivers. */
     dummy = 0;
 
@@ -2835,9 +2904,9 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
      * statement. */
     do
     {
-        /* If the pointer `a` is a null-pointer, set the number `n` to 0 and
-         * break the `do while`-loop. */
-        if (!a)
+        /* If at least one of the pointers `a` and `info` is a null-pointer, set
+         * the number `n` to 0 and break the `do while`-loop. */
+        if (!(a && info))
         {
             /* Set the numbre `n` to 0. */
             n = 0U;
@@ -2849,6 +2918,9 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
         /* If the number of values is 0, break the `do while`-loop. */
         if (!n)
             break;
+
+        /* Initialise information from SVD drivers to zero. */
+        *info = 0;
 
         /* Set the first character of the job string to `'N'` making it the
          * string `"N"`. */
@@ -2902,6 +2974,8 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
 
         /* Compute the singular values using the right driver. */
 
+
+/* Using the DGESVD driver. */
 #if (_USE_SVD_DRIVER) == (_DGESVD_DRIVER)
 
         /* Allocate memory for the initial workspace (for the query). */
@@ -2955,7 +3029,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #elif (__cplusplus) < 201103L
         dgesvd_(
@@ -2972,7 +3046,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #else
         dgesvd_(
@@ -2989,13 +3063,13 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #endif /* __cplusplus */
 
         /* If the query succeeded, extract the optimal dimension of the
          * workspace. */
-        if (!info)
+        if (!*info)
             lwork = (int)(*work);
 
         /* Clear the memory in the initial workspace. */
@@ -3020,7 +3094,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
 
         /* If the query has not suceeded, clear the memory if necessary and
          * break the `do while`-loop. */
-        if (info)
+        if (*info)
         {
             /* If the given pointer `A` was a null-pointer, clear the memory in
              * the array `A`. */
@@ -3082,7 +3156,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #elif (__cplusplus) < 201103L
         dgesvd_(
@@ -3099,7 +3173,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #else
         dgesvd_(
@@ -3116,7 +3190,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             &dummy,
             work,
             &lwork,
-            &info
+            info
         );
 #endif /* __cplusplus */
 
@@ -3140,6 +3214,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+/* Using the DGESDD driver. */
 #elif (_USE_SVD_DRIVER) == (_DGESDD_DRIVER)
 
         /* Allocate memory for the initial workspace (for the query). */
@@ -3215,7 +3290,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #elif (__cplusplus) < 201103L
         dgesdd_(
@@ -3232,7 +3307,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #else
         dgesdd_(
@@ -3249,13 +3324,13 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #endif /* __cplusplus */
 
         /* If the query succeeded, extract the optimal dimension of the
          * workspace. */
-        if (!info)
+        if (!*info)
             lwork = (int)(*work);
 
         /* Clear the memory in the initial workspace. */
@@ -3282,7 +3357,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
 
         /* If the query has not suceeded, clear the memory if necessary and
          * break the `do while`-loop. */
-        if (info)
+        if (*info)
         {
             /* Free the memory allocated for the integer workspace. */
 #if !defined(__cplusplus)
@@ -3366,7 +3441,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #elif (__cplusplus) < 201103L
         dgesdd_(
@@ -3383,7 +3458,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #else
         dgesdd_(
@@ -3400,7 +3475,7 @@ real_t* svd_polygon (::size_t n, const real_t* a, real_t* s, real_t* A)
             work,
             &lwork,
             iwork,
-            &info
+            info
         );
 #endif /* __cplusplus */
 

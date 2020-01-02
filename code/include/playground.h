@@ -3,6 +3,9 @@
  *
  * This file is part of Davor Penzar's master thesis programing.
  *
+ * Caution: this file is written only in C (no improvements from the C++
+ * language if the code is compiled in C++).
+ *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
  * @package polygon
@@ -21,27 +24,10 @@
 #define __PLAYGROUND_H__INCLUDED 1
 
 /* Import standard library headers. */
-
-#if !defined(__cplusplus)
-
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#else
-
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-#include <exception>
-#include <memory>
-#include <new>
-#include <stdexcept>
-
-#endif /* __cplusplus */
 
 /* Import package headers. */
 #include "boolean.h"
@@ -65,18 +51,10 @@
  *     is returned).  Initially 0 (before saving any non-negative integer).
  *
  */
-#if !defined(__cplusplus)
 size_t saved_nn_integer (size_t n)
-#else
-::size_t saved_nn_integer (::size_t n)
-#endif /* __cplusplus */
 {
     /* Saved non-negative integer. */
-#if !defined(__cplusplus)
     static size_t saved_n = 0U;
-#else
-    static ::size_t saved_n = 0U;
-#endif /* __cplusplus */
 
     /* If the argument `n` is not 0, set `saved_n` to `n` (save the number). */
     if (n)
@@ -139,13 +117,7 @@ real_t saved_number (real_t x)
 const real_t* saved_polygon (const real_t* P)
 {
     /* Saved polygon. */
-#if !defined(__cplusplus)
     static const real_t* saved_P = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    static const real_t* saved_P = reinterpret_cast<real_t*>(NULL);
-#else
-    static const real_t* saved_P = nullptr;
-#endif /* __cplusplus */
 
     /* If the argument `P` is not a null-pointer, set `saved_P` to `P` (save the
      * polygon). */
@@ -178,13 +150,7 @@ const real_t* saved_polygon (const real_t* P)
 const real_t* saved_lengths (const real_t* l)
 {
     /* Saved lengths. */
-#if !defined(__cplusplus)
     static const real_t* saved_l = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    static const real_t* saved_l = reinterpret_cast<real_t*>(NULL);
-#else
-    static const real_t* saved_l = nullptr;
-#endif /* __cplusplus */
 
     /* If the argument `l` is not a null-pointer, set `saved_l` to `l` (save the
      * lengths). */
@@ -217,13 +183,7 @@ const real_t* saved_lengths (const real_t* l)
 const real_t* saved_angles (const real_t* phi)
 {
     /* Saved outer angles. */
-#if !defined(__cplusplus)
     static const real_t* saved_phi = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    static const real_t* saved_phi = reinterpret_cast<real_t*>(NULL);
-#else
-    static const real_t* saved_phi = nullptr;
-#endif /* __cplusplus */
 
     /* If the argument `phi` is not a null-pointer, set `saved_phi` to `phi`
      * (save the outer angles). */
@@ -263,15 +223,8 @@ real_t (
 ) (real_t, real_t)
 {
     /* Saved combining function. */
-#if !defined(__cplusplus)
     static real_t (* saved_combiner) (real_t, real_t) =
         (real_t (*) (real_t, real_t))(NULL);
-#elif (__cplusplus) < 201103L
-    static real_t (* saved_combiner) (real_t, real_t) =
-        reinterpret_cast<real_t (*) (real_t, real_t)>(NULL);
-#else
-    static real_t (* saved_combiner) (real_t, real_t) = nullptr;
-#endif /* __cplusplus */
 
     /* If the argument `combiner` is not a null-pointer, set `saved_combiner` to
      * `combiner` (save the combining function). */
@@ -306,21 +259,10 @@ real_t (
  * @see combiner_length
  *
  */
-#if !defined(__cplusplus)
 real_t (* saved_len_generator (real_t (* generator) (size_t))) (size_t)
-#else
-real_t (* saved_len_generator (real_t (* generator) (::size_t))) (::size_t)
-#endif /* __cplusplus */
 {
     /* Saved length generator (function). */
-#if !defined(__cplusplus)
     static real_t (* saved_generator) (size_t) = (real_t (*) (size_t))(NULL);
-#elif (__cplusplus) < 201103L
-    static real_t (* saved_generator) (::size_t) =
-        reinterpret_cast<real_t (*) (::size_t)>(NULL);
-#else
-    static real_t (* saved_generator) (::size_t) = nullptr;
-#endif /* __cplusplus */
 
     /* If the argument `generator` is not a null-pointer, set `saved_generator`
      * to `generator` (save the length generator). */
@@ -352,11 +294,7 @@ real_t (* saved_len_generator (real_t (* generator) (::size_t))) (::size_t)
  * @see saved_len_generator
  *
  */
-#if !defined(__cplusplus)
 real_t constant_length (size_t i)
-#else
-inline real_t constant_length (::size_t i)
-#endif /* __cplusplus */
 {
     return saved_number(0.0);
 }
@@ -385,20 +323,12 @@ inline real_t constant_length (::size_t i)
  * @see saved_len_generator
  *
  */
-#if !defined(__cplusplus)
 real_t combiner_length (size_t i)
-#else
-real_t combiner_length (::size_t i)
-#endif /* __cplusplus */
 {
     /* DECLARATION OF VARIABLES */
 
     /* Number of edges. */
-#if !defined(__cplusplus)
     size_t n;
-#else
-    ::size_t n;
-#endif /* __cplusplus */
 
     /* Lengths of edges. */
     const real_t* l;
@@ -415,22 +345,10 @@ real_t combiner_length (::size_t i)
     n = 0U;
 
     /* Lengths of edges. */
-#if !defined(__cplusplus)
     l = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    l = reinterpret_cast<real_t*>(NULL);
-#else
-    l = nullptr;
-#endif /* __cplusplus */
 
     /* Function for combining two real values. */
-#if !defined(__cplusplus)
     combiner = (real_t (*) (real_t, real_t))(NULL);
-#elif (__cplusplus) < 201103L
-    combiner = reinterpret_cast<real_t (*) (real_t, real_t)>(NULL);
-#else
-    combiner = nullptr;
-#endif /* __cplusplus */
 
     /* Value to compute and return. */
     return_value = 0.0;
@@ -441,24 +359,10 @@ real_t combiner_length (::size_t i)
     n = saved_nn_integer(0U);
 
     /* Fetch the saved lengths of edges. */
-#if !defined(__cplusplus)
     l = saved_lengths((real_t*)(NULL));
-#elif (__cplusplus) < 201103L
-    l = saved_lengths(reinterpret_cast<real_t*>(NULL));
-#else
-    l = saved_lengths(nullptr);
-#endif /* __cplusplus */
 
     /* Fetch the saved combining function. */
-#if !defined(__cplusplus)
     combiner = saved_comb_function((real_t (*) (real_t, real_t))(NULL));
-#elif (__cplusplus) < 201103L
-    combiner = saved_comb_function(
-        reinterpret_cast<real_t (*) (real_t, real_t)>(NULL)
-    );
-#else
-    combiner = saved_comb_function(nullptr);
-#endif /* __cplusplus */
 
     /* If the index `i` is strictly less than the number of edges `n`, compute
      * the `return_value` by combining the edge at index (`i` - 1) mod `n` and
@@ -496,35 +400,13 @@ real_t combiner_length (::size_t i)
  * @see smart_random_polygon
  *
  */
-#if !defined(__cplusplus)
 real_t copy_coordinate (size_t i, size_t coordinate)
-#else
-inline real_t copy_coordinate (::size_t i, ::size_t coordinate)
-#endif /* __cplusplus */
 {
-#if !defined (__cplusplus)
     return (
         (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
             *(saved_polygon((real_t*)(NULL)) + (i << 1U) + coordinate) :
             0.0
     );
-#elif (__cplusplus) < 201103L
-    return (
-        (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
-            *(
-                saved_polygon(reinterpret_cast<real_t*>(NULL)) +
-                (i << 1U) +
-                coordinate
-            ) :
-            0.0
-    );
-#else
-    return (
-        (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
-            *(saved_polygon(nullptr) + (i << 1U) + coordinate) :
-            0.0
-    );
-#endif /* __cplusplus */
 }
 
 /**
@@ -556,11 +438,7 @@ inline real_t copy_coordinate (::size_t i, ::size_t coordinate)
  * @see smart_random_polygon
  *
  */
-#if !defined(__cplusplus)
 real_t scan_coordinate (size_t i, size_t coordinate)
-#else
-real_t scan_coordinate (::size_t i, ::size_t coordinate)
-#endif /* __cplusplus */
 {
     /* DECLARATION OF VARIABLES */
 
@@ -583,18 +461,11 @@ real_t scan_coordinate (::size_t i, ::size_t coordinate)
         ++i;
 
         /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
-#if !defined(__cplusplus)
         fflush(stdin);
         fflush(stdout);
         fflush(stderr);
-#else
-        ::fflush(stdin);
-        ::fflush(stdout);
-        ::fflush(stderr);
-#endif /* __cplusplus */
 
         /* Print the query to console. */
-#if !defined(__cplusplus)
         printf(
             "Enter %c-coordinate of the %lu%s point: ",
                 (coordinate == 0U) ? 'x' : ((coordinate == 1U) ? 'y' : '?'),
@@ -611,55 +482,21 @@ real_t scan_coordinate (::size_t i, ::size_t coordinate)
                             )
                     )
         );
-#else
-        ::printf(
-            "Enter %c-coordinate of the %lu%s point: ",
-                (coordinate == 0U) ? 'x' : ((coordinate == 1U) ? 'y' : '?'),
-                i,
-                (i % 100U == 11U || i % 100U == 12U || i % 100U == 13U) ?
-                    "th" :
-                    (
-                        (i % 10U == 1U) ?
-                            "st" :
-                            (
-                                (i % 10U == 2U) ?
-                                    "nd" :
-                                    ((i % 10U == 3U) ? "rd" : "th")
-                            )
-                    )
-        );
-#endif /* __cplusplus */
 
         /* Scan the value from the console. */
         do
         {
             /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
-#if !defined(__cplusplus)
             fflush(stdin);
             fflush(stdout);
             fflush(stderr);
-#else
-            ::fflush(stdin);
-            ::fflush(stdout);
-            ::fflush(stderr);
-#endif /* __cplusplus */
         }
-#if !defined(__cplusplus)
         while (!(scanf(" %lf", &return_value) == 1));
-#else
-        while (!(::scanf(" %lf", &return_value) == 1));
-#endif /* __cplusplus */
 
         /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
-#if !defined(__cplusplus)
         fflush(stdin);
         fflush(stdout);
         fflush(stderr);
-#else
-        ::fflush(stdin);
-        ::fflush(stdout);
-        ::fflush(stderr);
-#endif /* __cplusplus */
     }
 
     /* Return the scanned value. */
@@ -693,30 +530,26 @@ real_t scan_coordinate (::size_t i, ::size_t coordinate)
  * @see smart_random_polygon
  *
  */
-#if !defined(__cplusplus)
 real_t regular_coordinate (size_t i, size_t coordinate)
-#else
-real_t regular_coordinate (::size_t i, ::size_t coordinate)
-#endif /* __cplusplus */
 {
-  /* Numerical approximation of the mathematical constant pi. */
-  static const real_t pi =
-      3.1415926535897932384626433832795028841971693993751058209749445923;
+    /* Numerical approximation of the mathematical constant pi. */
+    static const real_t pi =
+        3.1415926535897932384626433832795028841971693993751058209749445923;
 
-      /* Compute and return the coordinate. */
-      return (
-          (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
-              (
-                  (coordinate == 0U) ?
-                      rcos((i << 1U) * pi / saved_nn_integer(0U)) :
-                      (
-                          (coordinate == 1U) ?
-                              rsin((i << 1U) * pi / saved_nn_integer(0U)) :
-                              0.0
-                      )
-              ) :
-              0.0
-      );
+    /* Compute and return the coordinate. */
+    return (
+        (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
+            (
+                (coordinate == 0U) ?
+                    rcos((i << 1U) * pi / saved_nn_integer(0U)) :
+                    (
+                        (coordinate == 1U) ?
+                            rsin((i << 1U) * pi / saved_nn_integer(0U)) :
+                            0.0
+                    )
+            ) :
+            0.0
+    );
 }
 
 /**
@@ -744,11 +577,7 @@ real_t regular_coordinate (::size_t i, ::size_t coordinate)
  * @see smart_random_polygon
  *
  */
-#if !defined(__cplusplus)
 real_t random_coordinate (size_t i, size_t coordinate)
-#else
-inline real_t random_coordinate (::size_t i, ::size_t coordinate)
-#endif /* __cplusplus */
 {
     return (
         (i < saved_nn_integer(0U) && (coordinate == 0U || coordinate == 1U)) ?
@@ -807,11 +636,7 @@ inline real_t random_coordinate (::size_t i, ::size_t coordinate)
  * @see smart_random_polygon
  *
  */
-#if !defined(__cplusplus)
 real_t perturbate_coordinate (size_t i, size_t coordinate)
-#else
-real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
-#endif /* __cplusplus */
 {
     /* DECLARATION OF STATIC VARIABLES */
 
@@ -828,11 +653,7 @@ real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
     /* DECLARATION OF VARIABLES */
 
     /* Number of vertices of the original polygon. */
-#if !defined(__cplusplus)
     size_t n;
-#else
-    ::size_t n;
-#endif /* __cplusplus */
 
     /* Coordinates of vertices of the original polygon. */
     const real_t* P;
@@ -849,22 +670,10 @@ real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
     n = 0U;
 
     /* Coordinates of vertices of the original polygon. */
-#if !defined(__cplusplus)
     P = (real_t*)(NULL);
-#elif (__cplusplus) < 201103L
-    P = reinterpret_cast<real_t*>(NULL);
-#else
-    P = nullptr;
-#endif /* __cplusplus */
 
     /* Length generator. */
-#if !defined(__cplusplus)
     generator = (real_t (*) (size_t))(NULL);
-#elif (__cplusplus) < 201103L
-    generator = reinterpret_cast<real_t (*) (size_t)>(NULL);
-#else
-    generator = nullptr;
-#endif /* __cplusplus */
 
     /* Value to compute and return. */
     return_value = 0.0;
@@ -880,24 +689,10 @@ real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
     if (i < n && (coordinate == 0U || coordinate == 1U))
     {
         /* Fetch the saved length generator. */
-#if !defined(__cplusplus)
         generator = saved_len_generator((real_t (*) (size_t))(NULL));
-#elif (__cplusplus) < 201103L
-        generator = saved_len_generator(
-            reinterpret_cast<real_t (*) (size_t)>(NULL)
-        );
-#else
-        generator = saved_len_generator(nullptr);
-#endif /* __cplusplus */
 
         /* Fetch the saved coordinates of vertices. */
-#if !defined(__cplusplus)
         P = saved_polygon((real_t*)(NULL));
-#elif (__cplusplus) < 201103L
-        P = saved_polygon(reinterpret_cast<real_t*>(NULL));
-#else
-        P = saved_polygon(nullptr);
-#endif /* __cplusplus */
 
         /* If the argument `coordinate` is 0 (if the x-coordinate is to be
          * computed), generate the length and the angle. */
@@ -946,11 +741,7 @@ real_t perturbate_coordinate (::size_t i, ::size_t coordinate)
  *     Caution: the array `P` is mutated in the functions.
  *
  */
-#if !defined(__cplusplus)
 void normalise_polygon (size_t n, real_t* P)
-#else
-void normalise_polygon (::size_t n, real_t* P)
-#endif /* __cplusplus */
 {
     /* If the pointer `P` is a null-pointer, set the number `n` to 0. */
     if (!P)
@@ -1004,11 +795,7 @@ void normalise_polygon (::size_t n, real_t* P)
  *     The value returned by the application used to display the polygons.
  *
  */
-#if !defined(__cplusplus)
 int display (size_t n, const real_t* P, size_t N)
-#else
-int display (::size_t n, const real_t* P, ::size_t N)
-#endif /* __cplusplus */
 {
     /* The base command for the application used to display the polygon. */
     static const char* base_command = "./display.py";
@@ -1017,18 +804,10 @@ int display (::size_t n, const real_t* P, ::size_t N)
     static const char* delim = " +";
 
     /* The length of the base command. */
-#if !defined(__cplusplus)
     static const size_t base_length = 12U;
-#else
-    static const ::size_t base_length = 12U;
-#endif /* __cplusplus */
 
     /* The length of the delimiter. */
-#if !defined(__cplusplus)
     static const size_t delim_length = 2U;
-#else
-    static const ::size_t delim_length = 2U;
-#endif /* __cplusplus */
 
     /* DECLARATION OF VARIABLES */
 
@@ -1039,13 +818,8 @@ int display (::size_t n, const real_t* P, ::size_t N)
     char* command;
 
     /* Iteration indices. */
-#if !defined(__cplusplus)
     size_t i;
     size_t j;
-#else
-    ::size_t i;
-    ::size_t j;
-#endif /* __cplusplus */
 
     /* INITIALISATION OF VARIABLES */
 
@@ -1053,13 +827,7 @@ int display (::size_t n, const real_t* P, ::size_t N)
     return_value = 0;
 
     /* Command. */
-#if !defined(__cplusplus)
     command = (char*)(NULL);
-#elif (__cplusplus) < 201103L
-    command = reinterpret_cast<char*>(NULL);
-#else
-    command = nullptr;
-#endif /* __cplusplus */
 
     /* Iteration indices. */
     i = 0U;
@@ -1077,55 +845,31 @@ int display (::size_t n, const real_t* P, ::size_t N)
             break;
 
         /* Allocate the memory for the command. */
-#if !defined(__cplusplus)
         command = (char*)malloc(
             (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
             sizeof *command
         );
-#else
-        command = new char[
-            base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U
-        ];
-#endif /* __cplusplus */
 
         /* If the memory allocation has failed, break the `do while`-loop. */
         if (!command)
             break;
 
         /* Initialise the command to zeros. */
-#if !defined(__cplusplus)
         memset(
             command,
             0,
             (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
                 sizeof *command
         );
-#else
-        ::memset(
-            command,
-            0,
-            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
-                sizeof *command
-        );
-#endif /* __cplusplus */
 
         /* Print the base command to the beginning of the command. */
-#if !defined(__cplusplus)
         sprintf(command, "%s", base_command);
-#else
-        ::sprintf(command, "%s", base_command);
-#endif /* __cplusplus */
 
         /* Iterate over the arrays and print the coordinates to the command. */
         for (j = 0U; (j >> 1U) < n; ++j)
-#if !defined(__cplusplus)
             sprintf(command + base_length + (j << 3U), " %7.4f", *(P + j));
-#else
-            ::sprintf(command + base_length + (j << 3U), " %7.4f", *(P + j));
-#endif /* __cplusplus */
         for (i = 1U; i < N; ++i)
         {
-#if !defined(__cplusplus)
             sprintf(
                 command +
                     base_length +
@@ -1134,17 +878,7 @@ int display (::size_t n, const real_t* P, ::size_t N)
                 "%s",
                     delim
             );
-#else
-            ::sprintf(
-                command +
-                    base_length +
-                    (i - 1U) * delim_length,
-                "%s",
-                    delim
-            );
-#endif /* __cplusplus */
             for (j = 0U; (j >> 1U) < n; ++j)
-#if !defined(__cplusplus)
                 sprintf(
                     command +
                         base_length +
@@ -1154,55 +888,22 @@ int display (::size_t n, const real_t* P, ::size_t N)
                     " %7.4f",
                         *(P + ((i * n) << 1U) + j)
                 );
-#else
-                ::sprintf(
-                    command +
-                        base_length +
-                        ((i * n) << 4U) +
-                        i * delim_length +
-                        (j << 3U),
-                    " %7.4f",
-                        *(P + ((i * n) << 1U) + j)
-                );
-#endif /* __cplusplus */
         }
 
         /* Call the command and get the returned value. */
-#if !defined(__cplusplus)
         return_value = system(command);
-#else
-        return_value = ::system(command);
-#endif /* __cplusplus */
 
         /* Clear the memory in the command. */
-#if !defined(__cplusplus)
         memset(
             command,
             0,
             (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
                 sizeof *command
         );
-#else
-        ::memset(
-            command,
-            0,
-            (base_length + ((N * n) << 4U) + (N - 1U) * delim_length + 1U) *
-                sizeof *command
-        );
-#endif /* __cplusplus */
 
         /* Deallocate the memory allocated for the command. */
-#if !defined(__cplusplus)
         free(command);
         command = (char*)(NULL);
-#else
-        delete[] command;
-#if (__cplusplus) < 201103L
-        command = reinterpret_cast<char*>(NULL);
-#else
-        command = nullptr;
-#endif /* __cplusplus */
-#endif /* __cplusplus */
     }
     while (false);
 

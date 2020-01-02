@@ -571,6 +571,9 @@ void intertwine (void* a, ::size_t n, ::size_t size)
  * 0, the function returns the given pointer `A` immediately without allocating
  * memory or changing any of the variables.
  *
+ * If the memory locations of either of the two arrays overlap, the results will
+ * be unexpected.
+ *
  * Caution: if pointers `nr`, `nc` and `ld` do not point to three distinct
  * variables, the result may be unexpected---even the segmentation fault may
  * occur in the function.  This is not checked in the function, it is the user's
@@ -610,6 +613,9 @@ void intertwine (void* a, ::size_t n, ::size_t size)
  *
  * @param
  *     Size in bytes of each element in the array `a`.
+ *
+ * @return
+ *     Matrix of the unoriented circular representation of the array.
  *
  */
 #if !defined(__cplusplus)
