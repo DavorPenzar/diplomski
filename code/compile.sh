@@ -15,17 +15,18 @@
 ##                              error,
 ##      -Wall               --  print all warnings,
 ##      -O                  --  optimisation level 1
-##      -lm                 --  link mathematical functions (math.h or cmath),
-##      -pthread            --  compile with pthread.h functions,
 ##      -lblas              --  link BLAS functions,
 ##      -llapack            --  link LAPACK functions.
+##      -lf2c               --  link after f2c,
+##      -lm                 --  link mathematical functions (math.h or cmath),
+##      -pthread            --  compile with pthread.h functions.
 ##
 
 # Compile the C code.
-gcc -std=c89 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
-#gcc -std=c90 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
-#gcc -std=c99 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
+gcc -std=c89 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
+#gcc -std=c90 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
+#gcc -std=c99 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
 
 # Compile the C++ code.
-#g++ -std=c++98 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
-#g++ -std=c++11 -pedantic-errors -Wall -O $@ -lm -pthread -lblas -llapack
+#g++ -std=c++98 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
+#g++ -std=c++11 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread

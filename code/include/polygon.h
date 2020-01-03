@@ -26,6 +26,7 @@
 
 #include <math.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -33,13 +34,18 @@
 
 #include <cmath>
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 #include <exception>
+#include <iomanip>
+#include <ios>
 #include <memory>
 #include <new>
+#include <ostream>
 #include <stdexcept>
+#include <string>
 
 #endif /* __cplusplus */
 
@@ -2196,7 +2202,7 @@ void rotate_polygon (::size_t n, real_t* P, real_t phi)
     /* Auxiliary value. */
     aux = 0.0;
 
-    /* ALGORITH */
+    /* ALGORITHM */
 
     /* To avoid using the `goto` command and additional `return` commands, the
      * algorithm is enclosed in a `do while`-loop with a false terminating
@@ -3538,6 +3544,160 @@ real_t* svd_polygon (
 
     /* Return the array of the singular values. */
     return s;
+}
+
+/**
+ * Dump polygons to an output.
+ *
+ * Each set of `n` points is dumped as
+ *     x_0	y_0	x_1	y_2	...	x_n_minus_1	y_n_minus_1
+ * where the coordinates are delimited by a tabulator and each coordinate is
+ * printed to a fixed precision.  Each set of points is printed in its own line,
+ * however, the first set of points is directly printed to the output without
+ * printing a new line character beforehand.  To ensure that the first set of
+ * points is printed in its own line, give an empty output as the argument `out`
+ * or print a new line character and flush the output before calling the
+ * function.  Sets of points are printed in the given order.
+ *
+ * @param out
+ *     Output location.  In C, coordinates are printed using the `fprintf`
+ *     function from the standard library.  In C++, coordinates are printed
+ *     using the adequate `::std::ostream::operator<<`.
+ *
+ *     Before dumping it is checked if the argument is legal (is not a
+ *     null-pointer in C or does not return `true` on `out.fail()` in C++).  If
+ *     illegal, no output is printed to avoid errors.
+ *
+ *     In C++, the fixed precision remains set on the output after the function.
+ *
+ * @param n
+ *     Number of points in each set.
+ *
+ * @param P
+ *     Array of points of size at least `N` * 2 * `n`.  Each segment of length
+ *     2 * `n` of the array (from indices 2 * i including to 2 * (i + 1)
+ *     excluding for an index 0 <= i < N) represents a polygon and is organised
+ *     as
+ *     `{x_0, y_0, x_1, y_1, ..., x_n_minus_1, y_n_minus_1}`, where `x_i` is the
+ *     x-coordinate of the `i`-th vertex of the polygon and `y_i` is its
+ *     y-coordinate.  Note that the first and the last points inside a segment
+ *     are neighbouring.
+ *
+ * @param N
+ *     Number of polygons.
+ *
+ */
+#if !defined(__cplusplus)
+void dump_polygons (FILE* out, size_t n, const real_t* P, size_t N)
+#else
+void dump_polygons (
+    ::std::ostream& out,
+    ::size_t n,
+    const real_t* P,
+    ::size_t N
+)
+#endif /* __cplusplus */
+{
+    /* DECLARATION OF STATIC VARIABLES */
+
+    /* Precision of the output. */
+#if !defined(__cplusplus)
+    static const size_t prec = 8U;
+#else
+    static const ::size_t prec = 8U;
+#endif /* __cplusplus */
+
+    /* Delimiter of coordinates inside a set of points. */
+#if !defined(__cplusplus)
+    static const char* const delim = "\t";
+#else
+    static const ::std::string delim("\t");
+#endif /* __cplusplus */
+
+#if !defined(__cplusplus)
+    /* Formats for the fisrt coordinate inside a set of points and the rest. */
+    static const char* const format_first = "%.*f";
+    static const char* const format_rest = "%s%.*f";
+#endif /* __cplusplus */
+
+#if !defined(__cplusplus)
+    /* New line string. */
+    static const char* const new_line = "\n";
+#endif /* __cplusplus */
+
+    /* DECLARATION OF VARIABLES */
+
+    /* Iteration indices. */
+    size_t i;
+    size_t j;
+
+    /* INITIALISATION OF VARIABLES */
+
+    /* Iteration indices. */
+    i = 0U;
+    j = 0U;
+
+    /* ALGORITHM */
+
+    /* If the output is invalid, if the pointer `P` is a null-pointer or if any
+     * of the numbers `n` and `N` is 0, set the numbers `n` and `N` to 0. */
+#if ( \
+    !defined(__cplusplus) || \
+    (defined(__cplusplus) && !((__cplusplus) < 201103L)) \
+)
+    if (!(out && n && P && N))
+#else
+    if (out.fail() || !(n && P && N))
+#endif /* __cplusplus */
+    {
+        n = 0U;
+        N = 0U;
+    }
+
+#if defined(__cplusplus)
+    /* Set the output format to fixed and set the precision of the output. */
+#if (__cplusplus) < 201103L
+    if (!out.fail())
+#else
+    if (out)
+#endif /* __cplusplus */
+    {
+        out << ::std::fixed;
+        out << ::std::setprecision(static_cast<int>(prec));
+    }
+#endif /* __cplusplus */
+
+    /* Iterate over the sets of points and dump them. */
+    for (i = 0U; i < N; ++i)
+    {
+        /* Dump the x-coordinate of the fisrt point. */
+#if !defined(__cplusplus)
+        fprintf(out, format_first, (int)prec, *(P + ((i * n) << 1U)));
+#else
+        out << *(P + ((i * n) << 1U));
+#endif /* __cplusplus */
+
+        /* Iterate over the rest of the coordinates and dump them. */
+        for (j = 1U; (j >> 1U) < n; ++j)
+#if !defined(__cplusplus)
+            fprintf(
+                out,
+                format_rest,
+                    delim,
+                    (int)prec,
+                    *(P + ((i * n) << 1U) + j)
+            );
+#else
+            out << delim << *(P + ((i * n) << 1U) + j);
+#endif /* __cplusplus */
+
+        /* Print a new line. */
+#if !defined(__cplusplus)
+        fprintf(out, new_line);
+#else
+        out << ::std::endl;
+#endif /* __cplusplus */
+    }
 }
 
 #endif /* __POLYGON_H__INCLUDED */

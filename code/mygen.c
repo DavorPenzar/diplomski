@@ -402,6 +402,18 @@ int main (int argc, char** argv)
     for (i = 0U; i < n; ++i)
         *(phi + i) /= pi;
 
+    /* Display the polygon. */
+    display(n, P, 1U);
+
+    /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
+    fflush(stdin);
+    fflush(stdout);
+    fflush(stderr);
+
+    /* Dump the polygon to `stdout`. */
+    dump_polygons(stdout, n, P, 1U);
+    printf("\n");
+
     /* Compute the singular values of the lengths of edges of the polygon. */
     s = svd_polygon(n, l, s, (real_t*)(NULL), &info);
 
