@@ -2496,8 +2496,7 @@ void standardise_polygon (::size_t n, real_t* P)
  *     y_0 - y_n_minus_1}.
  *
  * @param l
- *     Array of the edges' lengths of size at least 2 * `n`.  The array is
- *     filled as
+ *     Array of the edges' lengths of size at least `n`.  The array is filled as
  *     {|(x_0, y_0), (x_1, y_1)|, |(x_1, y_1), (x_2, y_2)|, ...,
  *     |(x_n_minus_2, y_n_minus_2), (x_n_minus_1, y_n_minus_1)|,
  *     |(x_n_minus_1, y_n_minus_1), (x_0, y_0)|}, where |(x_A, y_A), (x_B, y_B)|
@@ -2507,9 +2506,9 @@ void standardise_polygon (::size_t n, real_t* P)
  *     Caution: the array is mutated in the function.
  *
  * @param phi
- *     Array of the outer angles of size at least 2 * `n`.  The array is filled
- *     as `{phi_1, phi_2, ..., phi_n_minus_2, phi_n_minus_1, phi_0}`, where
- *     `phi_i` is the outer angle at the `i`-th vertex.
+ *     Array of the outer angles of size at least `n`.  The array is filled as
+ *     `{phi_1, phi_2, ..., phi_n_minus_2, phi_n_minus_1, phi_0}`, where `phi_i`
+ *     is the outer angle at the `i`-th vertex.
  *
  *     Caution: the array is mutated in the function.
  *
@@ -2789,7 +2788,8 @@ void describe_polygon (
  *     the driver is called (segmentation fault will not occur).
  *
  * @return
- *     Array of the singular values.
+ *     If `a` and `info` are not null-pointers, array of the singular values;
+ *     otherwise the given argument `s`.
  *
  * @see DGESVD
  * @see DGESDD

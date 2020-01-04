@@ -535,8 +535,9 @@ inline real_t copy_coordinate (::size_t i, ::size_t coordinate)
  * Scan the coordinate from the console.
  *
  * The coordinate is queried by printing using the `printf` function and scanned
- * using the `scanf` function.  The C-functions `scanf` and `printf` are used
- * even in C++.
+ * using the `scanf` function in C, or by printing to `::std::cout` using the
+ * adequate `::std::ostream::operator<<` operator and scanned from `::std::cin`
+ * using the adequate `::std::istream::operator>>` operator in C++.
  *
  * The purpose of the function is to pass it as the argument to the
  * `random_polygon` and the `smart_random_polygon` functions.
@@ -553,8 +554,6 @@ inline real_t copy_coordinate (::size_t i, ::size_t coordinate)
  *     saved to the `saved_nn_integer` function and `coordinate` is 0 or 1; 0
  *     otherwise.
  *
- * @see printf
- * @see scanf
  * @see saved_nn_integer
  * @see random_polygon
  * @see smart_random_polygon
@@ -566,6 +565,48 @@ real_t scan_coordinate (size_t i, size_t coordinate)
 real_t scan_coordinate (::size_t i, ::size_t coordinate)
 #endif /* __cplusplus */
 {
+    /* DECLARATION OF STATIC VARIABLES */
+
+#if !defined(__cplusplus)
+
+    /* Format for the query. */
+    static const char* const format_query =
+        "Enter %c-coordinate of the %lu%s point: ";
+
+    /* Ordinal numbers' suffices. */
+    static const char* const st = "st";
+    static const char* const nd = "nd";
+    static const char* const rd = "rd";
+    static const char* const th = "th";
+
+    /* Coordinates' symbols. */
+    static const char x = 'x';
+    static const char y = 'y';
+    static const char undef = '?';
+
+    /* Format for the input. */
+    static const char* const format_input = " %lf";
+
+#else
+
+    /* Parts of the query. */
+    static const ::std::string query_front("Enter ");
+    static const ::std::string query_middle("-coordinate of the ");
+    static const ::std::string query_back(" point: ");
+
+    /* Ordinal numbers' suffices. */
+    static const ::std::string st("st");
+    static const ::std::string nd("nd");
+    static const ::std::string rd("rd");
+    static const ::std::string th("th");
+
+    /* Coordinates' symbols. */
+    static const char x = 'x';
+    static const char y = 'y';
+    static const char undef = '?';
+
+#endif /* __cplusplus */
+
     /* DECLARATION OF VARIABLES */
 
     /* Value to scan and return. */
@@ -586,83 +627,51 @@ real_t scan_coordinate (::size_t i, ::size_t coordinate)
         /* Increment the index `i`. */
         ++i;
 
-        /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
-#if !defined(__cplusplus)
-        fflush(stdin);
-        fflush(stdout);
-        fflush(stderr);
-#else
-        ::fflush(stdin);
-        ::fflush(stdout);
-        ::fflush(stderr);
-#endif /* __cplusplus */
-
         /* Print the query to console. */
 #if !defined(__cplusplus)
         printf(
-            "Enter %c-coordinate of the %lu%s point: ",
-                (coordinate == 0U) ? 'x' : ((coordinate == 1U) ? 'y' : '?'),
+            format_query,
+                (coordinate == 0U) ? x : ((coordinate == 1U) ? y : undef),
                 i,
                 (i % 100U == 11U || i % 100U == 12U || i % 100U == 13U) ?
-                    "th" :
+                    th :
                     (
                         (i % 10U == 1U) ?
-                            "st" :
+                            st :
                             (
                                 (i % 10U == 2U) ?
-                                    "nd" :
-                                    ((i % 10U == 3U) ? "rd" : "th")
+                                    nd :
+                                    ((i % 10U == 3U) ? rd : th)
                             )
                     )
         );
 #else
-        ::printf(
-            "Enter %c-coordinate of the %lu%s point: ",
-                (coordinate == 0U) ? 'x' : ((coordinate == 1U) ? 'y' : '?'),
-                i,
+        ::std::cout <<
+            query_front <<
+            ((coordinate == 0U) ? x : ((coordinate == 1U) ? y : undef)) <<
+            query_middle <<
+            i <<
+            (
                 (i % 100U == 11U || i % 100U == 12U || i % 100U == 13U) ?
-                    "th" :
+                    th :
                     (
                         (i % 10U == 1U) ?
-                            "st" :
+                            st :
                             (
                                 (i % 10U == 2U) ?
-                                    "nd" :
-                                    ((i % 10U == 3U) ? "rd" : "th")
+                                    nd :
+                                    ((i % 10U == 3U) ? rd : th)
                             )
                     )
-        );
+            ) <<
+            query_back;
 #endif /* __cplusplus */
 
         /* Scan the value from the console. */
-        do
-        {
-            /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
 #if !defined(__cplusplus)
-            fflush(stdin);
-            fflush(stdout);
-            fflush(stderr);
+        while (!(scanf(format_input, &return_value) == 1));
 #else
-            ::fflush(stdin);
-            ::fflush(stdout);
-            ::fflush(stderr);
-#endif /* __cplusplus */
-        }
-#if !defined(__cplusplus)
-        while (!(scanf(" %lf", &return_value) == 1));
-#else
-        while (!(::scanf(" %lf", &return_value) == 1));
-#endif /* __cplusplus */
-
-        /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
-#if !defined(__cplusplus)
-        fflush(stdin);
-        fflush(stdout);
-        fflush(stderr);
-#else
-        ::fflush(stdin);
-        ::fflush(stdout);
-        ::fflush(stderr);
+        ::std::cin >> return_value;
 #endif /* __cplusplus */
     }
 

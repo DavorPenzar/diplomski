@@ -750,6 +750,7 @@ real_t rrandn ()
  *    pointers of type `const real_t*`).
  *
  * @see qsort
+ * @see ricompar
  *
  */
 #if !defined(__cplusplus)
@@ -767,6 +768,47 @@ constexpr inline int rcompar (const void* x, const void* y)
         static_cast<int>(
             rsign(
                 *(reinterpret_cast<const real_t*>(x)) -
+                *(reinterpret_cast<const real_t*>(y))
+            )
+        ) :
+        0;
+#endif /* __cplusplus */
+}
+
+/**
+ * Compare (invertedly) real numbers at given memory adresses.
+ *
+ * This function is useful for standard library functions such as `qsort`.
+ *
+ * @param x
+ *     Pointer to the first number.
+ *
+ * @param y
+ *     Pointer to the second number.
+ *
+ * @return
+ *    If `x` and `y` are not null-pointers, value -1 if `*y` < `*x`, value 0 if
+ *    `*x` == `*y` and value 1 if `*y` > `*x` (where `x` and `y` are viewed as
+ *    pointers of type `const real_t*`).
+ *
+ * @see qsort
+ *
+ */
+#if !defined(__cplusplus)
+int ricompar (const void* x, const void* y)
+#elif (__cplusplus) < 201103L
+inline int ricompar (const void* x, const void* y)
+#else
+constexpr inline int ricompar (const void* x, const void* y)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x && y) ? (int)rsign(*((const real_t*)y) - *((const real_t*)x)) : 0;
+#else
+    return (x && y) ?
+        static_cast<int>(
+            rsign(
+                *(reinterpret_cast<const real_t*>(y)) -
                 *(reinterpret_cast<const real_t*>(x))
             )
         ) :

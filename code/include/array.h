@@ -25,11 +25,13 @@
 #if !defined(__cplusplus)
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #else
 
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 
 #include <exception>
