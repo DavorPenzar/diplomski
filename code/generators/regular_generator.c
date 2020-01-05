@@ -271,6 +271,17 @@ int main (int argc, char** argv)
         /* Print the error message. */
         fprintf(stderr, format_err_msg, err_msg_mem);
 
+        /* Deallocate memory for the arrays of the differences in
+         * coordinates, the lengths of edges and the outer angles. */
+        free(dx);
+        dx = (real_t*)(NULL);
+        free(dy);
+        dy = (real_t*)(NULL);
+        free(l);
+        l = (real_t*)(NULL);
+        free(phi);
+        phi = (real_t*)(NULL);
+
         /* Clear the memory in the array of points. */
         memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
