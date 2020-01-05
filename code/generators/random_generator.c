@@ -159,10 +159,10 @@ int main (int argc, char** argv)
     }
 
     /* Scan the number of polygons. */
-    N = atoi(*(argv + 1U));
+    N = (size_t)atoi(*(argv + 1U));
 
-    /* Scan the number of vertces. */
-    n = atoi(*(argv + 2U));
+    /* Scan the number of vertices. */
+    n = (size_t)atoi(*(argv + 2U));
 
     /* If the number of polygons is 0, print the error message and exit with a
      * non-zero value. */
@@ -282,7 +282,7 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Dump the polygonst to the output file. */
+    /* Dump the polygons to the output file. */
     dump_polygons(out, n, P, N);
 
     /* Close the output file. */
