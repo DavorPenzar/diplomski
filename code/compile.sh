@@ -15,18 +15,40 @@
 ##                              error,
 ##      -Wall               --  print all warnings,
 ##      -O                  --  optimisation level 1
+##      -pthread            --  compile with pthread.h functions,
 ##      -lblas              --  link BLAS functions,
 ##      -llapack            --  link LAPACK functions.
 ##      -lf2c               --  link after f2c,
 ##      -lm                 --  link mathematical functions (math.h or cmath),
-##      -pthread            --  compile with pthread.h functions.
+##      -Iinclude           --  add "include" directory as directory of headers.
 ##
 
 # Compile the C code.
-gcc -std=c89 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
-#gcc -std=c90 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
-#gcc -std=c99 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
+gcc \
+    -std=c89 \
+    -pedantic-errors \
+    -Wall \
+    -O \
+    $@ \
+    -pthread \
+    -lblas \
+    -llapack \
+    -lf2c \
+    -lm \
+    -Iinclude
+# Possible standards: "-std=c90", "-std=c99", "-std=c11".
 
 # Compile the C++ code.
-#g++ -std=c++98 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
-#g++ -std=c++11 -pedantic-errors -Wall -O $@ -lblas -llapack -lf2c -lm -pthread
+#g++ \
+#    -std=c++98 \
+#    -pedantic-errors \
+#    -Wall \
+#    -O \
+#    $@ \
+#    -pthread \
+#    -lblas \
+#    -llapack \
+#    -lf2c \
+#    -lm \
+#    -Iinclude
+# Possible standards: "-std=c++11", "-std=c++14", "-std=c++17", "-std=c++2a".

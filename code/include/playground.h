@@ -1018,9 +1018,9 @@ void normalise_polygon (::size_t n, real_t* P)
  *
  */
 #if !defined(__cplusplus)
-int display (size_t n, const real_t* P, size_t N)
+int display_polygons (size_t n, const real_t* P, size_t N)
 #else
-int display (::size_t n, const real_t* P, ::size_t N)
+int display_polygons (::size_t n, const real_t* P, ::size_t N)
 #endif /* __cplusplus */
 {
     /* The base command for the application used to display the polygon. */

@@ -403,7 +403,7 @@ int main (int argc, char** argv)
         *(phi + i) /= pi;
 
     /* Display the polygon. */
-    display(n, P, 1U);
+    display_polygons(n, P, 1U);
 
     /* Flush the `stdin`, `stdout` and the `stderr` buffers. */
     fflush(stdin);

@@ -2823,6 +2823,14 @@ real_t* svd_polygon (
     /* Flag for checking if the given pointer `A` is a null-pointer. */
     bool A_null;
 
+#if ( \
+    defined(_USE_SVD_DRIVER) && \
+    ( \
+        (_USE_SVD_DRIVER) == (_DGESVD_DRIVER) || \
+        (_USE_SVD_DRIVER) == (_DGESDD_DRIVER) \
+    ) \
+)
+
     /* Auxiliary dimension variables (of type `int`). */
     int int_n;
     int int_n2;
@@ -2847,6 +2855,8 @@ real_t* svd_polygon (
     /* Dummy integer for SVD drivers. */
     int dummy;
 
+#endif /* _USE_SVD_DRIVER */
+
     /* INITIALISATION OF VARIABLES */
 
     /* Dimension variable. */
@@ -2857,6 +2867,14 @@ real_t* svd_polygon (
 
     /* Flag for checking if the given pointer `A` is a null-pointer. */
     A_null = false;
+
+#if ( \
+    defined(_USE_SVD_DRIVER) && \
+    ( \
+        (_USE_SVD_DRIVER) == (_DGESVD_DRIVER) || \
+        (_USE_SVD_DRIVER) == (_DGESDD_DRIVER) \
+    ) \
+)
 
     /* Auxiliary dimension variables (of type `int`). */
     int_n = 0;
@@ -2891,14 +2909,24 @@ real_t* svd_polygon (
     /* Dummy integer for SVD drivers. */
     dummy = 0;
 
+#endif /* _USE_SVD_DRIVER */
+
     /* ALGORITHM */
 
+#if ( \
+    defined(_USE_SVD_DRIVER) && \
+    ( \
+        (_USE_SVD_DRIVER) == (_DGESVD_DRIVER) || \
+        (_USE_SVD_DRIVER) == (_DGESDD_DRIVER) \
+    ) \
+)
     /* Fill the job string for SVD drivers with null-characters. */
 #if !defined(__cplusplus)
     memset(job, 0, 2U * sizeof *job);
 #else
     ::memset(job, 0, 2U * sizeof *job);
 #endif /* __cplusplus */
+#endif /* _USE_SVD_DRIVER */
 
     /* If the given pointer `A` is a null-pointer, set the flag for checking it
      * to `true`. */
@@ -2928,9 +2956,17 @@ real_t* svd_polygon (
         /* Initialise information from SVD drivers to zero. */
         *info = 0;
 
+#if ( \
+    defined(_USE_SVD_DRIVER) && \
+    ( \
+        (_USE_SVD_DRIVER) == (_DGESVD_DRIVER) || \
+        (_USE_SVD_DRIVER) == (_DGESDD_DRIVER) \
+    ) \
+)
         /* Set the first character of the job string to `'N'` making it the
          * string `"N"`. */
         *job = 'N';
+#endif /* _USE_SVD_DRIVER */
 
         /* Allocate the memory for the array `P` if necessary. */
         if (!s)
@@ -2967,6 +3003,14 @@ real_t* svd_polygon (
         if (!A)
             break;
 
+#if ( \
+    defined(_USE_SVD_DRIVER) && \
+    ( \
+        (_USE_SVD_DRIVER) == (_DGESVD_DRIVER) || \
+        (_USE_SVD_DRIVER) == (_DGESDD_DRIVER) \
+    ) \
+)
+
         /* Extract the auxiliary dimension variables. */
         int_n = (int)n;
         int_n2 = (int)n2;
@@ -2976,10 +3020,9 @@ real_t* svd_polygon (
 
         /* Set the dummy integer of for the SVD drivers to the maximum of
          * 64 * ceil(`n` / 32) and the leading dimension of the matrix `A`. */
-        dummy = (n2 < ld_A) ? int_ld_A : (int)(((n2 + 63U) >> 6U) << 6U);
+        dummy = (ld_A < n2) ? (int)(((n2 + 63U) >> 6U) << 6U) : int_ld_A;
 
         /* Compute the singular values using the right driver. */
-
 
 /* Using the DGESVD driver. */
 #if (_USE_SVD_DRIVER) == (_DGESVD_DRIVER)
@@ -3514,6 +3557,8 @@ real_t* svd_polygon (
 
 #endif /* _USE_SVD_DRIVER */
 
+#endif /* _USE_SVD_DRIVER */
+
         /* If the given pointer `A` was a null-pointer, clear the memory in the
          * array `A`. */
         if (A_null)
@@ -3531,7 +3576,7 @@ real_t* svd_polygon (
     {
 #if !defined(__cplusplus)
         free(A);
-        work = (real_t*)(NULL);
+        A = (real_t*)(NULL);
 #else
         delete[] A;
 #if (__cplusplus) < 201103L
