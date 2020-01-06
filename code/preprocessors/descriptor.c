@@ -14,7 +14,7 @@
  *         outer angles.
  *
  * Each polygon must be formated in the input file as
- *     x_0 y_0 x_1 y_1 ... x_n_minus_1 y_n_minus_1
+ *     x_0	y_0	x_1	y_1	...	x_n_minus_1	y_n_minus_1
  * where x_i denotes the x-coordinate of the i-th vertex and y_i denotes the
  * y-coordinate of the i-th vertex.  Whitespaces may differ (they may even be
  * spaces, tabs, line breaks...).  It is believed that each input polygon
@@ -23,7 +23,7 @@
  * this, results may be unexpected.
  *
  * Note that the input file must contain at least N polygons.  If, however, it
- * contains more than N0 polygons, only the first N polygons are read and used
+ * contains more than N polygons, only the first N polygons are read and used
  * to generate new polygons.
  *
  * Each polygon is described in the output file in its own line formmated as
@@ -258,8 +258,8 @@ int main (int argc, char** argv)
     dx = (real_t*)malloc(((N * n) << 1U) * sizeof *dx);
     l = (real_t*)malloc(((N * n) << 1U) * sizeof *l);
 
-    /* If the memory allocation has failed, print the error message and exit
-     * with a non-zero value. */
+    /* If the memory allocation has failed, deallocate memory, print the error
+     * message and exit with a non-zero value. */
     if (!(dx && l))
     {
         /* Print the error message. */

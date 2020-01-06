@@ -697,7 +697,7 @@ void* build_unorient_circ_matrix (
         /* Compute and save dimensions of the matrix. */
         *nr = n << 1U;
         *nc = n;
-        *ld = ((n + 63U) >> 6U) << 6U;
+        *ld = ((*nc + 63U) >> 6U) << 6U;
 
         /* Allocate the memory for the array `A` if necessary. */
         if (!A)
