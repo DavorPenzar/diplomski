@@ -34,6 +34,9 @@
  * not converge), the singular values are set to zeros and the program continues
  * on.
  *
+ * The pogram prints to the console the time elapsed only during the computation
+ * of the singular values.  Time needed to read and print is not measured.
+ *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
  * @package polygon

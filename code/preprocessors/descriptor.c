@@ -32,6 +32,9 @@
  * (i + 1)-th vertex and phi_i denotes the outer angle at the i-th vertex.  The
  * outer angles are not normalised by dividing with pi.
  *
+ * The pogram prints to the console the time elapsed only during the computation
+ * of the information.  Time needed to read and print is not measured.
+ *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
  * @package polygon
