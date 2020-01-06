@@ -4,11 +4,14 @@
 /* This file is part of Davor Penzar's master thesis programing.            */
 /*                                                                          */
 /* Usage:                                                                   */
-/*     $ FreeFem++ computer3.edp [-i file_in] [-o file_out]                 */
+/*     $ FreeFem++ computer3.edp file_in file_out                           */
 /* Arguments:                                                               */
-/*     -i: <filename>  path to the input file (default: "in.tsv")           */
-/*     -o: <filename>  path to the output file (default: "out.tsv")         */
-/* Other arguments are ignored.                                             */
+/*     file_in     path to the input file,                                  */
+/*     file_out    path to the output file.                                 */
+/* Only the last two arguments are read, others are ignored.  If only one   */
+/* none of the arguments are given, the path to the script or even          */
+/* arguments preceeding it (including the command "FreeFem++") will be      */
+/* interpreted as arguments for the script.                                 */
 /*                                                                          */
 /* Consider an open nonempty set $ \Omega \subseteq \mathbb{R}^{2} $ such   */
 /* that its boundary $ \partial \Omega $ is piecewise smooth.  A value      */
@@ -40,10 +43,11 @@
 /*     xi      is the x-coordinate of the i-th vertex,                      */
 /*     yi      is the y-coordinate of the i-th vertex.                      */
 /* Whitespaces may differ (they may even be spaces, tabs, line breaks...).  */
-/* All of the polygons must have the same number of vertices; moreover, the */
-/* number is hard coded in the script.  To change the number of vertices,   */
-/* update the global parameter `nv`, the definition of the border, the      */
-/* plotting of the border and the definition of the mesh.                   */
+/* The vertices must be given in the positive direction.  All of the        */
+/* polygons must have the same number of vertices; moreover, the number is  */
+/* hard coded in the script.  To change the number of vertices, update the  */
+/* global parameter `nv`, the definition of the border, the plotting of the */
+/* border and the definition of the mesh.                                   */
 /*                                                                          */
 /* Eigenvalues are printed to the output file in the same order as the      */
 /* polygons are defined in the input file, each in its own line.  An extra  */
@@ -53,11 +57,15 @@
 /* The whole input file is read before any computation and the information  */
 /* is stored in global arrays (consuming RAM).  Also, the first eigenvalues */
 /* are stored in a global array and no first eigenvalue is printed before   */
-/* the computation ends on all polygons.  The reason for this is to get a   */
-/* a better sense of time needed to compute the eigenvalues.  If there is   */
+/* the computation ends on all polygons.  The reason for this is to measure */
+/* the time needed to compute the eigenvalues more accurately.  If there is */
 /* not enough RAM to store all the information needed for a large number of */
 /* polygons, split the input file in multiple smaller files and run the     */
 /* script on each of the smaller inputs.                                    */
+/*                                                                          */
+/* The pogram prints to the console the time elapsed only during the        */
+/* computation of the eigenvalues.  Time needed to read and print is not    */
+/* measured.                                                                */
 /*                                                                          */
 /* The current number of vertices is 3 (hence the name of the script        */
 /* "computer3.edp").                                                        */
@@ -67,17 +75,16 @@
 /* https://doc.freefem.org/models/eigen-value-problems.html                 */
 /****************************************************************************/
 
-// Include the getARGV header.
-include "getARGV.idp"
-
 // Define the global parameters.
 verbosity = 0;      // Verbosity level 0.
 int prec = 8;       // Precision of the output.
-real tol = 1.0e-12; // Tolerance for the solution.
-real eps = 1.0e-24; // Epsilon for the CG solver.
+real tol = 5.0e-9;  // Tolerance for the solution.
+real eps = 1.0e-16; // Epsilon for the CG solver.
 int np = 3;         // Number of polygons.
 int nv = 3;         // Number of vertices (change code acccordingly).
-int unit = 20;      // Number of mesh points on an edge of length 1.
+real unit =         // Number of mesh regions on an edge of length 1.
+    6.36619772367581343075535053490057;
+real minm = 2.0;    // Minimal number of mesh regions on an edge.
 int nev = 1;        // Number of eigenvalues to compute.
 
 // Declare input/output arrays.
@@ -92,21 +99,12 @@ real t1 = 0.0;
 // Read the input.
 {
     // Open the input file.
-    ifstream in(getARGV("-i", "in.tsv"));
-
-    // Get time in seconds.
-    t0 = clock();
+    ifstream in(ARGV[ARGV.n - 2]);
 
     // Read from the input file.
     for (int i = 0; i < np; ++i)
         for (int j = 0; j < nv; ++j)
             in >> Px(i, j) >> Py(i, j);
-
-    // Get time in seconds.
-    t1 = clock();
-
-    // Print elapsed time.
-    cout << "Reading: " << (t1 - t0) << "s." << endl;
 }
 
 // Get time in seconds.
@@ -125,7 +123,7 @@ for (int i = 0; i < np; ++i)
     {
         lx(j) = Px(i, (j + 1) % nv) - Px(i, j);
         ly(j) = Py(i, (j + 1) % nv) - Py(i, j);
-        nm(j) = max(round(unit * dist(lx(j), ly(j))), 2.0);
+        nm(j) = max(round(unit * dist(lx(j), ly(j))), minm);
     }
 
     // Define the border.
@@ -248,27 +246,18 @@ for (int i = 0; i < np; ++i)
 t1 = clock();
 
 // Print elapsed time.
-cout << "Computing: " << (t1 - t0) << "s." << endl;
+cout << "Time elapsed: " << (t1 - t0) << " s." << endl;
 
 // Print the output.
 {
     // Open the output file.
-    ofstream out(getARGV("-o", "out.tsv"));
+    ofstream out(ARGV[ARGV.n - 1]);
 
     // Set the precision of the output.
     out.fixed;
     out.precision(prec);
 
-    // Get time in seconds.
-    t0 = clock();
-
     // Print to the output file.
     for (int i = 0; i < np; ++i)
         out << ev0[i] << endl;
-
-    // Get time in seconds.
-    t1 = clock();
-
-    // Print elapsed time.
-    cout << "Printing: " << (t1 - t0) << "s." << endl;
 }
