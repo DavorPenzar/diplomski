@@ -994,7 +994,9 @@ void normalise_polygon (::size_t n, real_t* P)
  * Caution: it is not checked whether or not all the coordinates are in the
  * closed interval [-1, 1].  If any of the coordinates' absolute value is
  * strictly greater than 1, unexpected results may occur (including segmentation
- * fault or exceptions thrown by the displaying application).
+ * fault or exceptions thrown by the displaying application).  In C, coordinates
+ * may actually be in the open interval (-10, 10), while in C++ they may even be
+ * arbitrarily large.  However, it is not recommended to test these limits.
  *
  * @param n
  *     Number of vertices of each polygon.

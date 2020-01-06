@@ -102,7 +102,7 @@ int main (int argc, char** argv)
     const char* const format_input = " %lf";
 
     /* Format string for printing the time elapsed. */
-    const char* const format_time = "Time elapsed: %.4f s.\n";
+    const char* const format_time = "Time elapsed: %.6f s.\n";
 
     /* DECLARATION OF VARIABLES */
 
