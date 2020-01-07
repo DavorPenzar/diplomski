@@ -70,6 +70,7 @@ int main (int argc, char** argv)
     /* Number of clock ticks per second as `double`. */
     const double clocks_per_sec = (double)(CLOCKS_PER_SEC);
 
+    /* Numerical approximation of the mathematical constant pi. */
     const real_t pi =
         3.1415926535897932384626433832795028841971693993751058209749445923;
 

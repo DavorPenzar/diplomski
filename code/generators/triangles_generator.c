@@ -60,6 +60,14 @@ int main (int argc, char** argv)
 {
     /* DECLARATION OF CONSTANTS */
 
+    /* Numerical approximation of sqrt(3). */
+    const real_t sqrt_3 =
+        1.7320508075688772935274463415058723669428052538103806280558069795;
+
+    /* Numerical approximation of sqrt(3) / 2. */
+    const real_t half_sqrt_3 =
+        0.8660254037844386467637231707529361834714026269051903140279034897;
+
     /* Error message for an unknown environment error. */
     const char* const err_msg_env = "Unknown environment error.";
 
@@ -183,11 +191,7 @@ int main (int argc, char** argv)
     /* Read the number of discretisation points on x-axis and compute the number
      * of discretisation points on y-axis. */
     m = (size_t)atoi(*(argv + 1U));
-    n = (size_t)(
-        1.7320508075688772935274463415058723669428052538103806280558069795 *
-            (double)m +
-        0.5
-    );
+    n = (size_t)(sqrt_3 * (double)m + 0.5);
 
     /* If the number of discretisation points on x-axis is 0, print the error
      * message and exit with a non-zero value. */
@@ -250,10 +254,7 @@ int main (int argc, char** argv)
         for (j = 1U; j < n; ++j)
         {
             /* Compute the y-coordinate of the current triangle. */
-            *(T + 3U) =
-                0.8660254037844386467637231707529361834714026269051903140279034897 *
-                (real_t)j /
-                real_n_;
+            *(T + 3U) = half_sqrt_3 * (real_t)j / real_n_;
 
             /* If the length of the edge from the second to the third vertex of
              * the current triangle exceeds 1, break the inner `for`-loop (all
