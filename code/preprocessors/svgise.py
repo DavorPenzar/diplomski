@@ -9,7 +9,7 @@ This file is part of Davor Penzar's master thesis programing.
 
 Usage:
     ./svgise.py in_table out_directory
-where
+where:
     in_table        is the path to the input table (TSV file; actually single
                     tab separated values),
     out_directory   is the path to the output directory.
@@ -28,6 +28,9 @@ output directory is "images", then for the 12th polygon (index 11) in the
 input table a file "images/triangles_011.svg" is generated.  The boundary box of
 each SVG file is [-0.5, 0.5] x [-0.5, 0.5] px2.
 
+The pogram prints to the console the time elapsed only during the generation of
+SVG images.  Time needed to read is not measured.
+
 The code was inspired by ewcz's answer on
 https://stackoverflow.com/questions/49147707/how-can-i-convert-a-shapely-polygon-to-an-svg.
 
@@ -36,7 +39,9 @@ https://stackoverflow.com/questions/49147707/how-can-i-convert-a-shapely-polygon
 # Import standard library modules.
 import inspect
 import os
+import six
 import sys
+import time
 
 # Import SciPy packages.
 import numpy as np
@@ -77,6 +82,13 @@ if len(sys.argv) != 3:
     # Exit.
     sys.exit(0)
 
+# Set the exception raised when a file cannot be opened.
+_FileOpenException = RuntimeError
+if six.PY2:
+    _FileOpenException = IOError
+elif six.PY3:
+    _FileOpenException = FileNotFoundError
+
 if len(sys.argv[1]) < 4:
     raise ValueError('Input table must be TSV, CSV or TXT file.')
 if sys.argv[1][-4:].lower() not in {'.csv', '.tsv', '.txt'}:
@@ -93,7 +105,14 @@ try:
         index_col = None,
         dtype = float
     )
-except (TypeError, ValueError, AttributeError, IndexError, KeyError):
+except (
+    _FileOpenException,
+    TypeError,
+    ValueError,
+    AttributeError,
+    IndexError,
+    KeyError
+):
     raise RuntimeError(
         "Cannot open file \"{path:s}\".".format(path = sys.argv[1])
     )
@@ -131,6 +150,13 @@ path_str = os.path.join(
         nw = len(str(max(N - 1, 1)))
     )
 )
+
+# Initialise time points.
+t0 = 0.0
+t1 = 0.0
+
+# Get the current time in seconds.
+t0 = time.time()
 
 # Set the format string for the output SVG data.
 svg_str = (
@@ -181,8 +207,14 @@ try:
         del i
     except (NameError, UnboundLocalError):
         pass
-except FileNotFoundError:
+except _FileOpenException:
     raise RuntimeError(
         "Cannot open output files (check if directory \"{dir:s}\" "
         "exists).".format(dir = sys.argv[2] if sys.argv[2] else '.')
     )
+
+# Get the current time in seconds.
+t1 = time.time()
+
+# Print the time elapsed during the generation of SVG images.
+print("Time elapsed: {dt:.6f} s.".format(dt = float(t1 - t0)))
