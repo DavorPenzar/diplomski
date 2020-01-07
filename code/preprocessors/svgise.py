@@ -28,6 +28,9 @@ output directory is "images", then for the 12th polygon (index 11) in the
 input table a file "images/triangles_011.svg" is generated.  The boundary box of
 each SVG file is [-0.5, 0.5] x [-0.5, 0.5] px2.
 
+The code was inspired by ewcz's answer on
+https://stackoverflow.com/questions/49147707/how-can-i-convert-a-shapely-polygon-to-an-svg.
+
 """
 
 # Import standard library modules.

@@ -70,7 +70,7 @@
 /* The current number of vertices is 3 (hence the name of the script        */
 /* "computer3.edp").                                                        */
 /*                                                                          */
-/* The code is inspired by the example of the solution of the Laplace       */
+/* The code was inspired by the example of the solution of the Laplace       */
 /* eigenvalue problem given at                                              */
 /* https://doc.freefem.org/models/eigen-value-problems.html                 */
 /****************************************************************************/
