@@ -14,7 +14,7 @@ coordinates are given in decimal format.  The vertices are given in a cyclical
 order.  There must be at least three distinct vertices and no coordinate may be
 NaN or infinite.
 
-To plot multiple polygons, seperate their coordinates by a plus, i. e. the
+To plot multiple polygons, separate their coordinates by a plus, i. e. the
 character `'+'`.  For example, to plot two triangles, use
     ./display.py x_11 y_11 x_12 y_12 x_13 y_13 + x_21 y_21 x_22 y_22 x_23 y_23
 where (x_ij, y_ij) are coordinates of the j-th vertex of the i-th triangle.
@@ -57,7 +57,7 @@ except (NameError, UnboundLocalError):
     pass
 
 # If no command line arguments were given, print the documentation and exit.
-if len(sys.argv) == 1:
+if len(sys.argv) < 2:
     # Print the documentation.
     print(inspect.cleandoc(__doc__))
 
