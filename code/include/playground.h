@@ -1047,7 +1047,7 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
 #if !defined(__cplusplus)
 
     /* Format for printing a coordinate. */
-    static const char* const format = " %7.4f";
+    static const char* const format = " %11.8f";
 
     /* The length of the base command. */
     static const size_t base_length = 12U;
@@ -1056,12 +1056,12 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
     static const size_t delim_length = 2U;
 
     /* Total length of the printed coordinate. */
-    static const size_t coordinate_length = 8U;
+    static const size_t coordinate_length = 12U;
 
 #else
 
     /* Precision of coordinates. */
-    static const ::size_t prec = 4U;
+    static const ::size_t prec = 8U;
 
 #endif /* __cplusplus */
 
