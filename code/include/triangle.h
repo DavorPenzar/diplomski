@@ -193,10 +193,12 @@ void char_triangle (
 
         /* If the triangle is not normed, divide `b` by `a` if `a` is not 0. */
         if (!norm)
+        {
             if (a)
                 b /= a;
             else
                 b = 0.0;
+        }
 
         /* Compute and save the coordinates of the characteristic point.  Note
          * that `gamma` represents the OUTER angle, not the INNER angle;

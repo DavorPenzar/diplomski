@@ -223,7 +223,7 @@ int main (int argc, char** argv)
 
     /* Initialise the lengths of edges and the outer angles to zeros. */
     memset(l, 0, ((3U * N) << 1U) * sizeof *l);
-    phi = l + n;
+    phi = l + 3U;
 
     /* Allocate memory for the array of characteristic points of triangles. */
     C = (real_t*)malloc((N << 1U) * sizeof *C);
@@ -293,7 +293,7 @@ int main (int argc, char** argv)
          * error message, close the input file, deallocate memory and exit with
          * a non-zero value. */
         for (j = 0U; (j >> 1U) < 3U; ++j)
-            if (!(fscanf(inout, format_input, l + ((i * n) << 1U) + j) == 1))
+            if (!(fscanf(inout, format_input, l + ((3U * i) << 1U) + j) == 1))
             {
                 /* Print the error message. */
                 fprintf(stderr, format_err_msg, err_msg_rn);
