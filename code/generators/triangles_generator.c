@@ -9,9 +9,9 @@
  *     m   is the number of dicretisation points on the x-axis (at least 2),
  *     out is the path to the output file to print the coordinates of vertices.
  *
- * The program generates triangles with vertices (1 / 2, 0), V_2, (-1 / 2) such
- * that V_2 is not on the x-axis, is in the first quadrant or on the y-axis and
- * that |V_2, (1 / 2, 0)| <= |V_2, (-1 / 2, 0)| <= 1, where |P, Q| is the
+ * The program generates triangles with vertices (1 / 2, 0), V_2, (-1 / 2, 0)
+ * such that V_2 is not on the x-axis, is in the first quadrant or on the y-axis
+ * and that |V_2, (1 / 2, 0)| <= |V_2, (-1 / 2, 0)| <= 1, where |P, Q| is the
  * distance from the point P to the point Q.
  *
  * Rectangle [0, 1 / 2] x [0, sqrt(3) / 2] is discretised with m points on the
@@ -20,12 +20,12 @@
  * Each of the point is tried for the triangle and, if it satisfies the
  * conditions, is printed to the output file.
  *
- * Each triangle is printed to the output file in its own line.  Each polygon is
- * formatted as
+ * Each triangle is printed to the output file in its own line.  Each triangle
+ * is formatted as
  *     x_0	y_0	x_1	y_1	x_2	y_2
  * where x_i denotes the x-coordinate of the i-th vertex and y_i denotes the
  * y-coordinate of the i-th vertex ((1 / 2, 0) being the first vertex).  The
- * polygons are sorted lexicographically according to coordinates of the second
+ * triangles are sorted lexicographically according to coordinates of the second
  * vertex.
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
@@ -60,13 +60,16 @@ int main (int argc, char** argv)
 {
     /* DECLARATION OF CONSTANTS */
 
+    /* Minimal difference in coordinates allowed. */
+    const real_t mind = 0.035;
+
     /* Numerical approximation of sqrt(3). */
     const real_t sqrt_3 =
         1.7320508075688772935274463415058723669428052538103806280558069795;
 
     /* Numerical approximation of sqrt(3) / 2. */
     const real_t half_sqrt_3 =
-        0.8660254037844386467637231707529361834714026269051903140279034897;
+        0.86602540378443864676372317075293618347140262690519031402790348973;
 
     /* Error message for an unknown environment error. */
     const char* const err_msg_env = "Unknown environment error.";
@@ -236,14 +239,20 @@ int main (int argc, char** argv)
 
     /* Set the first vertex to (1 / 2, 0), and the third vertex to
      * (-1 / 2, 0). */
-    *T = 0.5;
-    *(T + 4U) = -0.5;
+    *T = 50.0;
+    *(T + 4U) = -50.0;
 
     /* Generate triangles. */
     for (i = 0U; i < m; ++i)
     {
         /* Set the x-coordinate of the next few triangles. */
         *(T + 2U) = 0.5 * (real_t)i / real_m_;
+
+        /* If the x-coordinate got too close to 1 / 2, break the outer
+         * `for`-loop (all vertices more right than this will be even
+         * closer). */
+        if (rabs(0.5 - *(T + 2U)) < mind)
+            break;
 
         /* Compute the square difference in x-coordinates of the second and the
          * third vertex. */
@@ -255,6 +264,11 @@ int main (int argc, char** argv)
         {
             /* Compute the y-coordinate of the current triangle. */
             *(T + 3U) = half_sqrt_3 * (real_t)j / real_n_;
+
+            /* If y-coordinate is too low, continue to the next, higher
+             * vertex. */
+            if (rabs(*(T + 3U)) < mind)
+                continue;
 
             /* If the length of the edge from the second to the third vertex of
              * the current triangle exceeds 1, break the inner `for`-loop (all

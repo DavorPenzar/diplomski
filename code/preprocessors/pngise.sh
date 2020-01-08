@@ -70,4 +70,4 @@ done
 t1=$(date "+%s%N")
 
 # Print the time elapsed during the conversion of images.
-printf "Time elapsed: %.6f s.\n" $(echo "0.000000001 * ($t1 - $t0)" | bc)
+printf "Time elapsed: %.6f s.\n" $(echo "0.000000001 * ($t1.0 - $t0.0)" | bc)

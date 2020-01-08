@@ -70,17 +70,18 @@
 /* The current number of vertices is 3 (hence the name of the script        */
 /* "computer3.edp").                                                        */
 /*                                                                          */
-/* The code was inspired by the example of the solution of the Laplace       */
+/* The code was inspired by the example of the solution of the Laplace      */
 /* eigenvalue problem given at                                              */
-/* https://doc.freefem.org/models/eigen-value-problems.html                 */
+/* https://doc.freefem.org/models/eigen-value-problems.html.                */
 /****************************************************************************/
 
 // Define the global parameters.
 verbosity = 0;      // Verbosity level 0.
-int prec = 8;       // Precision of the output.
-real tol = 5.0e-9;  // Tolerance for the solution.
+int prec = 12;      // Precision of the output.
+int tprec = 6;      // Precision of the output of time.
+real tol = 5.0e-13; // Tolerance for the solution.
 real eps = 1.0e-16; // Epsilon for the CG solver.
-int np = 3;         // Number of polygons.
+int np = 125000;    // Number of polygons.
 int nv = 3;         // Number of vertices (change code acccordingly).
 real unit =         // Number of mesh regions on an edge of length 1.
     6.36619772367581343075535053490057;
@@ -95,6 +96,10 @@ real[int] ev0(np);          // The first eigenvalues.
 // Declare variables to store time.
 real t0 = 0.0;
 real t1 = 0.0;
+
+// Set the precision of the output of time.
+cout.fixed;
+cout.precision(tprec);
 
 // Read the input.
 {
@@ -113,133 +118,143 @@ t0 = clock();
 // Compute the eigenvalues.
 for (int i = 0; i < np; ++i)
 {
-    // Declare auxiliary arrays for border parameters.
-    real[int] lx(nv);   // Differences in x-coordinates of vertices.
-    real[int] ly(nv);   // Differences in y-coordinates of vertices.
-    int[int] nm(nv);    // Numbers of mesh points on edges.
-
-    // Compute border parameters.
-    for (int j = 0; j < nv; ++j)
+    // Enclose the computation in a `try`-block.  If an error occurs, set the
+    // first eigenvalue of the `i`-th polygon to NaN.
+    try
     {
-        lx(j) = Px(i, (j + 1) % nv) - Px(i, j);
-        ly(j) = Py(i, (j + 1) % nv) - Py(i, j);
-        nm(j) = max(round(unit * dist(lx(j), ly(j))), minm);
-    }
+        // Declare auxiliary arrays for border parameters.
+        real[int] lx(nv);   // Differences in x-coordinates of vertices.
+        real[int] ly(nv);   // Differences in y-coordinates of vertices.
+        int[int] nm(nv);    // Numbers of mesh points on edges.
 
-    // Define the border.
-    border Gamma0 (t = 0.0, 1.0)
+        // Compute border parameters.
+        for (int j = 0; j < nv; ++j)
+        {
+            lx(j) = Px(i, (j + 1) % nv) - Px(i, j);
+            ly(j) = Py(i, (j + 1) % nv) - Py(i, j);
+            nm(j) = max(round(unit * dist(lx(j), ly(j))), minm);
+        }
+
+        // Define the border.
+        border Gamma0 (t = 0.0, 1.0)
+        {
+            x = Px(i, 0) + lx(0) * t;
+            y = Py(i, 0) + ly(0) * t;
+            label = i;
+        }
+        border Gamma1 (t = 0.0, 1.0)
+        {
+            x = Px(i, 1) + lx(1) * t;
+            y = Py(i, 1) + ly(1) * t;
+            label = i;
+        }
+        border Gamma2 (t = 0.0, 1.0)
+        {
+            x = Px(i, 2) + lx(2) * t;
+            y = Py(i, 2) + ly(2) * t;
+            label = i;
+        }
+
+        // // Plot the border.
+        // plot(
+        //     Gamma0(nm(0)) +
+        //     Gamma1(nm(1)) +
+        //     Gamma2(nm(2)),
+        //     cmm = "Polygon " + i + ": Border",
+        //     wait = true
+        // );
+
+        // Build the mesh.
+        mesh Th = buildmesh(
+            Gamma0(nm(0)) +
+            Gamma1(nm(1)) +
+            Gamma2(nm(2))
+        );
+
+        // // Plot the mesh.
+        // plot(
+        //     Th,
+        //     cmm = "Polygon " + i + ": Mesh",
+        //     wait = true
+        // );
+
+        // Build the finite element space.
+        fespace Vh(Th, P2); // P2 conforming triangular finite element space.
+        Vh u1;
+        Vh u2;
+
+        // Define the problem.
+        varf a (u1, u2) =
+            int2d(Th)(dx(u1) * dx(u2) + dy(u1) * dy(u2)) +
+            on(i, u1 = 0);                      // With boundary condition.
+        varf b (u1, u2) = int2d(Th)(u1 * u2);   // No boundary condition.
+
+        // Construct the matrices for the problem.
+        matrix A = a(Vh, Vh, solver = Crout, factorize = 1);
+        matrix B = b(Vh, Vh, solver = CG, eps = eps);
+
+        // Construct the arrays for the solution.
+        real[int] ev(nev);  // To store the `nev` eigenvalues.
+        Vh[int] eV(nev);    // To store the `nev` eigenvectors (eigenfunctions).
+
+        // Solve the problem.
+        int k = EigenValue(
+            A,
+            B,
+            nev = nev,
+            sym = true,
+            value = ev,
+            vector = eV,
+            tol = tol,
+            sigma = 0.0,
+            maxit = 0,
+            ncv = 0
+        );
+
+        // // Display and plot the solution.  The eigenvalues and the eigenvectors
+        // // (eigenfunctions) are indexed starting from 0.
+        // cout << "Polygon " << i << ":" << endl;
+        // for (int j = 0; j < k; ++j)
+        // {
+        //     // Extract the eigenvector
+        //     u1 = eV[j];
+        //
+        //     // Display the eigenvalue.
+        //     cout <<
+        //         "\tlambda[" << j << "] = " << ev[j] <<
+        //         ", " <<
+        //         "err = " <<
+        //             abs(
+        //                 int2d(Th)(
+        //                     dx(u1) * dx(u1) +
+        //                     dy(u1) * dy(u1) -
+        //                     ev[j] * u1 * u1
+        //                 )
+        //             ) <<
+        //         endl;
+        //
+        //     // Plot the eigenvector (eigenfunction).
+        //     plot(
+        //         eV[j],
+        //         cmm =
+        //             "Polygon " + i + ":" +
+        //             " " +
+        //             "eigenvector " + j +
+        //             ", " +
+        //             "eigenvalue = " + ev[j],
+        //         value = true,
+        //         wait = true
+        //     );
+        // }
+
+        // Save the first eigenvalue.
+        ev0[i] = k ? ev[0] : 0.0;
+    }
+    catch (...)
     {
-        x = Px(i, 0) + lx(0) * t;
-        y = Py(i, 0) + ly(0) * t;
-        label = i;
+        // Set the first eigenvalue to NaN.
+        ev0[i] = NaN();
     }
-    border Gamma1 (t = 0.0, 1.0)
-    {
-        x = Px(i, 1) + lx(1) * t;
-        y = Py(i, 1) + ly(1) * t;
-        label = i;
-    }
-    border Gamma2 (t = 0.0, 1.0)
-    {
-        x = Px(i, 2) + lx(2) * t;
-        y = Py(i, 2) + ly(2) * t;
-        label = i;
-    }
-
-//  // Plot the border.
-//  plot(
-//      Gamma0(nm(0)) +
-//      Gamma1(nm(1)) +
-//      Gamma2(nm(2)),
-//      cmm = "Polygon " + i + ": Border",
-//      wait = true
-//  );
-
-    // Build the mesh.
-    mesh Th = buildmesh(
-        Gamma0(nm(0)) +
-        Gamma1(nm(1)) +
-        Gamma2(nm(2))
-    );
-
-//  // Plot the mesh.
-//  plot(
-//      Th,
-//      cmm = "Polygon " + i + ": Mesh",
-//      wait = true
-//  );
-
-    // Build the finite element space.
-    fespace Vh(Th, P2); // P2 conforming triangular finite element space.
-    Vh u1;
-    Vh u2;
-
-    // Define the problem.
-    varf a (u1, u2) =
-        int2d(Th)(dx(u1) * dx(u2) + dy(u1) * dy(u2)) +
-        on(i, u1 = 0);                      // With boundary condition.
-    varf b (u1, u2) = int2d(Th)(u1 * u2);   // No boundary condition.
-
-    // Construct the matrices for the problem.
-    matrix A = a(Vh, Vh, solver = Crout, factorize = 1);
-    matrix B = b(Vh, Vh, solver = CG, eps = eps);
-
-    // Construct the arrays for the solution.
-    real[int] ev(nev);  // To store the `nev` eigenvalues.
-    Vh[int] eV(nev);    // To store the `nev` eigenvectors (eigenfunctions).
-
-    // Solve the problem.
-    int k = EigenValue(
-        A,
-        B,
-        nev = nev,
-        sym = true,
-        value = ev,
-        vector = eV,
-        tol = tol,
-        sigma = 0.0,
-        maxit = 0,
-        ncv = 0
-    );
-
-//  // Display and plot the solution.  The eigenvalues and the eigenvectors
-//  // (eigenfunctions) are indexed starting from 0.
-//  cout << "Polygon " << i << ":" << endl;
-//  for (int j = 0; j < k; ++j)
-//  {
-//      // Extract the eigenvector
-//      u1 = eV[j];
-//
-//      // Display the eigenvalue.
-//      cout <<
-//          "\tlambda[" << j << "] = " << ev[j] <<
-//          ", " <<
-//          "err = " <<
-//              abs(
-//                  int2d(Th)(
-//                      dx(u1) * dx(u1) +
-//                      dy(u1) * dy(u1) -
-//                      ev[j] * u1 * u1
-//                  )
-//              ) <<
-//          endl;
-//
-//      // Plot the eigenvector (eigenfunction).
-//      plot(
-//          eV[j],
-//          cmm =
-//              "Polygon " + i + ":" +
-//              " " +
-//              "eigenvector " + j +
-//              ", " +
-//              "eigenvalue = " + ev[j],
-//          value = true,
-//          wait = true
-//      );
-//  }
-
-    // Save the first eigenvalue.
-    ev0[i] = k ? ev[0] : 0.0;
 }
 
 // Get time in seconds.
