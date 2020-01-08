@@ -115,7 +115,7 @@ void flip (void* a, ::size_t n, ::size_t size)
         if (!(a && n && size))
             break;
 
-        /* Allocate the memory for the extra element (auxiliary variable). */
+        /* Allocate memory for the extra element (auxiliary variable). */
 #if !defined(__cplusplus)
         aux = malloc(size);
 #else
@@ -281,7 +281,7 @@ void polarise (void* a, ::size_t n, ::size_t size)
         if (!(a && n && size))
             break;
 
-        /* Allocate the memory for the extra element (auxiliary variable). */
+        /* Allocate memory for the extra element (auxiliary variable). */
 #if !defined(__cplusplus)
         aux = malloc(size);
 #else
@@ -470,7 +470,7 @@ void intertwine (void* a, ::size_t n, ::size_t size)
         if (!(a && n && size))
             break;
 
-        /* Allocate the memory for the extra element (auxiliary variable). */
+        /* Allocate memory for the extra element (auxiliary variable). */
 #if !defined(__cplusplus)
         aux = malloc(size);
 #else
@@ -699,7 +699,7 @@ void* build_unorient_circ_matrix (
         *nc = n;
         *ld = ((*nc + 63U) >> 6U) << 6U;
 
-        /* Allocate the memory for the array `A` if necessary. */
+        /* Allocate memory for the array `A` if necessary. */
         if (!A)
 #if !defined(__cplusplus)
             A = malloc(*nr * *ld * size);

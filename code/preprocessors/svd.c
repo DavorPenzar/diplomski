@@ -14,7 +14,7 @@
  *         lengths of edges and the outer angles.
  *
  * Each polygon must be formated in the input file as
- *     l_0	l_1	...	l_n_minus_one	phi_0	phi_1	...	phi_n_minus_1
+ *     l_0	l_1	...	l_n_minus_one	phi_1	phi_2	...	phi_n_minus_1	phi_0
  * where l_i denotes the length of the edge from the i-th vertex to the
  * (i + 1)-th vertex and phi_i denotes the outer angle at the i-th vertex not
  * normalised by dividing with pi.  It is believed that each input polygon
@@ -22,8 +22,8 @@
  * input polygon does not satisfy this, results may be unexpected.
  *
  * Note that the input file must contain at least N polygons.  If, however, it
- * contains more than N polygons, only the first N polygons are read and used
- * to generate new polygons.
+ * contains more than N polygons, only the first N polygons are read and SVD is
+ * done on them.
  *
  * Each polygon's singular value are printed in the input file as
  *     s_l_0	s_l_1	...	s_l_n_minus_one	s_phi_0	s_phi_1	...	s_phi_n_minus_1
@@ -79,7 +79,7 @@ int main (int argc, char** argv)
 
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
-        "Number of additional arguments must be 3: input file path, number of "
+        "Number of additional arguments must be 4: input file path, number of "
             "polygons to read, number of vertices and output file path.";
 
     /* Error message for the illegal number of polygons to read. */
@@ -110,7 +110,7 @@ int main (int argc, char** argv)
     /* Mode of the output file to open. */
     const char* const file_out_open_mode = "wt";
 
-    /* Format string for reading the coordinates. */
+    /* Format string for reading the numbers. */
     const char* const format_input = " %lf";
 
     /* Format string for printing the time elapsed. */

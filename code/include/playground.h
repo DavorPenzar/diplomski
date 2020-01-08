@@ -1025,6 +1025,30 @@ int display_polygons (size_t n, const real_t* P, size_t N)
 int display_polygons (::size_t n, const real_t* P, ::size_t N)
 #endif /* __cplusplus */
 {
+    /* Precision of coordinates in the command. */
+#if !defined(__cplusplus)
+    static const size_t prec = 8U;
+#else
+    static const ::size_t prec = 8U;
+#endif /* __cplusplus */
+
+#if !defined(__cplusplus)
+
+    /* The length of the base command. */
+    static const size_t base_length = 12U;
+
+    /* The length of the delimiter. */
+    static const size_t delim_length = 2U;
+
+    /* Total length of the printed coordinate. */
+    static const size_t coordinate_length_ = prec + 3U;
+
+    /* Total length of the printed coordinate with a whitespace preceeding
+     * it. */
+    static const size_t coordinate_length = coordinate_length_ + 1U;
+
+#endif /* __cplusplus */
+
     /* The base command for the application used to display the polygon. */
 #if !defined(__cplusplus)
     static const char* const base_command = "./display.py";
@@ -1045,24 +1069,8 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
 #endif /* __cplusplus */
 
 #if !defined(__cplusplus)
-
     /* Format for printing a coordinate. */
-    static const char* const format = " %11.8f";
-
-    /* The length of the base command. */
-    static const size_t base_length = 12U;
-
-    /* The length of the delimiter. */
-    static const size_t delim_length = 2U;
-
-    /* Total length of the printed coordinate. */
-    static const size_t coordinate_length = 12U;
-
-#else
-
-    /* Precision of coordinates. */
-    static const ::size_t prec = 8U;
-
+    static const char* const format = " %*.*f";
 #endif /* __cplusplus */
 
     /* DECLARATION OF VARIABLES */
@@ -1125,7 +1133,7 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
 
 #if !defined(__cplusplus)
 
-        /* Allocate the memory for the command. */
+        /* Allocate memory for the command. */
         command = (char*)malloc(
             (
                 base_length +
@@ -1171,6 +1179,8 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
             sprintf(
                 command + base_length + j * coordinate_length,
                 format,
+                    (int)coordinate_length_,
+                    (int)prec,
                     *(P + j)
             );
 #else
@@ -1198,6 +1208,8 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
                         i * delim_length +
                         j * coordinate_length,
                     format,
+                        (int)coordinate_length_,
+                        (int)prec,
                         *(P + ((i * n) << 1U) + j)
                 );
 #else
@@ -1222,7 +1234,7 @@ int display_polygons (::size_t n, const real_t* P, ::size_t N)
                 sizeof *command
         );
 
-        /* Deallocate the memory allocated for the command. */
+        /* Deallocate memory allocated for the command. */
         free(command);
         command = (char*)(NULL);
 

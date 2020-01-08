@@ -207,7 +207,7 @@ real_t* random_polygon (
         if (!(n && generator))
             break;
 
-        /* Allocate the memory for the array `P` if necessary. */
+        /* Allocate memory for the array `P` if necessary. */
         if (!P)
 #if !defined(__cplusplus)
             P = (real_t*)malloc((n << 1U) * sizeof *P);
@@ -469,8 +469,8 @@ real_t* smart_random_polygon (
          * values in the array to `lambda` and break the `do while`-loop. */
         if (!(out_iter_max && in_iter_max))
         {
-            /* If the given pointer `P` was a null-pointer, deallocate the
-             * memory allocated for the array. */
+            /* If the given pointer `P` was a null-pointer, deallocate memory
+             * allocated for the array. */
             if (P_null)
             {
 #if !defined(__cplusplus)
@@ -684,7 +684,7 @@ real_t* smart_random_polygon (
             ::memset(P, 0, (n << 1U) * sizeof *P);
 #endif /* __cplusplus */
 
-            /* Deallocate the memory. */
+            /* Deallocate memory. */
 #if !defined(__cplusplus)
             free(P);
             P = (real_t*)(NULL);
@@ -1042,7 +1042,7 @@ real_t* simplify_polygon (::size_t n, real_t* P)
         ::memset(Q, 0, (m << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
-        /* Deallocate the memory allocated for the auxiliary array. */
+        /* Deallocate memory allocated for the auxiliary array. */
 #if !defined(__cplusplus)
         free(Q);
         Q = (real_t*)(NULL);
@@ -1209,7 +1209,7 @@ void correct_polygon_orientation (::size_t n, real_t* P)
          * break the `do while`-loop. */
         if (!P)
         {
-            /* Set the numbre `n` to 0. */
+            /* Set the number `n` to 0. */
             n = 0U;
 
             /* Break the `do while`-loop. */
@@ -1312,7 +1312,7 @@ void correct_polygon_orientation (::size_t n, real_t* P)
             ::memset(Q, 0, (n << 1U) * sizeof *Q);
 #endif /* __cplusplus */
 
-            /* Deallocate the memory allocated for the auxiliary array. */
+            /* Deallocate memory allocated for the auxiliary array. */
 #if !defined(__cplusplus)
             free(Q);
             Q = (real_t*)(NULL);
@@ -2039,7 +2039,7 @@ void rect_rotate_polygon (::size_t n, real_t* P, int k)
          * break the `do while`-loop. */
         if (!P)
         {
-            /* Set the numbre `n` to 0. */
+            /* Set the number `n` to 0. */
             n = 0U;
 
             /* Break the `do while`-loop. */
@@ -2213,7 +2213,7 @@ void rotate_polygon (::size_t n, real_t* P, real_t phi)
          * break the `do while`-loop. */
         if (!P)
         {
-            /* Set the numbre `n` to 0. */
+            /* Set the number `n` to 0. */
             n = 0U;
 
             /* Break the `do while`-loop. */
@@ -2332,7 +2332,7 @@ void centralise_polygon (::size_t n, real_t* P)
          * break the `do while`-loop. */
         if (!P)
         {
-            /* Set the numbre `n` to 0. */
+            /* Set the number `n` to 0. */
             n = 0U;
 
             /* Break the `do while`-loop. */
@@ -2942,7 +2942,7 @@ real_t* svd_polygon (
          * the number `n` to 0 and break the `do while`-loop. */
         if (!(a && info))
         {
-            /* Set the numbre `n` to 0. */
+            /* Set the number `n` to 0. */
             n = 0U;
 
             /* Break the `do while`-loop. */
@@ -2968,7 +2968,7 @@ real_t* svd_polygon (
         *job = 'N';
 #endif /* _USE_SVD_DRIVER */
 
-        /* Allocate the memory for the array `P` if necessary. */
+        /* Allocate memory for the array `P` if necessary. */
         if (!s)
 #if !defined(__cplusplus)
             s = (real_t*)malloc(n * sizeof *s);

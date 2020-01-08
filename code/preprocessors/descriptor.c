@@ -23,8 +23,8 @@
  * this, results may be unexpected.
  *
  * Note that the input file must contain at least N polygons.  If, however, it
- * contains more than N polygons, only the first N polygons are read and used
- * to generate new polygons.
+ * contains more than N polygons, only the first N polygons are read and the
+ * information is computed on them.
  *
  * Each polygon is described in the output file in its own line formmated as
  *     l_0	l_1	...	l_n_minus_one	phi_1	phi_2	...	phi_n_minus_1	phi_0
@@ -70,7 +70,7 @@ int main (int argc, char** argv)
 
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
-        "Number of additional arguments must be 3: input file path, number of "
+        "Number of additional arguments must be 4: input file path, number of "
             "polygons to read, number of vertices and output file path.";
 
     /* Error message for the illegal number of polygons to read. */
@@ -256,7 +256,7 @@ int main (int argc, char** argv)
     /* Initialise coordinates of vertices of polygons to zeros. */
     memset(P, 0, ((N * n) << 1U) * sizeof *P);
 
-    /* Allocate memory for the array of the differences in coordinates, the
+    /* Allocate memory for the arrays of the differences in coordinates, the
      * lengths of edges and the outer angles. */
     dx = (real_t*)malloc(((N * n) << 1U) * sizeof *dx);
     l = (real_t*)malloc(((N * n) << 1U) * sizeof *l);
