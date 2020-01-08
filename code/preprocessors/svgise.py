@@ -15,10 +15,11 @@ where:
     out_directory   is the path to the output directory.
 
 All input polygons (polygons in the input table) must have the same number of
-vertice.  Each polygon must be formated in the input table as
+vertices.  Each polygon must be formated in the input table as
     x_0	y_0	x_1	y_1	...	x_n_minus_1	y_n_minus_1
 where x_i denotes the x-coordinate of the i-th vertex and y_i denotes the
 y-coordinate of the i-th vertex, and n is the number of vertices (at least 3).
+The input file must not have a header row or an index column.
 
 For each polygon in the input file a single SVG image is generated in the output
 directory.  SVG files are named after the input table (minus the extension),

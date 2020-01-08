@@ -2112,7 +2112,7 @@ void rect_rotate_polygon (::size_t n, real_t* P, int k)
                      * auxiliary value. */
                     aux = *x;
                     *x = *y;
-                    *y = (*x == 0.0) ? 0.0 : -*x;
+                    *y = (aux == 0.0) ? 0.0 : aux;
                 }
 
                 /* Break the `switch`. */
