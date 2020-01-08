@@ -39,6 +39,7 @@ https://stackoverflow.com/questions/49147707/how-can-i-convert-a-shapely-polygon
 # Import standard library modules.
 import inspect
 import os
+import re
 import six
 import sys
 import time
@@ -190,13 +191,23 @@ try:
         with open(path_str.format(ind = i), 'wt') as svg:
             # Write SVG data of the current polygon to file `svg`.
             svg.write(
-                svg_str.format(
-                    data = gm.Polygon(
-                        [
-                            (df.loc[i, 2 * j], df.loc[i, 2 * j + 1])
-                                for j in range(n)
-                        ]
-                    ).svg(scale_factor = 0.0, fill_color = '#000000')
+                re.sub(
+                    "\\s*stroke-width=\"0.0\"",
+                    str(),
+                    svg_str.format(
+                        data = gm.Polygon(
+                            [
+                                (df.loc[i, 2 * j], df.loc[i, 2 * j + 1])
+                                    for j in range(n)
+                            ]
+                        ).svg(
+                            scale_factor = 0.0,
+                            fill_color = '#000000'
+                        ).replace(
+                            "stroke=\"#555555\"",
+                            "stroke=\"none\""
+                        ).replace("opacity=\"0.6\"", "opacity=\"1.0\"")
+                    )
                 )
             )
         try:
