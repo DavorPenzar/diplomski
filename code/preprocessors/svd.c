@@ -70,10 +70,6 @@ int main (int argc, char** argv)
     /* Number of clock ticks per second as `double`. */
     const double clocks_per_sec = (double)(CLOCKS_PER_SEC);
 
-    /* Numerical approximation of the mathematical constant pi. */
-    const real_t pi =
-        3.1415926535897932384626433832795028841971693993751058209749445923;
-
     /* Error message for an unknown environment error. */
     const char* const err_msg_env = "Unknown environment error.";
 
@@ -455,10 +451,6 @@ int main (int argc, char** argv)
     /* Compute the singular values. */
     for (i = 0U; i < N; ++i)
     {
-        /* Divide all the outer angles by `pi`. */
-        for (j = 0U; j < n; ++j)
-            *(phi + ((i * n) << 1U) + j) /= pi;
-
         /* Compute the singular values of the lengths of edges of the `i`-th
          * polygon. */
         svd_polygon(n, l + ((i * n) << 1U), s_l + ((i * n) << 1U), A, &info);
@@ -467,6 +459,9 @@ int main (int argc, char** argv)
          * lengths of edges of the `i`-th polygon. */
         if (info)
             memset(s_l + ((i * n) << 1U), 0, n * sizeof *s_l);
+        /* Otherwise sort singular values descendingly. */
+        else
+            qsort(s_l + ((i * n) << 1U), n, sizeof *s_l, ricompar);
 
         /* Compute the singular values of the outer angles of the `i`-th
          * polygon. */
@@ -482,6 +477,9 @@ int main (int argc, char** argv)
          * outer angles of the `i`-th polygon. */
         if (info)
             memset(s_phi + ((i * n) << 1U), 0, n * sizeof *s_phi);
+        /* Otherwise sort singular values descendingly. */
+        else
+            qsort(s_phi + ((i * n) << 1U), n, sizeof *s_phi, ricompar);
     }
 
     /* Get the current clock ticks. */
@@ -535,7 +533,7 @@ int main (int argc, char** argv)
     /* Dump the singular values to the output file.  Note that all polygons have
      * exactly 2 * `n` singular values stored in the array `s_l`, so the
      * `dump_polygons` function can be used to dump the singular values. */
-    dump_polygons(inout, n, l, N);
+    dump_polygons(inout, n, s_l, N);
 
     /* Close the output file. */
     fclose(inout);
