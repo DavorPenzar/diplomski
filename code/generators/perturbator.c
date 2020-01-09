@@ -35,8 +35,8 @@
  * of the first polygon by choosing a uniformly distributed random angle of
  * displacement and normally distributed random distance of displacement with
  * the standard deviation of sd.  Only after generating all the N1 - 1 polygons
- * from the i-th polygon is the first polygon generated from the i-th polygon
- * normalised to be of diameter 1.
+ * from the i-th polygon is the original polygon normalised to be of diameter 1
+ * (up to a numerical precision).
  *
  * Each polygon is printed to the output file in its own line.  Each polygon is
  * formatted as

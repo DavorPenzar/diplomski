@@ -227,7 +227,7 @@ int main (int argc, char** argv)
     }
 
     /* Allocate memory for the polygons. */
-    P = (real_t*)malloc(((4U * n) << 1U) * sizeof *P);
+    P = (real_t*)malloc((n << 3U) * sizeof *P);
 
     /* If the memory allocation has failed, print the error message and exit
      * with a non-zero value. */
@@ -241,7 +241,7 @@ int main (int argc, char** argv)
     }
 
     /* Initialise coordinates of vertices of polygons to zeros. */
-    memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+    memset(P, 0, (n << 3U) * sizeof *P);
 
     /* Open the input file. */
     in = fopen(*(argv + 3U), file_in_open_mode);
@@ -254,7 +254,7 @@ int main (int argc, char** argv)
         fprintf(stderr, format_err_msg, err_msg_in);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+        memset(P, 0, (n << 3U) * sizeof *P);
 
         /* Deallocate memory for the polygons. */
         free(P);
@@ -280,7 +280,7 @@ int main (int argc, char** argv)
         in = (FILE*)(NULL);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+        memset(P, 0, (n << 3U) * sizeof *P);
 
         /* Deallocate memory for the polygons. */
         free(P);
@@ -294,7 +294,7 @@ int main (int argc, char** argv)
     for (i = 0U; i < N; ++i)
     {
         /* Clear the memory in the array of points. */
-        memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+        memset(P, 0, (n << 3U) * sizeof *P);
 
         /* Read the coordinates of the `i`-th input polygon.  If any of the
          * coordinates could not be read, print the error message, close the
@@ -315,7 +315,7 @@ int main (int argc, char** argv)
                 in = (FILE*)(NULL);
 
                 /* Clear the memory in the array of points. */
-                memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+                memset(P, 0, (n << 3U) * sizeof *P);
 
                 /* Deallocate memory for the polygons. */
                 free(P);
@@ -353,7 +353,7 @@ int main (int argc, char** argv)
     in = (FILE*)(NULL);
 
     /* Clear the memory in the array of points. */
-    memset(P, 0, ((4U * n) << 1U) * sizeof *P);
+    memset(P, 0, (n << 3U) * sizeof *P);
 
     /* Deallocate memory for the polygons. */
     free(P);

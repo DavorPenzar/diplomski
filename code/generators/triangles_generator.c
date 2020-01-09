@@ -239,8 +239,8 @@ int main (int argc, char** argv)
 
     /* Set the first vertex to (1 / 2, 0), and the third vertex to
      * (-1 / 2, 0). */
-    *T = 50.0;
-    *(T + 4U) = -50.0;
+    *T = 0.5;
+    *(T + 4U) = -0.5;
 
     /* Generate triangles. */
     for (i = 0U; i < m; ++i)
