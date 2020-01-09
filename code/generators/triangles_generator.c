@@ -18,7 +18,9 @@
  * x-axis and n points on the y-axis, where n / m is the best rational
  * approximation of sqrt(3) with positive denominator less than or equal to m.
  * Each of the point is tried for the triangle and, if it satisfies the
- * conditions, is printed to the output file.
+ * conditions, is printed to the output file.  However, some points are skipped
+ * (the ones too close to the x-axis---minimal y-coordinate allowed is hard
+ * coded).
  *
  * Each triangle is printed to the output file in its own line.  Each triangle
  * is formatted as
@@ -60,8 +62,8 @@ int main (int argc, char** argv)
 {
     /* DECLARATION OF CONSTANTS */
 
-    /* Minimal difference in coordinates allowed. */
-    const real_t mind = 0.035;
+    /* Minimal y-coordinate allowed. */
+    const real_t y_min = 0.05;
 
     /* Numerical approximation of sqrt(3). */
     const real_t sqrt_3 =
@@ -248,12 +250,6 @@ int main (int argc, char** argv)
         /* Set the x-coordinate of the next few triangles. */
         *(T + 2U) = 0.5 * (real_t)i / real_m_;
 
-        /* If the x-coordinate got too close to 1 / 2, break the outer
-         * `for`-loop (all vertices more right than this will be even
-         * closer). */
-        if (rabs(0.5 - *(T + 2U)) < mind)
-            break;
-
         /* Compute the square difference in x-coordinates of the second and the
          * third vertex. */
         dx = *(T + 2U) + 0.5;
@@ -267,7 +263,7 @@ int main (int argc, char** argv)
 
             /* If y-coordinate is too low, continue to the next, higher
              * vertex. */
-            if (rabs(*(T + 3U)) < mind)
+            if (rabs(*(T + 3U)) < y_min)
                 continue;
 
             /* If the length of the edge from the second to the third vertex of
