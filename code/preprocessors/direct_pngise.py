@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Generate SVG images of polygons.
+Generate PNG images of polygons.
 
 This file is part of Davor Penzar's master thesis programing.
 
@@ -21,37 +21,34 @@ where x_i denotes the x-coordinate of the i-th vertex and y_i denotes the
 y-coordinate of the i-th vertex, and n is the number of vertices (at least 3).
 The input file must not have a header row or an index column.
 
-For each polygon in the input file a single SVG image is generated in the output
-directory.  SVG files are named after the input table (minus the extension),
+For each polygon in the input file a single PNG image is generated in the output
+directory.  PNG files are named after the input table (minus the extension),
 then an underscore, and then the index of the polygon in the input table (zero
 padded).  For example, if the input file is "triangles.tsv" with 750 rows,
 output directory is "images", then for the 12th polygon (index 11) in the
-input table a file "images/triangles_011.svg" is generated.  The boundary box of
-each SVG file is [-0.6, 0.6] x [-0.6, 0.6] px2.
+input table a file "images/triangles_011.svg" is generated.  Only parts of
+polygons inside the rectangle [-0.64, 0.64] x [-0.64, 0.64] are shown.
+
+Dimensions of the PNG images are hard coded (global parameters `w` for width and
+`h` for height).
 
 The pogram prints to the console the time elapsed only during the generation of
-SVG images.  Time needed to read is not measured.
-
-The code was inspired by ewcz's answer on
-https://stackoverflow.com/questions/49147707/how-can-i-convert-a-shapely-polygon-to-an-svg.
+PNG images.  Time needed to read is not measured.
 
 """
 
 # Import standard library modules.
 import inspect
 import os
-import re
 import six
 import sys
 import time
 
 # Import SciPy packages.
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-# Import Shapely.
-import shapely as sh
-import shapely.geometry as gm
 
 # Check if the variable `__name__` is in the right format.
 if not (isinstance(__name__, str) and __name__.__class__ is str):
@@ -128,26 +125,42 @@ if (df.shape[1] & 1) or df.shape[1] < 6:
         'Input table must have an even number of columns greater than 5.'
     )
 
+# Use the default Matplotlib style.
+plt.style.use('default')
+
 # Extract the number of polygons.
 N = int(df.shape[0])
 
 # Extract the number of vertices of each polygon.
 n = int(df.shape[1]) >> 1
 
+# Set the resolution of images (dots per inch).
+dpi = 10.0
+
 # Set the bounding box.
-bbox = np.array([-0.6, -0.6, 0.6, 0.6], dtype = float, order = 'F')
+bbox = np.array([-0.64, -0.64, 0.64, 0.64], dtype = float, order = 'F')
 
 # Set the scale of the output images.
 scale = 10.0
 
 # Compute the width and the height of the bounding box.
-width = bbox[2] - bbox[0]
-height = bbox[3] - bbox[1]
+width = float(bbox[2] - bbox[0])
+height = float(bbox[3] - bbox[1])
+
+# Generate the figure to create images.
+fig = plt.figure(
+    num = 'Polygon',
+    figsize = (scale * width, scale * height),
+    dpi = dpi
+)
+
+# Add axes to draw polygons.
+ax = fig.add_subplot(1, 1, 1)
 
 # Set the format string for the paths of the output images.
 path_str = os.path.join(
     sys.argv[2] if sys.argv[2] else '.',
-    "{table:s}_{{ind:0{nw:d}d}}.svg".format(
+    "{table:s}_{{ind:0{nw:d}d}}.png".format(
         table = os.path.basename(sys.argv[1])[:-4],
         nw = len(str(max(N - 1, 1)))
     )
@@ -160,61 +173,35 @@ t1 = 0.0
 # Get the current time in seconds.
 t0 = time.time()
 
-# Set the format string for the output SVG data.
-svg_str = (
-    "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
-        "<"
-            "svg version=\"1.1\" "
-            "baseProfile=\"full\" "
-            "width=\"{ws:.0f}px\" "
-            "height=\"{hs:.0f}px\" "
-            "viewBox=\"{xmin:.1f},{ymin:.1f},{w:.1f},{h:.1f}\" "
-            "xmlns=\"http://www.w3.org/2000/svg\" "
-            "xmlns:ev=\"http://www.w3.org/2001/xml-events\" "
-            "xmlns:xlink=\"http://www.w3.org/1999/xlink\""
-        ">\n"
-        "{{data:s}}\n"
-    "</svg>\n"
-).format(
-    ws = width * scale,
-    hs = height * scale,
-    xmin = bbox[0],
-    ymin = bbox[1],
-    w = width,
-    h = height
-)
-
 # Generate images of the polygons.  If an exception of `FileNotFoundError`
 # occurs, raise an exception of type `RuntimeError`.
 try:
     for i in df.index:
-        # Open the file for the current polygon.
-        with open(path_str.format(ind = i), 'wt') as svg:
-            # Write SVG data of the current polygon to file `svg`.
-            svg.write(
-                re.sub(
-                    "\\s*stroke-width=\"0.0\"",
-                    str(),
-                    svg_str.format(
-                        data = gm.Polygon(
-                            [
-                                (df.loc[i, 2 * j], df.loc[i, 2 * j + 1])
-                                    for j in range(n)
-                            ]
-                        ).svg(
-                            scale_factor = 0.0,
-                            fill_color = '#000000'
-                        ).replace(
-                            "stroke=\"#555555\"",
-                            "stroke=\"none\""
-                        ).replace("opacity=\"0.6\"", "opacity=\"1.0\"")
-                    )
-                )
-            )
-        try:
-            del svg
-        except (NameError, UnboundLocalError):
-            pass
+        # Clear the drawing.
+        ax.clear()
+
+        # Draw the `i`-th polygon.
+        ax.fill(
+            df.loc[i, 0::2],
+            df.loc[i, 1::2],
+            alpha = 1.0,
+            color = 'black',
+            linestyle = 'None',
+            linewidth = 0.0
+        )
+
+        # Set the aspect of the plot to equal.
+        ax.set_aspect('equal')
+
+        # Set boundaries of the plot.
+        ax.set_xlim((bbox[0], bbox[2]))
+        ax.set_ylim((bbox[1], bbox[3]))
+
+        # Remove axes.
+        ax.axis('off')
+
+        # Save the drawing of the `i`-th polygon.
+        fig.savefig(path_str.format(ind = i), format = 'png', dpi = 'figure')
     try:
         del i
     except (NameError, UnboundLocalError):

@@ -53,11 +53,6 @@
 #include "polygon.h"
 #include "playground.h"
 
-/* Define constants for maximal numbers of iterations. */
-#define IN_ITER_MAX     1024U
-#define OUT_ITER_MAX    1024U
-#define ATTEMPT_MAX     1024U
-
 int main (int argc, char** argv)
 {
     /* DECLARATION OF CONSTANTS */
@@ -209,10 +204,6 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Extract the auxiliary decremented numbers of discretisation points. */
-    real_m_ = (double)(m - 1U);
-    real_n_ = (double)(n - 1U);
-
     /* If the number of discretisation points was too large, print the error
      * message and exit with a non-zero value. */
     if (!(m < n))
@@ -224,6 +215,10 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
 
     }
+
+    /* Extract the auxiliary decremented numbers of discretisation points. */
+    real_m_ = (double)(m - 1U);
+    real_n_ = (double)(n - 1U);
 
     /* Open the output file. */
     out = fopen(*(argv + 2U), file_open_mode);

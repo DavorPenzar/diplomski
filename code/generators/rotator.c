@@ -70,11 +70,6 @@
 #include "polygon.h"
 #include "playground.h"
 
-/* Define constants for maximal numbers of iterations. */
-#define IN_ITER_MAX     1024U
-#define OUT_ITER_MAX    1024U
-#define ATTEMPT_MAX     1024U
-
 int main (int argc, char** argv)
 {
     /* DECLARATION OF CONSTANTS */
