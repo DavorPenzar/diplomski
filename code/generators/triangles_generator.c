@@ -15,12 +15,12 @@
  * distance from the point P to the point Q.
  *
  * Rectangle [0, 1 / 2] x [0, sqrt(3) / 2] is discretised with m points on the
- * x-axis and n points on the y-axis, where n / m is the best rational
- * approximation of sqrt(3) with positive denominator less than or equal to m.
- * Each of the point is tried for the triangle and, if it satisfies the
- * conditions, is printed to the output file.  However, some points are skipped
- * (the ones too close to the x-axis---minimal y-coordinate allowed is hard
- * coded).
+ * x-axis and n points on the y-axis, where (n - 1) / (m - 1) is the best
+ * rational approximation of sqrt(3) with positive denominator less than or
+ * equal to m - 1.  Each of the point is tried for the triangle and, if it
+ * satisfies the conditions, is printed to the output file.  However, some
+ * points are skipped (the ones too close to the x-axis---minimal y-coordinate
+ * allowed is hard coded).
  *
  * Each triangle is printed to the output file in its own line.  Each triangle
  * is formatted as
@@ -191,7 +191,7 @@ int main (int argc, char** argv)
     /* Read the number of discretisation points on x-axis and compute the number
      * of discretisation points on y-axis. */
     m = (size_t)atoi(*(argv + 1U));
-    n = (size_t)(sqrt_3 * (double)m + 0.5);
+    n = (size_t)(sqrt_3 * (double)m - 0.5) + 1U;
 
     /* If the number of discretisation points on x-axis is 0, print the error
      * message and exit with a non-zero value. */
@@ -219,6 +219,9 @@ int main (int argc, char** argv)
     /* Extract the auxiliary decremented numbers of discretisation points. */
     real_m_ = (double)(m - 1U);
     real_n_ = (double)(n - 1U);
+
+    printf("m = %lu, n = %lu\n", m, n);
+    exit(EXIT_SUCCESS);
 
     /* Open the output file. */
     out = fopen(*(argv + 2U), file_open_mode);
