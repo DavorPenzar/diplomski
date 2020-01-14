@@ -60,7 +60,6 @@
 #include "boolean.h"
 #include "numeric.h"
 #include "polygon.h"
-#include "playground.h"
 
 int main (int argc, char** argv)
 {

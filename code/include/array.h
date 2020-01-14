@@ -565,7 +565,7 @@ void intertwine (void* a, ::size_t n, ::size_t size)
  *     a_n_minus_1 a_0         ... a_n_minus_3 a_n_minus_2
  *     a_n_minus_2 a_n_minus_3 ... a_0         a_n_minus_1
  * i. e. the (2 * i)-th row of the matrix is the array
- * {a_i, a_i_plus_one, ..., a_n_minus_1, a_0, a_1, ..., a_i_minus_one} and the
+ * {a_i, a_i_plus_1, ..., a_n_minus_1, a_0, a_1, ..., a_i_minus_1} and the
  * (2 * i + 1)-th row is (2 * i)-th row flipped for all indices i in
  * {0, 1, ..., `n` - 1}.
  *

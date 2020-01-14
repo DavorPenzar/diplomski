@@ -27,7 +27,7 @@
  * information is computed on them.
  *
  * Each polygon is described in the output file in its own line formmated as
- *     l_0	l_1	...	l_n_minus_one	phi_1	phi_2	...	phi_n_minus_1	phi_0
+ *     l_0	l_1	...	l_n_minus_1	phi_1	phi_2	...	phi_n_minus_1	phi_0
  * where l_i denotes the length of the edge from the i-th vertex to the
  * (i + 1)-th vertex and phi_i denotes the outer angle at the i-th vertex.  The
  * outer angles are not normalised by dividing with pi.
@@ -56,7 +56,6 @@
 #include "boolean.h"
 #include "numeric.h"
 #include "polygon.h"
-#include "playground.h"
 
 int main (int argc, char** argv)
 {

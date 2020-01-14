@@ -1,5 +1,5 @@
 /**
- * Program for describing polygons.
+ * Program for computing singular values of polygons.
  *
  * This file is part of Davor Penzar's master thesis programing.
  *
@@ -14,7 +14,7 @@
  *         lengths of edges and the outer angles.
  *
  * Each polygon must be formated in the input file as
- *     l_0	l_1	...	l_n_minus_one	phi_1	phi_2	...	phi_n_minus_1	phi_0
+ *     l_0	l_1	...	l_n_minus_1	phi_1	phi_2	...	phi_n_minus_1	phi_0
  * where l_i denotes the length of the edge from the i-th vertex to the
  * (i + 1)-th vertex and phi_i denotes the outer angle at the i-th vertex not
  * normalised by dividing with pi.  It is believed that each input polygon
@@ -25,8 +25,8 @@
  * contains more than N polygons, only the first N polygons are read and SVD is
  * done on them.
  *
- * Each polygon's singular value are printed in the input file as
- *     s_l_0	s_l_1	...	s_l_n_minus_one	s_phi_0	s_phi_1	...	s_phi_n_minus_1
+ * Each polygon's singular values are printed in the input file as
+ *     s_l_0	s_l_1	...	s_l_n_minus_1	s_phi_0	s_phi_1	...	s_phi_n_minus_1
  * where s_l_i the i-th largest (counting their multiplicities) singular value
  * of the lengths of edges and s_phi_i is the i-th largest (counting their
  * multiplicities) singular value of the outer angles of the polygon.  If the
@@ -61,7 +61,6 @@
 #include "boolean.h"
 #include "numeric.h"
 #include "polygon.h"
-#include "playground.h"
 
 int main (int argc, char** argv)
 {

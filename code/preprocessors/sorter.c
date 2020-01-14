@@ -1,35 +1,38 @@
 /**
- * Program for characterising polygons.
+ * Program for sorting data of polygons.
  *
  * This file is part of Davor Penzar's master thesis programing.
  *
  * Usage:
- *     ./characterise in N out
+ *     ./sort in N n out
  * where:
- *     in  is the path to the input file to read the original coordinates of
- *         vertices,
- *     N   is the number of triangles to read (at least 1),
- *     out is the path to the output file to print the characteristic points.
+ *     in  is the path to the input file to read the lengths of edges and the
+ *         outer angles,
+ *     N   is the number of polygons to read (at least 1),
+ *     n   is the number of vertices of each polygon (at least 3),
+ *     out is the path to the output file to print the singular values of the
+ *         lengths of edges and the outer angles.
  *
- * Each triangle must be formated in the input file as
- *     l_0	l_1	l_2	phi_1	phi_2	phi_0
+ * Each polygon must be formated in the input file as
+ *     l_0	l_1	...	l_n_minus_1	phi_1	phi_2	...	phi_n_minus_1	phi_0
  * where l_i denotes the length of the edge from the i-th vertex to the
  * (i + 1)-th vertex and phi_i denotes the outer angle at the i-th vertex not
- * normalised by dividing with pi.  It is believed that each input triangle
- * truly represents a triangle ---this is not checked and if any input triangle
- * does not satisfy this, results may be unexpected.
+ * normalised by dividing with pi.  It is believed that each input polygon
+ * truly represents a polygon of n vertices ---this is not checked and if any
+ * input polygon does not satisfy this, results may be unexpected.
  *
- * Note that the input file must contain at least N triangles.  If, however, it
- * contains more than N triangles, only the first N triangles are read and
- * characterised.
+ * Note that the input file must contain at least N polygons.  If, however, it
+ * contains more than N polygons, only the first N polygons are read and SVD is
+ * done on them.
  *
- * Each triangle is characterised in the output file in its own line formmated
- * as
- *     x	y
- * where (x, y) are the coordinates of the characteristic point of the triangle.
+ * Each polygon's information is printed in the input file as
+ *     l_0^*	l_1^*	...	l_n_minus_1^*	phi_0^*	phi_1^*	phi_n_minus_1^*
+ * where l_i^* the i-th largest (counting their multiplicities) length of edges
+ * and phi_i^* is the i-th largest (counting their multiplicities) outer angles
+ * of the polygon.
  *
- * The pogram prints to the console the time elapsed only during the computation
- * of the information.  Time needed to read and print is not measured.
+ * The pogram prints to the console the time elapsed only during sorting the
+ * values.  Time needed to read and print is not measured.
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
@@ -52,7 +55,6 @@
 #include "boolean.h"
 #include "numeric.h"
 #include "polygon.h"
-#include "triangle.h"
 
 int main (int argc, char** argv)
 {
@@ -66,12 +68,15 @@ int main (int argc, char** argv)
 
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
-        "Number of additional arguments must be 3: input file path, number of "
-            "triangles to read and output file path.";
+        "Number of additional arguments must be 4: input file path, number of "
+            "polygons to read, number of vertices and output file path.";
 
-    /* Error message for the illegal number of triangles to read. */
+    /* Error message for the illegal number of polygons to read. */
     const char* const err_msg_npr =
-        "Number of triangles to read must be at least 1.";
+        "Number of polygons to read must be at least 1.";
+
+    /* Error message for the illegal number of vertices. */
+    const char* const err_msg_nv = "Number of vertices must be at least 3.";
 
     /* Error message for the memory allocation fail. */
     const char* const err_msg_mem = "Memory allocation fail.";
@@ -109,12 +114,12 @@ int main (int argc, char** argv)
     /* Number of polygons to read. */
     size_t N;
 
+    /* Number of vertices. */
+    size_t n;
+
     /* Arrays of the lengths of edges and the outer angles. */
     real_t* l;
     real_t* phi;
-
-    /* Array of characteristic points of triangles. */
-    real_t* C;
 
     /* Input/output file. */
     FILE* inout;
@@ -132,12 +137,12 @@ int main (int argc, char** argv)
     /* Number of polygons to read. */
     N = 0U;
 
+    /* Number of vertices. */
+    n = 0U;
+
     /* Arrays of the lengths of edges and the outer angles. */
     l = (real_t*)(NULL);
     phi = (real_t*)(NULL);
-
-    /* Array of characteristic points of triangles. */
-    C = (real_t*)(NULL);
 
     /* Input/output file. */
     inout = (FILE*)(NULL);
@@ -151,9 +156,9 @@ int main (int argc, char** argv)
     /* Set the seed for the pseudorandom number generator. */
     srand((unsigned int)time((time_t*)(NULL)));
 
-    /* If the number of additional command line arguments is not 3, print the
+    /* If the number of additional command line arguments is not 4, print the
      * error message and exit with a non-zero value. */
-    if (!(argc == 4))
+    if (!(argc == 5))
     {
         /* Print the error message. */
         fprintf(stderr, format_err_msg, err_msg_argc);
@@ -173,14 +178,15 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* If any of the 4 command line arguments is a null-pointer, print the error
+    /* If any of the 5 command line arguments is a null-pointer, print the error
      * message and exit with a non-zero value. */
     if (
         !(
             *argv &&
             *(argv + 1U) &&
             *(argv + 2U) &&
-            *(argv + 3U)
+            *(argv + 3U) &&
+            *(argv + 4U)
         )
     )
     {
@@ -194,6 +200,9 @@ int main (int argc, char** argv)
     /* Scan the number of polygons to read. */
     N = (size_t)atoi(*(argv + 2U));
 
+    /* Scan the number of vertices. */
+    n = (size_t)atoi(*(argv + 3U));
+
     /* If the number of polygons to read is 0, print the error message and exit
      * with a non-zero value. */
     if (!N)
@@ -205,9 +214,20 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
+    /* If the number of vertices is strictly less than 3, print the error
+     * message and exit with a non-zero value. */
+    if (n < 3U)
+    {
+        /* Print the error message. */
+        fprintf(stderr, format_err_msg, err_msg_nv);
+
+        /* Exit with a non-zero value. */
+        exit(EXIT_FAILURE);
+    }
+
     /* Allocate memory for the arrays of the lengths of edges and the outer
      * angles. */
-    l = (real_t*)malloc(((3U * N) << 1U) * sizeof *l);
+    l = (real_t*)malloc(((N * n) << 1U) * sizeof *l);
 
     /* If the memory allocation has failed, print the error message and exit
      * with a non-zero value. */
@@ -221,35 +241,8 @@ int main (int argc, char** argv)
     }
 
     /* Initialise the lengths of edges and the outer angles to zeros. */
-    memset(l, 0, ((3U * N) << 1U) * sizeof *l);
-    phi = l + 3U;
-
-    /* Allocate memory for the array of characteristic points of triangles. */
-    C = (real_t*)malloc((N << 1U) * sizeof *C);
-
-    /* If the memory allocation has failed, deallocate memory, print the error
-     * message and exit with a non-zero value. */
-    if (!C)
-    {
-        /* Print the error message. */
-        fprintf(stderr, format_err_msg, err_msg_in);
-
-        /* Clear the memory in the arrays of the lengths of edges and the outer
-         * angles. */
-        memset(l, 0, ((3U * N) << 1U) * sizeof *l);
-
-        /* Deallocate memory for the arrays of the lengths of edges and the
-         * outer angles. */
-        free(l);
-        l = (real_t*)(NULL);
-        phi = (real_t*)(NULL);
-
-        /* Exit with a non-zero value. */
-        exit(EXIT_FAILURE);
-    }
-
-    /* Initialise coordinates of characteristic points of triangles to zeros. */
-    memset(C, 0, (N << 1U) * sizeof *C);
+    memset(l, 0, ((N * n) << 1U) * sizeof *l);
+    phi = l + n;
 
     /* Open the input file. */
     inout = fopen(*(argv + 1U), file_in_open_mode);
@@ -261,18 +254,9 @@ int main (int argc, char** argv)
         /* Print the error message. */
         fprintf(stderr, format_err_msg, err_msg_in);
 
-        /* Clear the memory in the array of characteristic points of
-         * triangles. */
-        memset(C, 0, (N << 1U) * sizeof *C);
-
-        /* Deallocate memory for the array of characteristic points of
-         * triangles. */
-        free(C);
-        C = (real_t*)(NULL);
-
         /* Clear the memory in the arrays of the lengths of edges and the outer
          * angles. */
-        memset(l, 0, ((3U * N) << 1U) * sizeof *l);
+        memset(l, 0, ((N * n) << 1U) * sizeof *l);
 
         /* Deallocate memory for the arrays of the lengths of edges and the
          * outer angles. */
@@ -284,15 +268,15 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Read the input triangles. */
+    /* Read the input polygons. */
     for (i = 0; i < N; ++i)
     {
         /* Read the lengths of edges and the outer angles of the `i`-th input
-         * triangle.  If any of the coordinates could not be read, print the
+         * polygon.  If any of the coordinates could not be read, print the
          * error message, close the input file, deallocate memory and exit with
          * a non-zero value. */
-        for (j = 0U; (j >> 1U) < 3U; ++j)
-            if (!(fscanf(inout, format_input, l + ((3U * i) << 1U) + j) == 1))
+        for (j = 0U; (j >> 1U) < n; ++j)
+            if (!(fscanf(inout, format_input, l + ((i * n) << 1U) + j) == 1))
             {
                 /* Print the error message. */
                 fprintf(stderr, format_err_msg, err_msg_rn);
@@ -301,18 +285,9 @@ int main (int argc, char** argv)
                 fclose(inout);
                 inout = (FILE*)(NULL);
 
-                /* Clear the memory in the array of characteristic points of
-                 * triangles. */
-                memset(C, 0, (N << 1U) * sizeof *C);
-
-                /* Deallocate memory for the array of characteristic points of
-                 * triangles. */
-                free(C);
-                C = (real_t*)(NULL);
-
                 /* Clear the memory in the arrays of the lengths of edges and
                  * the outer angles. */
-                memset(l, 0, ((3U * N) << 1U) * sizeof *l);
+                memset(l, 0, ((N * n) << 1U) * sizeof *l);
 
                 /* Deallocate memory for the arrays of the lengths of edges and
                  * the outer angles. */
@@ -332,15 +307,15 @@ int main (int argc, char** argv)
     /* Get the current clock ticks. */
     t0 = clock();
 
-    /* Characterise all triangles. */
+    /* Compute the singular values. */
     for (i = 0U; i < N; ++i)
-        char_triangle(
-            l + ((3U * i) << 1U),
-            phi + ((3U * i) << 1U),
-            C + (i << 1U),
-            C + (i << 1U) + 1U,
-            true
-        );
+    {
+        /* Sort the lengths of edges of the `i`-th polygon. */
+        qsort(l + ((i * n) << 1U), n, sizeof *l, ricompar);
+
+        /* Sort the outer angles of the `i`-th polygon. */
+        qsort(phi + ((i * n) << 1U), n, sizeof *phi, ricompar);
+    }
 
     /* Get the current clock ticks. */
     t1 = clock();
@@ -349,7 +324,7 @@ int main (int argc, char** argv)
     printf(format_time, (double)(t1 - t0) / clocks_per_sec);
 
     /* Open the output file. */
-    inout = fopen(*(argv + 3U), file_out_open_mode);
+    inout = fopen(*(argv + 4U), file_out_open_mode);
 
     /* If the output file could not be opened, print the error message,
      * close the input file, deallocate memory and exit with a non-zero
@@ -359,18 +334,9 @@ int main (int argc, char** argv)
         /* Print the error message. */
         fprintf(stderr, format_err_msg, err_msg_out);
 
-        /* Clear the memory in the array of characteristic points of
-         * triangles. */
-        memset(C, 0, (N << 1U) * sizeof *C);
-
-        /* Deallocate memory for the array of characteristic points of
-         * triangles. */
-        free(C);
-        C = (real_t*)(NULL);
-
         /* Clear the memory in the arrays of the lengths of edges and the outer
          * angles. */
-        memset(l, 0, ((3U * N) << 1U) * sizeof *l);
+        memset(l, 0, ((N * n) << 1U) * sizeof *l);
 
         /* Deallocate memory for the arrays of the lengths of edges and the
          * outer angles. */
@@ -382,26 +348,19 @@ int main (int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Dump the characteristic points of triangles.  Note that all triangles
-     * have exactly 2 coordinates stored in the array `C`, so the
-     * `dump_polygons` function can be used to dump the characteristic
-     * points. */
-    dump_polygons(inout, 1U, C, N);
+    /* Dump the sorted information about polygons to the output file.  Note that
+     * all polygons have exactly 2 * `n` bits of information stored in the array
+     * `l`, so the `dump_polygons` function can be used to dump the
+     * information. */
+    dump_polygons(inout, n, l, N);
 
     /* Close the output file. */
     fclose(inout);
     inout = (FILE*)(NULL);
 
-    /* Clear the memory in the array of characteristic points of triangles. */
-    memset(C, 0, (N << 1U) * sizeof *C);
-
-    /* Deallocate memory for the array of characteristic points of triangles. */
-    free(C);
-    C = (real_t*)(NULL);
-
     /* Clear the memory in the arrays of the lengths of edges and the outer
      * angles. */
-    memset(l, 0, ((3U * N) << 1U) * sizeof *l);
+    memset(l, 0, ((N * n) << 1U) * sizeof *l);
 
     /* Deallocate memory for the arrays of the lengths of edges and the outer
      * angles. */

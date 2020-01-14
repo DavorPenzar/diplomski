@@ -2731,9 +2731,9 @@ void describe_polygon (
  *
  * Consider a polygon of n angles.  Choose a vertex and positive or negative
  * orientation.  Denote the polygons vertices starting from the chosen vertex in
- * the chosen orientation V_0, V_1, ..., V_n_minus_one.  Construct a vector
- * (l_0, l_1, ..., l_n_minus_one) such that l_i is the length of the edge
- * V_i V_i_plus_one and a vector (phi_0, phi_1, ..., phi_n_minus_1) such thah
+ * the chosen orientation V_0, V_1, ..., V_n_minus_1.  Construct a vector
+ * (l_0, l_1, ..., l_n_minus_1) such that l_i is the length of the edge
+ * V_i V_i_plus_1 and a vector (phi_0, phi_1, ..., phi_n_minus_1) such thah
  * phi_i is the outer angle of the polygon at the vertex V_i.  Construct the
  * matrices L, Phi of the unoriented circular representations of the vectors
  * (arrays)---see the `build_unorient_circ_matrix` function.  The singular

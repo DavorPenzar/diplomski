@@ -236,28 +236,22 @@ constexpr inline real_t rmax (const real_t x, const real_t y)
 /**
  * Get the absolute value of a real number.
  *
- * The value is computed using the `fabs` function from the standard library.
- *
  * @param x
  *     Real number.
  *
  * @return
  *     Absolute value of `x`.
  *
- * @see fabs
- *
  */
-#if !defined(__cplusplus)
-real_t rabs (real_t x)
-#else
-inline real_t rabs (real_t x)
-#endif /* __cplusplus */
+ #if !defined(__cplusplus)
+ real_t rabs (real_t x)
+ #elif (__cplusplus) < 201103L
+ inline real_t rabs (real_t x)
+ #else
+ constexpr inline real_t rabs (const real_t x)
+ #endif /* __cplusplus */
 {
-#if !defined(__cplusplus)
-    return (x == 0.0) ? 0.0 : (real_t)fabs((double)x);
-#else
-    return (x == 0.0) ? 0.0 : static_cast<real_t>(::fabs(x));
-#endif /* __cplusplus */
+    return (x < 0.0) ? -x : ((0.0 < x) ? x : 0.0);
 }
 
 /**
@@ -792,6 +786,7 @@ constexpr inline int rcompar (const void* x, const void* y)
  *    pointers of type `const real_t*`).
  *
  * @see qsort
+ * @see rcompar
  *
  */
 #if !defined(__cplusplus)
@@ -815,5 +810,94 @@ constexpr inline int ricompar (const void* x, const void* y)
         0;
 #endif /* __cplusplus */
 }
+
+/**
+ * Compare real numbers by their absolute values at given memory adresses.
+ *
+ * This function is useful for standard library functions such as `qsort`.
+ *
+ * @param x
+ *     Pointer to the first number.
+ *
+ * @param y
+ *     Pointer to the second number.
+ *
+ * @return
+ *    If `x` and `y` are not null-pointers, value -1 if |`*x`| < |`*y`|, value 0
+ *    if |`*x`| == |`*y`| and value 1 if |`*x`| > |`*y`| (where `x` and `y` are
+ *    viewed as pointers of type `const real_t*`).
+ *
+ * @see qsort
+ * @see riacompar
+ *
+ */
+#if !defined(__cplusplus)
+int racompar (const void* x, const void* y)
+#elif (__cplusplus) < 201103L
+inline int racompar (const void* x, const void* y)
+#else
+constexpr inline int racompar (const void* x, const void* y)
+#endif /* __cplusplus */
+{
+#if !defined(__cplusplus)
+    return (x && y) ?
+        (int)rsign(rabs(*((const real_t*)x)) - rabs(*((const real_t*)y))) :
+        0;
+#else
+    return (x && y) ?
+        static_cast<int>(
+            rsign(
+                rabs(*(reinterpret_cast<const real_t*>(x))) -
+                rabs(*(reinterpret_cast<const real_t*>(y)))
+            )
+        ) :
+        0;
+#endif /* __cplusplus */
+}
+
+/**
+ * Compare (invertedly) real numbers by their absolute values at given memory
+ * adresses.
+ *
+ * This function is useful for standard library functions such as `qsort`.
+ *
+ * @param x
+ *     Pointer to the first number.
+ *
+ * @param y
+ *     Pointer to the second number.
+ *
+ * @return
+ *    If `x` and `y` are not null-pointers, value -1 if |`*y`| < |`*x`|, value 0
+ *    if |`*y`| == |`*x`| and value 1 if |`*y`| > |`*x`| (where `x` and `y` are
+ *    viewed as pointers of type `const real_t*`).
+ *
+ * @see qsort
+ * @see racompar
+ *
+ */
+ #if !defined(__cplusplus)
+ int riacompar (const void* x, const void* y)
+ #elif (__cplusplus) < 201103L
+ inline int riacompar (const void* x, const void* y)
+ #else
+ constexpr inline int riacompar (const void* x, const void* y)
+ #endif /* __cplusplus */
+ {
+ #if !defined(__cplusplus)
+     return (x && y) ?
+         (int)rsign(rabs(*((const real_t*)y)) - rabs(*((const real_t*)x))) :
+         0;
+ #else
+     return (x && y) ?
+         static_cast<int>(
+             rsign(
+                 rabs(*(reinterpret_cast<const real_t*>(y))) -
+                 rabs(*(reinterpret_cast<const real_t*>(x)))
+             )
+         ) :
+         0;
+ #endif /* __cplusplus */
+ }
 
 #endif /* __NUMERIC_H__INCLUDED */

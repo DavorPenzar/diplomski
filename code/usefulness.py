@@ -1,5 +1,5 @@
 """
-Definition of a function for extracting subdatasets while preserving variation.
+Personal useful functions for exploring and extracting data in dataframes.
 
 This file is part of Davor Penzar's master thesis programing.
 
@@ -26,6 +26,187 @@ from pandas.api.types import is_numeric_dtype as _is_numeric_dtype
 from pandas.core.frame import DataFrame as _DataFrame
 from pandas.core.series import Series as _Series
 
+# Define the function to generate rainbows.
+def rainbow (n, start = 0.0):
+    """
+    Generate a spectrum of colours equidistant in the hue wheel.
+
+    Parameters
+    ==========
+    n : int in range [0, +inf)
+        Number of colours to generate.
+
+    start : float in range [0, 360)
+        Position in the hue wheel to start the rainbow from (default is 0).  The
+        red is at 0 (and 360), the green is at 120 and the blue is at 240.
+
+    Returns
+    =======
+    col : (n, 3) array of floats in range [0, 1]
+        RGB representation of colours.  Each row represents a colour as RGB
+        values in the range [0, 1].  The first colour corresponds to the colour
+        set by the value `start` (red by default) and then the colours proceed
+        equidistantly in the hue wheel.
+
+    Raises
+    ======
+    TypeError
+        Parameter `n` is not an integer.  Parameter `start` is not a real
+        number.
+
+    ValueError
+        Parameter `n` is not in range [0, +inf).  Parameter `start` is not in
+        range [0, 360).
+
+    """
+
+    # Sanitise the parameter `n`.
+    if hasattr(n, '__iter__') or hasattr(n, '__array__'):
+        if not isinstance(n, _np.ndarray):
+            try:
+                n = _np.array(n)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(n, _np.ndarray):
+        if n.size == 1 or n.shape == tuple():
+            n = n.ravel()
+            if not (n.size == 1):
+                raise TypeError('Number of colours must be integral.')
+            try:
+                n = n.dtype.type(n[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Number of colours must be integral.')
+    if not (
+            isinstance(n, _six.integer_types) or
+            isinstance(n, (_np.integer, _numbers.Integral))
+    ) or isinstance(n, (bool, _np.bool_)):
+        raise TypeError('Number of colours must be integral.')
+    try:
+        n = _copy.deepcopy(int(n))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Number of colours must be of type `int`.')
+    if _math.isnan(n) or _math.isinf(n):
+        raise ValueError('Number of colours must be finite and non-NaN.')
+    if n < 0:
+        raise ValueError('Number of colours must be non-negative.')
+
+    # Sanitise the parameter `start`.
+    if hasattr(start, '__iter__') or hasattr(start, '__array__'):
+        if not isinstance(start, _np.ndarray):
+            try:
+                start = _np.array(start)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(start, _np.ndarray):
+        if start.size == 1 or start.shape == tuple():
+            start = start.ravel()
+            if not (start.size == 1):
+                raise TypeError('Start position must be a real number.')
+            try:
+                start = start.dtype.type(start[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Start position must be a real number.')
+    if (
+        not (
+            isinstance(
+                start,
+                (
+                    float,
+                    _np.integer,
+                    _np.floating,
+                    _numbers.Integral,
+                    _numbers.Rational,
+                    _numbers.Real
+                )
+            ) or isinstance(start, _six.integer_types)
+        ) or isinstance(start, (bool, _np.bool_))
+    ):
+        raise TypeError('Start position must be a real number.')
+    try:
+        start = _copy.deepcopy(float(start))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Start position must be of type `float`.')
+    if _math.isnan(start) or _math.isinf(start):
+        raise ValueError('Start position must be finite and non-NaN.')
+    if start < 0.0 or not (start < 360.0):
+        raise ValueError('Start position must be in range [0, 360).')
+    if start == 0.0:
+        start = 0.0
+
+    # Divide the parameter `start` by 60.
+    start /= 60.0
+
+    # Initialise the array of colours to zeros.  The array is of shape (`n`, 3)
+    # so that `col[i]` defines the `i`-th colour in the RGB format (in the range
+    # [0, 1]).
+    col = _np.zeros((n, 3), dtype = float, order = 'F')
+
+    # Compute the colours.
+
+    # Get the number of colours increased by 1 as `float`.
+    C = _copy.deepcopy(float(n + 1))
+
+    # Iterate over colours.
+    for i in range(n):
+        # Get the position of the current colour in spectrum (circular, from 0
+        # to 6).
+        c = start + 6.0 * float(i) / C
+        if not (c < 6.0):
+            c -= 6.0
+
+        # Set the RGB values of the current colour according to the position
+        # `c`.
+        if c < 1.0:
+            col[i, 0] = 1.0
+            col[i, 1] = c - 0.0
+            col[i, 2] = 0.0
+        elif c < 2.0:
+            col[i, 0] = 2.0 - c
+            col[i, 1] = 1.0
+            col[i, 2] = 0.0
+        elif c < 3.0:
+            col[i, 0] = 0.0
+            col[i, 1] = 1.0
+            col[i, 2] = c - 2.0
+        elif c < 4.0:
+            col[i, 0] = 0.0
+            col[i, 1] = 4.0 - c
+            col[i, 2] = 1.0
+        elif c < 5.0:
+            col[i, 0] = c - 4.0
+            col[i, 1] = 0.0
+            col[i, 2] = 1.0
+        else:
+            col[i, 0] = 1.0
+            col[i, 1] = 0.0
+            col[i, 2] = 6.0 - c
+
+        # Free the memory.
+        del c
+    try:
+        del i
+    except (NameError, UnboundLocalError):
+        pass
+
+    # Free the memory.
+    del C
+
+    # Return the generated rainbow.
+    return col
+
+# Define the function to extract subdataframes.
 def generate_subdf (
     dfs,
     n,
@@ -34,28 +215,31 @@ def generate_subdf (
     rtol = 1.0e-5,
     atol = 1.0e-8,
     err_f = max,
-    compl = False
+    compl = False,
+    return_error = False
 ):
     """
-    Extract subdataframes.
+    Extract subdataframes from dataframes.
 
     Parameters
     ==========
-    dfs : list-like of DataFrames
-        Dataframes from which to extract subdataframes.
+    dfs : iterable of DataFrames
+        Dataframes from which to extract subdataframes.  This parameter may even
+        be a generator object.
 
-    n : int in range [2, +inf)
-        Number of rows to extract into each subdataframe.
+    n : int in range [0, +inf)
+        Number of rows to extract into each subdataframe.  If an original
+        dataframe has less than `n` rows, the complete dataframe is copied.
 
     ok : float in range [0, +inf), optional
-        Maximal allowed relative standard deviation error (default is 1.0e-3).
-        If a subdataframe is extracted from an original dataframe and the
-        computed total standard deviation error on all columns (see parameters
-        `rtol`, `atol` and `err_f`) is strictly less than `ok`, the subdataframe
-        is accepted and the algorithm proceeds to the next dataframe (or ends if
-        the dataframe was the last one).  If the parameter `compl` is true, the
-        complement's standard deviation error must also be strictly less than
-        `ok` (see parameter `compl`).
+        Supremum of allowed relative standard deviation error (default is
+        1.0e-3).  If a subdataframe is extracted from an original dataframe and
+        the computed total standard deviation error on all columns (see
+        parameters `rtol`, `atol` and `err_f`) is strictly less than `ok`, the
+        subdataframe is accepted and the algorithm proceeds to the next
+        dataframe (or ends if the dataframe was the last one).  If the parameter
+        `compl` is true, the complement's standard deviation error must also be
+        strictly less than `ok` (see parameter `compl`).
 
     N_ITER : int in range [1, +inf), optional
         Maximal number of iterations to generate each subdataframe (default is
@@ -82,7 +266,8 @@ def generate_subdf (
         computed on all columns (except the ignored ones; see parameters `rtol`,
         `atol` and Notes) and the results are joint in a tuple.  The tuple is
         then passed to the `err_f` function to compute the total standard
-        deviation error.
+        deviation error.  The function should return a `float` or an object
+        convertible to a `float`.
 
     compl : boolean, optional
         If true, the standard deviation error of the subdataframe's complement
@@ -91,6 +276,10 @@ def generate_subdf (
         its complement's) (default is false).  The standard deviation error on
         the subdataframe's complement is computed analogously to the
         subdataframe's standard deviation error.
+
+    return_error : boolean, optional
+        If true, the tuple of standard deviation errors of subdataframes is
+        returned (default is false).
 
     Returns
     =======
@@ -104,7 +293,8 @@ def generate_subdf (
         are given in the same order as generated subdataframes/original
         dataframes.  If the parameter `compl` is true, the i-th value in `E` is
         the maximum of the total standard deviation error on the i-th
-        subdataframe and the i-th subdataframe's complement.
+        subdataframe and the i-th subdataframe's complement.  This is returned
+        only if the parameter `return_error` is true.
 
     Raises
     ======
@@ -113,18 +303,21 @@ def generate_subdf (
         Parameter `ok` is not a real number.  Parameter `N_ITER` is not an
         integer.  Parameter `rtol` is not a real number.  Parameter `atol` is
         not a real number.  Parameter `err_f` is not a function.  Parameter
-        `compl` is not boolean.  A dataframe in `dfs` is not a Pandas dataframe.
+        `compl` is not boolean.  Parameter `return_error` is not boolean.  A
+        dataframe in `dfs` is not a Pandas dataframe.
 
     ValueError
-        Parameter `n` is not in range [2, +inf).  Parameter `ok` is not in range
+        Parameter `n` is not in range [0, +inf).  Parameter `ok` is not in range
         [0, +inf).  Parameter N_ITER is not in range [1, +inf).  Parameter
         `rtol` is not in range [0, +inf).  Parameter `atol` is not in range
-        [0, +inf).  Parameter `compl` is not false or true.  A dataframe in
-        `dfs` does not have at least `n` rows.
+        [0, +inf).  Parameter `compl` is not false or true.  Parameter
+        `return_error` is not false or true.
 
     Other
         If iterating over the parameter `dfs` fails with an exception, it is not
         caught.  Exceptions thrown by the `err_f` function are not caught.
+        Exceptions thrown by converting the returned value of `err_f` to `float`
+        are not caught.
 
     Notes
     =====
@@ -135,6 +328,12 @@ def generate_subdf (
     generated potential subdataframes.  Columns that do not yield true when
     calling `pandas.api.types.is_numeric_dtype` on them are automatically
     ignored.
+
+    The standard deviation is not computed on dataframes of 0 or 1 rows.  If the
+    parameter `n` is 1 and the parameter `compl` is false, a uniformly arbitrary
+    row is extracted from each dataframe.  If the parameter `n` is 0 or 1 and
+    the parameter `compl` is false, all standard deviation errors will be set to
+    0.
 
     """
 
@@ -156,7 +355,7 @@ def generate_subdf (
     if isinstance(n, _np.ndarray):
         if n.size == 1 or n.shape == tuple():
             n = n.ravel()
-            if n.size != 1:
+            if not (n.size == 1):
                 raise TypeError(
                     'Number of rows in subdataframes must be integral.'
                 )
@@ -187,9 +386,9 @@ def generate_subdf (
         raise ValueError(
             'Number of rows in subdataframes must be finite and non-NaN.'
         )
-    if n < 2:
+    if n < 0:
         raise ValueError(
-            'Number of rows in subdataframes must be strictly greater than 1.'
+            'Number of rows in subdataframes must be non-negative.'
         )
 
     # Sanitise the parameter `ok`.
@@ -202,7 +401,7 @@ def generate_subdf (
     if isinstance(ok, _np.ndarray):
         if ok.size == 1 or ok.shape == tuple():
             ok = ok.ravel()
-            if ok.size != 1:
+            if not (ok.size == 1):
                 raise TypeError(
                     'Accepted standard deviation error must be a real number.'
                 )
@@ -263,7 +462,7 @@ def generate_subdf (
     if isinstance(N_ITER, _np.ndarray):
         if N_ITER.size == 1 or N_ITER.shape == tuple():
             N_ITER = N_ITER.ravel()
-            if N_ITER.size != 1:
+            if not (N_ITER.size == 1):
                 raise TypeError(
                     'Maximal number of iterations must be integral.'
                 )
@@ -305,7 +504,7 @@ def generate_subdf (
     if isinstance(rtol, _np.ndarray):
         if rtol.size == 1 or rtol.shape == tuple():
             rtol = rtol.ravel()
-            if rtol.size != 1:
+            if not (rtol.size == 1):
                 raise TypeError('Relative tolerance must be a real number.')
             try:
                 rtol = rtol.dtype.type(rtol[0])
@@ -354,7 +553,7 @@ def generate_subdf (
     if isinstance(atol, _np.ndarray):
         if atol.size == 1 or atol.shape == tuple():
             atol = atol.ravel()
-            if atol.size != 1:
+            if not (atol.size == 1):
                 raise TypeError('Absolute tolerance must be a real number.')
             try:
                 atol = atol.dtype.type(atol[0])
@@ -420,7 +619,7 @@ def generate_subdf (
     if isinstance(compl, _np.ndarray):
         if compl.size == 1 or compl.shape == tuple():
             compl = compl.ravel()
-            if compl.size != 1:
+            if not (compl.size == 1):
                 raise TypeError('Parameter `compl` must be boolean.')
             try:
                 compl = compl.dtype.type(compl[0])
@@ -440,12 +639,57 @@ def generate_subdf (
         )
     ):
         raise TypeError('Parameter `compl` must be boolean.')
-    if compl not in {False, 0, True, 1}:
+    if not (compl == False or compl == 0 or compl == True or compl == 1):
         raise ValueError('Parameter `compl` must be true or false.')
     try:
         compl = _copy.deepcopy(bool(compl))
     except (TypeError, ValueError, AttributeError):
         raise TypeError('Parameter `compl` must be of type `bool`.')
+
+    # Sanitise the parameter `return_error`.
+    if hasattr(return_error, '__iter__') or hasattr(return_error, '__array__'):
+        if not isinstance(return_error, _np.ndarray):
+            try:
+                return_error = _np.array(return_error)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(return_error, _np.ndarray):
+        if return_error.size == 1 or return_error.shape == tuple():
+            return_error = return_error.ravel()
+            if not (return_error.size == 1):
+                raise TypeError('Parameter `return_error` must be boolean.')
+            try:
+                return_error = return_error.dtype.type(return_error[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `return_error` must be boolean.')
+    if not (
+        isinstance(return_error, _six.integer_types) or
+        isinstance(
+            return_error,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `return_error` must be boolean.')
+    if not (
+        return_error == False or
+        return_error == 0 or
+        return_error == True or
+        return_error == 1
+    ):
+        raise ValueError('Parameter `return_error` must be true or false.')
+    try:
+        return_error = _copy.deepcopy(bool(return_error))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `return_error` must be of type `bool`.')
+
+    # If `n` is at least 2, compute standard deviation errors of subdataframes.
+    compute_std_err = _copy.deepcopy(bool(1 < n))
 
     # Initialise the lists of subdataframes.
     subdf = list()
@@ -478,31 +722,26 @@ def generate_subdf (
                 'Original dataframes must be of type `pandas.DataFrame`.'
             )
 
-        # Set the current subdataframe to the original dataframe and set the
-        # standard deviation error to positive infinity.
-        subdf.append(df)
+        # If the current dataframe has `n` rows at the most, copy the complete
+        # dataframe as its own subdataframe and add the standard deviation error
+        # of 0 to the list `E_min`, then proceed to the next dataframe.
+        if not (n < df.shape[0]):
+            # Copy the complete dataframe.
+            subdf.append(df.copy(deep = True))
+
+            # Add the standard deviation error of 0 to the list `E_min`.
+            E_min.append(0.0)
+
+            # Continue to the next iteration.
+            continue
+
+        # Set the current subdataframe to `None` and set the standard deviation
+        # error to positive infinity.
+        subdf.append(None)
         E_min.append(float('inf'))
 
-        # Check if the current dataframe has at least `n` rows.  If not, raise
-        # an exception of type `ValueError`.
-        if subdf[-1].shape[0] < n:
-            # Free the memory.
-            try:
-                del df
-            except (NameError, UnboundLocalError):
-                pass
-
-            # Free the memory.
-            del subdf
-            del E_min
-
-            # Raise an exception of type `ValueError`.
-            raise ValueError(
-                'All original dataframes must have at least `n` rows.'
-            )
-
         # Compute standard deviations on columns in the original dataframe.
-        std = dict(
+        std = dict() if df.shape[0] < 2 else dict(
             (c, df[c].std(ddof = 1))
                 for c in df.columns if _is_numeric_dtype(df[c].dtype)
         )
@@ -531,17 +770,8 @@ def generate_subdf (
 
         # Generate subdataframes of the current dataframe.
         for i in range(N_ITER):
-            # Extract `n` different rows from the current dataframe.
-            aux = df.loc[
-                _np.array(
-                    _choice(df.index, n, replace = False),
-                    dtype = None,
-                    copy = True,
-                    order = 'F',
-                    subok = False,
-                    ndmin = 0
-                )
-            ]
+            # Extract `n` rows from the current dataframe.
+            aux = df.sample(n, replace = False)
 
             # Compute the total standard deviation error of the extracted
             # subdataframe.
@@ -552,7 +782,7 @@ def generate_subdf (
                             for c, std_c in _six.iteritems(std)
                     )
                 )
-            )
+            ) if compute_std_err else 0.0
             try:
                 del c
             except (NameError, UnboundLocalError):
@@ -570,26 +800,28 @@ def generate_subdf (
                 aux_c = df.loc[~df.index.isin(aux.index)]
 
                 # Compute the maximal standard deviation error (of the extracted
-                # subdataframe and of its complement).
-                E = max(
-                    E,
-                    float(
-                        err_f(
-                            tuple(
-                                abs(aux_c[c].std(ddof = 1) / std_c - 1.0)
-                                    for c, std_c in _six.iteritems(std)
+                # subdataframe and of its complement) if the complement has at
+                # least 2 rows.
+                if 1 < aux_c.shape[0]:
+                    E = max(
+                        E,
+                        float(
+                            err_f(
+                                tuple(
+                                    abs(aux_c[c].std(ddof = 1) / std_c - 1.0)
+                                        for c, std_c in _six.iteritems(std)
+                                )
                             )
                         )
                     )
-                )
-                try:
-                    del c
-                except (NameError, UnboundLocalError):
-                    pass
-                try:
-                    del std_c
-                except (NameError, UnboundLocalError):
-                    pass
+                    try:
+                        del c
+                    except (NameError, UnboundLocalError):
+                        pass
+                    try:
+                        del std_c
+                    except (NameError, UnboundLocalError):
+                        pass
 
                 # Free the memory.
                 del aux_c
@@ -626,5 +858,5 @@ def generate_subdf (
         pass
 
     # Return the extracted subdataframes and the corresponding standard
-    # deviation errors.
-    return (tuple(subdf), tuple(E_min))
+    # deviation errors if demanded.
+    return (tuple(subdf), tuple(E_min)) if return_error else tuple(subdf)
