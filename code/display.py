@@ -33,6 +33,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
+# Import functions from own scripts.
+from usefulness import *
+
 # Check if the variable `__name__` is in the right format.
 if not (isinstance(__name__, str) and __name__.__class__ is str):
     raise RuntimeError('`__name__` must be an instance of class `str`.')
@@ -116,56 +119,8 @@ except (TypeError, ValueError, AttributeError):
 # Free memory.
 del pluses
 
-# Initialise the array of colours to zeros.  The array is of shape (`len(P)`, 3)
-# so that `col[i]` defines the colour in the RGB format (in the range [0, 1]) of
-# the `i`-th polygon.
-col = np.zeros((len(P), 3), dtype = float, order = 'F')
-
-# Compute colours of polygons.
-
-# Get the number of polygons increased by 1 in the `float` type.
-C = float(len(P) + 1)
-
-# Iterate over colours.
-for i in range(len(P)):
-    # Get the position of the current colour in spectrum.
-    c = 6.0 * float(i) / C
-
-    # Set the RGB values of the current colour according to the position `c`.
-    if c < 1.0:
-        col[i, 0] = 1.0
-        col[i, 1] = c - 0.0
-        col[i, 2] = 0.0
-    elif c < 2.0:
-        col[i, 0] = 2.0 - c
-        col[i, 1] = 1.0
-        col[i, 2] = 0.0
-    elif c < 3.0:
-        col[i, 0] = 0.0
-        col[i, 1] = 1.0
-        col[i, 2] = c - 2.0
-    elif c < 4.0:
-        col[i, 0] = 0.0
-        col[i, 1] = 4.0 - c
-        col[i, 2] = 1.0
-    elif c < 5.0:
-        col[i, 0] = c - 4.0
-        col[i, 1] = 0.0
-        col[i, 2] = 1.0
-    else:
-        col[i, 0] = 1.0
-        col[i, 1] = 0.0
-        col[i, 2] = 6.0 - c
-
-    # Free the memory.
-    del c
-
-# Free the memory.
-try:
-    del i
-except (NameError, UnboundLocalError):
-    pass
-del C
+# Get `len(P)` colours equidistant in the hue wheel.
+col = rainbow(len(P))
 
 # Iterate over the polygons and plot them.
 for i in range(len(P)):

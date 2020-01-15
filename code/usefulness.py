@@ -303,15 +303,23 @@ def generate_subdf (
         Parameter `ok` is not a real number.  Parameter `N_ITER` is not an
         integer.  Parameter `rtol` is not a real number.  Parameter `atol` is
         not a real number.  Parameter `err_f` is not a function.  Parameter
-        `compl` is not boolean.  Parameter `return_error` is not boolean.  A
-        dataframe in `dfs` is not a Pandas dataframe.
+        `compl` is not boolean.  Parameter `return_error` is not boolean.
+        Length of the parameter `dfs` (if it has length) is not convertible to
+        `int`.  A dataframe in `dfs` is not a Pandas dataframe.
 
     ValueError
         Parameter `n` is not in range [0, +inf).  Parameter `ok` is not in range
         [0, +inf).  Parameter N_ITER is not in range [1, +inf).  Parameter
         `rtol` is not in range [0, +inf).  Parameter `atol` is not in range
         [0, +inf).  Parameter `compl` is not false or true.  Parameter
-        `return_error` is not false or true.
+        `return_error` is not false or true.  Parameter `dfs` has a strictly
+        negative length.
+
+    IndexError
+        If the parameter `dfs` has known length (has the attribute `__len__`),
+        but iterating over it exceeds the length, the algorithm will try to set
+        values on nonexisting indices of lists which will then raise an
+        exception of type `IndexError` which is not caught.
 
     Other
         If iterating over the parameter `dfs` fails with an exception, it is not
@@ -335,7 +343,42 @@ def generate_subdf (
     the parameter `compl` is false, all standard deviation errors will be set to
     0.
 
+    If the parameter `dfs` has known length (has the attribute `__len__`),
+    it is used to initialise lists of dataframes and standard deviation errors.
+    This is done to speed up the algorithm.  However, if iterating over `dfs`
+    exceeds this list, an exception of type `IndexError` will occur, and, if
+    iterating stops before reaching the length, the resulting tuples will be of
+    the initially known length with unexpected data at their ends.
+
     """
+
+    # Define the function to insert elements to lists if the parameter `dfs` has
+    # known length (has parameter `__len__`).
+    def _known_length_insert_element (L, i, x):
+        """
+        Length is known; insert an element.
+
+        """
+
+        # Set the `i`-th element in `L` to `x`.
+        L[i] = x
+
+        # Return `L`.
+        return L
+
+    # Define the function to insert elements to lists if the parameter `dfs`
+    # does not have known length (does not have parameter `__len__`).
+    def _unknown_length_insert_element (L, i, x):
+        """
+        Length is unknows; insert an element.
+
+        """
+
+        # Append `x` to the end of `L`.
+        L.append(x)
+
+        # Return `L`.
+        return L
 
     # Sanitise the parameter dfs.
     if not (
@@ -688,17 +731,95 @@ def generate_subdf (
     except (TypeError, ValueError, AttributeError):
         raise TypeError('Parameter `return_error` must be of type `bool`.')
 
+    # Define a dummy dataframe (empty).
+    dummy_df = _pd.DataFrame(data = _np.zeros((0, 0), dtype = int, order = 'F'))
+
+    # Define positive infinity of type `float`.
+    infinity = float('inf')
+
+    # Initialise the lists of subdataframes and standard deviation errors to
+    # `None`.
+    subdf = None
+    E_min = None
+
+    # Initialise the function to insert elements to lists to `None`.
+    insert_element = None
+
+    # If the parameter `dfs` has a known length (has the attribute `__len__`),
+    # initialise the lists of subdataframes and standard deviation errors with
+    # the length to speed up the algorithm, and set the function to insert
+    # elements to lists to an adequate function.  Otherwise initialise the lists
+    # to empty lists and set the function to insert elements to lists to an
+    # adequate function.
+    if hasattr(dfs, '__len__'):
+        # Get the length of the parameter `dfs`.  If an exception occurs, raise
+        # an exception of type `TypeError`.
+        N_dfs = 0
+        try:
+            N_dfs = _copy.deepcopy(int(len(dfs)))
+        except (TypeError, ValueError, AttributeError):
+            # Free the memory.
+            try:
+                del N_dfs
+            except (NameError, UnboundLocalError):
+                pass
+            del dummy_df
+            del infinity
+
+            # Raise an exception of type `TypeError`.
+            raise TypeError(
+                "Parameter `dfs` should have length of type `int` if it has "
+                "known length."
+            )
+
+        # If the length is strictly negative, raise an exception of type
+        # `ValueError`.
+        if N_dfs < 0:
+            # Free the memory.
+            try:
+                del N_dfs
+            except (NameError, UnboundLocalError):
+                pass
+            del dummy_df
+            del infinity
+
+            # Raise an exception of type `ValueError`.
+            raise ValueError('The number of dataframes must be non-negative.')
+
+        # Initialise the list of subdataframes with empty dataframes.
+        subdf = list(dummy_df for i in range(N_dfs))
+        try:
+            del i
+        except (NameError, UnboundLocalError):
+            pass
+
+        # Initialise the list of standard deviation errors with zeros.
+        E_min = list(infinity for i in range(N_dfs))
+        try:
+            del i
+        except (NameError, UnboundLocalError):
+            pass
+
+        # Initialise the function to insert elements to lists.
+        insert_element = _known_length_insert_element
+
+        # Free the memory.
+        del N_dfs
+    else:
+        # Initialise the list of subdataframes to an emty list.
+        subdf = list()
+
+        # Initialise the list of standard deviation errors to an empty list.
+        E_min = list()
+
+        # Initialise the function to insert elements to lists.
+        insert_element = _unknown_length_insert_element
+
     # If `n` is at least 2, compute standard deviation errors of subdataframes.
     compute_std_err = _copy.deepcopy(bool(1 < n))
 
-    # Initialise the lists of subdataframes.
-    subdf = list()
-
-    # Initialise the list of standard deviation errors.
-    E_min = list()
-
     # Generate subdataframes.
-    for df in dfs:
+    for i, df in enumerate(dfs):
         # If the current dataframe is actually a series, convert it to a
         # dataframe.
         if isinstance(df, _Series):
@@ -709,13 +830,16 @@ def generate_subdf (
         if not isinstance(df, _DataFrame):
             # Free the memory.
             try:
+                del i
+            except (NameError, UnboundLocalError):
+                pass
+            try:
                 del df
             except (NameError, UnboundLocalError):
                 pass
-
-            # Free the memory.
-            del subdf
-            del E_min
+            del dummy_df
+            del infinity
+            del compute_std_err
 
             # Raise an exception of type `TypeError`.
             raise TypeError(
@@ -727,18 +851,18 @@ def generate_subdf (
         # of 0 to the list `E_min`, then proceed to the next dataframe.
         if not (n < df.shape[0]):
             # Copy the complete dataframe.
-            subdf.append(df.copy(deep = True))
+            subdf = insert_element(subdf, i, df.copy(deep = True))
 
             # Add the standard deviation error of 0 to the list `E_min`.
-            E_min.append(0.0)
+            E_min = insert_element(E_min, i, 0.0)
 
             # Continue to the next iteration.
             continue
 
         # Set the current subdataframe to `None` and set the standard deviation
         # error to positive infinity.
-        subdf.append(None)
-        E_min.append(float('inf'))
+        subdf = insert_element(subdf, i, dummy_df)
+        E_min = insert_element(E_min, i, infinity)
 
         # Compute standard deviations on columns in the original dataframe.
         std = dict() if df.shape[0] < 2 else dict(
@@ -769,7 +893,7 @@ def generate_subdf (
             pass
 
         # Generate subdataframes of the current dataframe.
-        for i in range(N_ITER):
+        for j in range(N_ITER):
             # Extract `n` rows from the current dataframe.
             aux = df.sample(n, replace = False)
 
@@ -828,9 +952,9 @@ def generate_subdf (
 
             # If the error is strictly less than the best error so far, update
             # the current subdataframe and the standard deviation error.
-            if E < E_min[-1]:
-                subdf[-1] = aux.copy(deep = True)
-                E_min[-1] = E
+            if E < E_min[i]:
+                subdf[i] = aux.copy(deep = True)
+                E_min[i] = E
 
                 # If the standard deviation error is acceptable, break the inner
                 # `for`-loop.
@@ -846,16 +970,26 @@ def generate_subdf (
             del E
             del aux
         try:
-            del i
+            del j
         except (NameError, UnboundLocalError):
             pass
 
         # Free the memory.
         del std
     try:
+        del i
+    except (NameError, UnboundLocalError):
+        pass
+    try:
         del df
     except (NameError, UnboundLocalError):
         pass
+
+    # Free the memory.
+    del dummy_df
+    del infinity
+    del compute_std_err
+    del insert_element
 
     # Return the extracted subdataframes and the corresponding standard
     # deviation errors if demanded.

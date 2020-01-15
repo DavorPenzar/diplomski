@@ -219,9 +219,6 @@ int main (int argc, char** argv)
     real_m_ = (double)(m - 1U);
     real_n_ = (double)(n - 1U);
 
-    printf("m = %lu, n = %lu\n", m, n);
-    exit(EXIT_SUCCESS);
-
     /* Open the output file. */
     out = fopen(*(argv + 2U), file_open_mode);
 
