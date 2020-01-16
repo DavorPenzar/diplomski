@@ -28,7 +28,7 @@
  * Each polygon's information is printed in the input file as
  *     l_0^*	l_1^*	...	l_n_minus_1^*	phi_0^*	phi_1^*	phi_n_minus_1^*
  * where l_i^* the i-th largest (counting their multiplicities) length of edges
- * and phi_i^* is the i-th largest (counting their multiplicities) outer angles
+ * and phi_i^* is the i-th smallest (counting their multiplicities) outer angls
  * of the polygon.
  *
  * The pogram prints to the console the time elapsed only during sorting the
@@ -314,7 +314,7 @@ int main (int argc, char** argv)
         qsort(l + ((i * n) << 1U), n, sizeof *l, ricompar);
 
         /* Sort the outer angles of the `i`-th polygon. */
-        qsort(phi + ((i * n) << 1U), n, sizeof *phi, ricompar);
+        qsort(phi + ((i * n) << 1U), n, sizeof *phi, rcompar);
     }
 
     /* Get the current clock ticks. */

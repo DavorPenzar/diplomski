@@ -9,6 +9,7 @@ This file is part of Davor Penzar's master thesis programing.
 
 # Import standard library.
 import copy as _copy
+import csv as _csv
 import functools as _functools
 import inspect as _inspect
 import math as _math
@@ -26,8 +27,326 @@ from pandas.api.types import is_numeric_dtype as _is_numeric_dtype
 from pandas.core.frame import DataFrame as _DataFrame
 from pandas.core.series import Series as _Series
 
+def read_tsv (
+    filepath_or_buffer,
+    header = False,
+    index = False,
+    as_str = False,
+    **kwargs
+):
+    """
+    Read a TSV dataframe of format in the master thesis project.
+
+    This function is a wrapper around the `pandas.read_csv` function.  The
+    function actually returns
+        >>> pandas.read_csv(filepath_or_buffer, sep = "\t", header = 0 if header else None, index_col = 0 if index else None, dtype = str if as_str else float, **kwargs)
+
+    Parameters
+    ==========
+    filepath_or_buffer
+        Source of the TSV dataframe.  The parameter is not sanitised or checked,
+        it is passed raw to the `pandas.read_csv` function as the first
+        positional argument.
+
+    header : boolean, optional
+        True if the first row shoul be read as the header row, false otherwise
+        (default is false).
+
+    index : boolean
+        True if the first column should be read as the index column, false
+        otherwise (default is false).
+
+    as_str : boolean, optional
+        True if data should be read as string, false if data should be read as
+        real floating point numbers (default is false).
+
+    kwargs
+        Additional keyword arguments passed to the `pandas.read_csv` function.
+        This arguments are not checked or sanitised, they are passed raw to the
+        `pandas.read_csv` function.
+
+    Returns
+    =======
+    DataFrame
+        The dataframe that is read from the source.
+
+    Raises
+    ======
+    TypeError
+        Parameter `header` is not boolean.  Parameter `index` is not boolean.
+        Parameter `as_str` is not boolean.
+
+    ValueError
+        Parameter `header` is not true or false.  Parameter `index` is not true
+        or false.  Parameter `as_str` is not true or false.
+
+    others
+        Exceptions thrown by the `pandas.read_csv` function are not caught.
+
+    """
+
+    # Sanitise the parameter `header`.
+    if hasattr(header, '__iter__') or hasattr(header, '__array__'):
+        if not isinstance(header, _np.ndarray):
+            try:
+                header = _np.array(header)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(header, _np.ndarray):
+        if header.size == 1 or header.shape == tuple():
+            header = header.ravel()
+            if not (header.size == 1):
+                raise TypeError('Parameter `header` must be boolean.')
+            try:
+                header = header.dtype.type(header[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `header` must be boolean.')
+    if not (
+        isinstance(header, _six.integer_types) or
+        isinstance(
+            header,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `header` must be boolean.')
+    if not (header == False or header == 0 or header == True or header == 1):
+        raise ValueError('Parameter `header` must be true or false.')
+    try:
+        header = _copy.deepcopy(bool(header))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `header` must be of type `bool`.')
+
+    # Sanitise the parameter `index`.
+    if hasattr(index, '__iter__') or hasattr(index, '__array__'):
+        if not isinstance(index, _np.ndarray):
+            try:
+                index = _np.array(index)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(index, _np.ndarray):
+        if index.size == 1 or index.shape == tuple():
+            index = index.ravel()
+            if not (index.size == 1):
+                raise TypeError('Parameter `index` must be boolean.')
+            try:
+                index = index.dtype.type(index[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `index` must be boolean.')
+    if not (
+        isinstance(index, _six.integer_types) or
+        isinstance(
+            index,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `index` must be boolean.')
+    if not (index == False or index == 0 or index == True or index == 1):
+        raise ValueError('Parameter `index` must be true or false.')
+    try:
+        index = _copy.deepcopy(bool(index))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `index` must be of type `bool`.')
+
+    # Sanitise the parameter `as_str`.
+    if hasattr(as_str, '__iter__') or hasattr(as_str, '__array__'):
+        if not isinstance(as_str, _np.ndarray):
+            try:
+                as_str = _np.array(as_str)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(as_str, _np.ndarray):
+        if as_str.size == 1 or as_str.shape == tuple():
+            as_str = as_str.ravel()
+            if not (as_str.size == 1):
+                raise TypeError('Parameter `as_str` must be boolean.')
+            try:
+                as_str = as_str.dtype.type(as_str[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `as_str` must be boolean.')
+    if not (
+        isinstance(as_str, _six.integer_types) or
+        isinstance(
+            as_str,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `as_str` must be boolean.')
+    if not (as_str == False or as_str == 0 or as_str == True or as_str == 1):
+        raise ValueError('Parameter `as_str` must be true or false.')
+    try:
+        as_str = _copy.deepcopy(bool(as_str))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `as_str` must be of type `bool`.')
+
+    # Read the TSV and return the read dataframe.
+    return _pd.read_csv(
+        filepath_or_buffer,
+        sep = "\t",
+        header = 0 if header else None,
+        index_col = 0 if index else None,
+        dtype = str if as_str else float,
+        **kwargs
+    )
+
+def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
+    """
+    Save a dataframe to a TSV dataframe of format in the master thesis project.
+
+    This function is a wrapper around the `pandas.DataFrame.to_csv` method.
+    The function actually returns
+        >>> df.to_csv(filepath_or_buffer, sep = "\t", float_format = "%.8f", quoting = csv.QUOTE_NONE, header = header, index = index, **kwargs)
+
+    Parameters
+    ==========
+    filepath_or_buffer
+        Destination of the TSV dataframe.  The parameter is not sanitised or
+        checked, it is passed raw to the `pandas.read_csv` function as the first
+        positional argument.
+
+    header : boolean, optional
+        True if header should be printed as the first row, false otherwise
+        (default is false).
+
+    index : boolean
+        True if index should be printed as the first column, false otherwise
+        (default is false).
+
+    kwargs
+        Additional keyword arguments passed to the `pandas.DataFrame.to_csv`
+        method.  This arguments are not checked or sanitised, they are passed
+        raw to the `pandas.DataFrame.to_csv` method.
+
+    Returns
+    =======
+    None or str
+        The dataframe that is read from the source.
+
+    Raises
+    ======
+    TypeError
+        Parameter `header` is not boolean.  Parameter `index` is not boolean.
+
+    ValueError
+        Parameter `header` is not true or false.  Parameter `index` is not true
+        or false.
+
+    others
+        Exceptions thrown by the `pandas.DataFrame.to_csv` method are not
+        caught.
+
+    """
+
+    # Sanitise the parameter `df`.
+    if isinstance(df, _Series):
+        df = df.to_frame()
+    if not isinstance(df, _DataFrame):
+        raise TypeError('Parameter `df` must be of type `pandas.DataFrame`.')
+
+    # Sanitise the parameter `header`.
+    if hasattr(header, '__iter__') or hasattr(header, '__array__'):
+        if not isinstance(header, _np.ndarray):
+            try:
+                header = _np.array(header)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(header, _np.ndarray):
+        if header.size == 1 or header.shape == tuple():
+            header = header.ravel()
+            if not (header.size == 1):
+                raise TypeError('Parameter `header` must be boolean.')
+            try:
+                header = header.dtype.type(header[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `header` must be boolean.')
+    if not (
+        isinstance(header, _six.integer_types) or
+        isinstance(
+            header,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `header` must be boolean.')
+    if not (header == False or header == 0 or header == True or header == 1):
+        raise ValueError('Parameter `header` must be true or false.')
+    try:
+        header = _copy.deepcopy(bool(header))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `header` must be of type `bool`.')
+
+    # Sanitise the parameter `index`.
+    if hasattr(index, '__iter__') or hasattr(index, '__array__'):
+        if not isinstance(index, _np.ndarray):
+            try:
+                index = _np.array(index)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(index, _np.ndarray):
+        if index.size == 1 or index.shape == tuple():
+            index = index.ravel()
+            if not (index.size == 1):
+                raise TypeError('Parameter `index` must be boolean.')
+            try:
+                index = index.dtype.type(index[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `index` must be boolean.')
+    if not (
+        isinstance(index, _six.integer_types) or
+        isinstance(
+            index,
+            (bool, int, _np.bool_, _np.integer, _numbers.Integral)
+        )
+    ):
+        raise TypeError('Parameter `index` must be boolean.')
+    if not (index == False or index == 0 or index == True or index == 1):
+        raise ValueError('Parameter `index` must be true or false.')
+    try:
+        index = _copy.deepcopy(bool(index))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError('Parameter `index` must be of type `bool`.')
+
+    # Save the dataframe to a TSV and return the returned value.
+    return df.to_csv(
+        filepath_or_buffer,
+        sep = "\t",
+        float_format = "%.8f",
+        quoting = _csv.QUOTE_NONE,
+        header = header,
+        index = index,
+        **kwargs
+    )
+
 # Define the function to generate rainbows.
-def rainbow (n, start = 0.0):
+def rainbow (n, start = 0.0, end = None):
     """
     Generate a spectrum of colours equidistant in the hue wheel.
 
@@ -40,23 +359,35 @@ def rainbow (n, start = 0.0):
         Position in the hue wheel to start the rainbow from (default is 0).  The
         red is at 0 (and 360), the green is at 120 and the blue is at 240.
 
+    end : None or float in range [0, 360)
+        Position in the hue wheel where the (`n` + 1)-th colour would be
+        (defualt is `None`).  The red is at 0 (and 360), the green is at 120 and
+        the blue is at 240.  If `None`, the (`n` + 1)-th colour would be the
+        same as the first colour.  Note that if the end is specified, a complete
+        circle will not be made, not even with the (`n` + 1)-th colour.  Hence
+        setting the parameter `end` to the same value as the parameter `start`
+        will result in all colours being the same---if you want the last colour
+        to be distant from the first colour as all the other neighbouring
+        colours are, set the parameter `end` to `None`.
+
     Returns
     =======
-    col : (n, 3) array of floats in range [0, 1]
+    (n, 3) array of floats in range [0, 1]
         RGB representation of colours.  Each row represents a colour as RGB
         values in the range [0, 1].  The first colour corresponds to the colour
         set by the value `start` (red by default) and then the colours proceed
-        equidistantly in the hue wheel.
+        equidistantly in the hue wheel of increasing hue value (reset to 0
+        instead of reaching 360).
 
     Raises
     ======
     TypeError
         Parameter `n` is not an integer.  Parameter `start` is not a real
-        number.
+        number.  Parameter `end` is not `None` or a real number.
 
     ValueError
         Parameter `n` is not in range [0, +inf).  Parameter `start` is not in
-        range [0, 360).
+        range [0, 360).  Parameter `end` is not in range [0, 360).
 
     """
 
@@ -145,6 +476,73 @@ def rainbow (n, start = 0.0):
     if start == 0.0:
         start = 0.0
 
+    # Sanitise the parameter `end`.
+    if hasattr(end, '__iter__') or hasattr(end, '__array__'):
+        if not isinstance(end, _np.ndarray):
+            try:
+                end = _np.array(end)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(end, _np.ndarray):
+        if end.size == 1 or end.shape == tuple():
+            end = end.ravel()
+            if not (end.size == 1):
+                raise TypeError('End position must be a real number.')
+            try:
+                end = end.dtype.type(end[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('End position must be a real number.')
+    if end is not None:
+        if (
+            not (
+                isinstance(
+                    end,
+                    (
+                        float,
+                        _np.integer,
+                        _np.floating,
+                        _numbers.Integral,
+                        _numbers.Rational,
+                        _numbers.Real
+                    )
+                ) or isinstance(end, _six.integer_types)
+            ) or isinstance(end, (bool, _np.bool_))
+        ):
+            raise TypeError('End position must be a real number.')
+        try:
+            end = _copy.deepcopy(float(end))
+        except (TypeError, ValueError, AttributeError):
+            raise TypeError('End position must be of type `float`.')
+        if _math.isnan(end) or _math.isinf(end):
+            raise ValueError('End position must be finite and non-NaN.')
+        if end < 0.0 or not (end < 360.0):
+            raise ValueError('End position must be in range [0, 360).')
+        if end == 0.0:
+            end = 0.0
+
+    # Initialise the (relative) length of the used part of the hue wheel to
+    # `None`. Length 6 means that the whole wheel is used (with `n` + 1
+    # colours).
+    length = None
+
+    # Comput the length of the used part of the wheel.
+    if end is None:
+        length = 6.0
+    else:
+        if end < start:
+            length = (360.0 - start + end) / 60.0
+        else:
+            length = (end - start) / 60.0
+
+    # Free the memroy:
+    del end
+
     # Divide the parameter `start` by 60.
     start /= 60.0
 
@@ -162,7 +560,7 @@ def rainbow (n, start = 0.0):
     for i in range(n):
         # Get the position of the current colour in spectrum (circular, from 0
         # to 6).
-        c = start + 6.0 * float(i) / C
+        c = start + length * float(i) / C
         if not (c < 6.0):
             c -= 6.0
 
@@ -321,7 +719,7 @@ def generate_subdf (
         values on nonexisting indices of lists which will then raise an
         exception of type `IndexError` which is not caught.
 
-    Other
+    others
         If iterating over the parameter `dfs` fails with an exception, it is not
         caught.  Exceptions thrown by the `err_f` function are not caught.
         Exceptions thrown by converting the returned value of `err_f` to `float`
