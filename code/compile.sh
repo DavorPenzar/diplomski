@@ -5,7 +5,7 @@
 ##  This file is part of Davor Penzar's master thesis programing.
 ##
 ##  Possible usage:
-##     ./compile code.c -o program
+##     ./compile.sh code.c -o program
 ##  where "code.c" is the path to the source code of the program, and "program"
 ##  is the path to the resulting runnable file (compiled program).
 ##
