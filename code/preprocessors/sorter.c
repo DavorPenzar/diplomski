@@ -28,8 +28,8 @@
  * Each polygon's information is printed in the input file as
  *     l_0^*	l_1^*	...	l_n_minus_1^*	phi_0^*	phi_1^*	phi_n_minus_1^*
  * where l_i^* the i-th largest (counting their multiplicities) length of edges
- * and phi_i^* is the i-th smallest (counting their multiplicities) outer angls
- * of the polygon.
+ * and phi_i^* is the i-th smallest (counting their multiplicities) outer angle
+ * of the polygon (corresponding to the `i`-th largest inner angle).
  *
  * The pogram prints to the console the time elapsed only during sorting the
  * values.  Time needed to read and print is not measured.

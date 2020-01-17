@@ -8,7 +8,7 @@ Generate PNG images of polygons.
 This file is part of Davor Penzar's master thesis programing.
 
 Usage:
-    ./svgise.py in_table out_directory
+    ./pngise.py in_table out_directory
 where:
     in_table        is the path to the input table (TSV file; actually single
                     tab separated values),
@@ -201,7 +201,12 @@ try:
         ax.axis('off')
 
         # Save the drawing of the `i`-th polygon.
-        fig.savefig(path_str.format(ind = i), format = 'png', dpi = 'figure')
+        fig.savefig(
+            path_str.format(ind = i),
+            format = 'png',
+            dpi = 'figure',
+            bbox_inches = 'tight'
+        )
     try:
         del i
     except (NameError, UnboundLocalError):
