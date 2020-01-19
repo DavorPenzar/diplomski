@@ -24,7 +24,7 @@
  * contains more than N polygons, only the first N polygons are read and used to
  * generate new polygons.
  *
- * Suppose the i-th polygon is read from the input file (0 <= i < N0).  The
+ * Suppose the i-th polygon is read from the input file (0 <= i < N).  The
  * first polygon generated from the i-th polygon is the i-th polygon itself.
  * The next generated polygon is the i-th polygon reflexed over the x-axis, and
  * then the next is the i-th polygon reflexed over the y-axis.  Both reflexions
@@ -38,8 +38,8 @@
  * y-coordinate of the i-th vertex.
  *
  * Caution: the input and the output files are read and printed to
- * simultaneously to consume memory.  Do not set the same path for the input
- * and the output file.
+ * simultaneously to consume less memory.  Do not set the same path for the
+ * input and the output file.
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0

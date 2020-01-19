@@ -48,8 +48,8 @@
  * printed in the order of reading and generating.
  *
  * Caution: the input and the output files are read and printed to
- * simultaneously to consume memory.  Do not set the same path for the input
- * and the output file.
+ * simultaneously to consume less memory.  Do not set the same path for the
+ * input and the output file.
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0
@@ -613,9 +613,6 @@ int main (int argc, char** argv)
 
         /* Normalise the first polygon. */
         normalise_polygon(n, P);
-
-        /* Describe the first polygon. */
-        describe_polygon(n, P, dx, dy, l, phi);
 
         /* Dump the polygons to the output file. */
         dump_polygons(out, n, P, N1);

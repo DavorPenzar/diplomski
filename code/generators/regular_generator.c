@@ -401,9 +401,6 @@ int main (int argc, char** argv)
     /* Normalise the first polygon. */
     normalise_polygon(n, P);
 
-    /* Describe the first polygon. */
-    describe_polygon(n, P, dx, dy, l, phi);
-
     /* Open the output file. */
     out = fopen(*(argv + 4U), file_open_mode);
 

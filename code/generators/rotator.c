@@ -44,8 +44,8 @@
  * printed in the order of reading and generating.
  *
  * Caution: the input and the output files are read and printed to
- * simultaneously to consume memory.  Do not set the same path for the input
- * and the output file.
+ * simultaneously to consume less memory.  Do not set the same path for the
+ * input and the output file.
  *
  * @author Davor Penzar <davor.penzar@gmail.com>
  * @version 1.0

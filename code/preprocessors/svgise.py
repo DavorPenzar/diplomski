@@ -116,7 +116,7 @@ except (
     KeyError
 ):
     raise RuntimeError(
-        "Cannot open file \"{path:s}\".".format(path = sys.argv[1])
+        "Cannot read table \"{path:s}\".".format(path = sys.argv[1])
     )
 
 # Check the shape of the input table: it must be non-empty with an even number

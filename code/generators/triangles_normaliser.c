@@ -4,7 +4,7 @@
  * This file is part of Davor Penzar's master thesis programing.
  *
  * Usage:
- *     ./perturbate N in out
+ *     ./normalise N in out
  * where:
  *     N   is the number of triangles (at least 1),
  *     in  is the path to the input file to read the original coordinates of
@@ -23,14 +23,15 @@
  * contains more than N triangles, only the first N triangles are read and used
  * to generate new triangles.
  *
- * Suppose the i-th triangle is read from the input file (0 <= i < N).  The
- * first triangle generated from the i-th triangle is the i-th triangle itself
- * (not even transposed, rotated, reflexed and/or scaled).  Two consecutive
- * triangles generated are its rotations so that its each edge becomes parallel
- * to the original triangle's edge ending in its lowest vertex (and the most to
- * the right if there is a tie).  Only after generating all three triangles from
- * from the i-th triangle is the original triangle normalised to be of diameter
- * 1 (up to a numerical precision).
+ * Normalising a triangle means:
+ *     1.  correcting the orientation of enumerating the vertices---vertices are
+ *         enumerated positively oriented and the first vertex (at the index 0)
+ *         is the one with the minimal y-corrdinate (and maximal x-coordinate if
+ *         there are ties),
+ *     2.  standardising it---it is scaled so that its diameter equals 1 (up to
+ *         a numerical precision),
+ *     3.  centralising it---translating it so that its incircle's center is at
+ *         the origin of the plane (at (0, 0)).
  *
  * Each triangle is printed to the output file in its own line.  Each triangle
  * is formatted as
@@ -120,6 +121,13 @@ int main (int argc, char** argv)
     real_t l[3U];
     real_t phi[3U];
 
+    /* Circumference of triangles. */
+    real_t C;
+
+    /* Coordinates of the triangles' incircle's center. */
+    real_t x_inc;
+    real_t y_inc;
+
     /* Input file. */
     FILE* in;
 
@@ -134,6 +142,13 @@ int main (int argc, char** argv)
 
     /* Number of triangles. */
     N = 0U;
+
+    /* Circumference of triangles. */
+    C = 0.0;
+
+    /* Coordinates of the triangles' incircle's center. */
+    x_inc = 0.0;
+    y_inc = 0.0;
 
     /* Input file. */
     in = (FILE*)(NULL);
@@ -307,24 +322,31 @@ int main (int argc, char** argv)
         /* Correct the triangles's orientation and enumeration. */
         correct_polygon_orientation(3U, P);
 
+        /* Standardise the triangle. */
+        standardise_polygon(3U, P);
+
         /* Describe the triangle. */
         describe_polygon(3U, P, dx, dy, l, phi);
 
-        /* Copy the coordinates of the triangle two times. */
-        memcpy(P + 6U, P, 6U * sizeof *P);
-        memcpy(P + 12U, P, 6U * sizeof *P);
+        /* Compute the circumference of the triangle. */
+        C = *l + *(l + 1U) + *(l + 2U);
 
-        /* Generate rotations of the triangle. */
-        rotate_polygon(3U, P + 6U, *(phi + 1U));
-        rotate_polygon(3U, P + 12U, *phi + *(phi + 1U));
+        /* Compute the coordinates of the incircle's center. */
+        x_inc = (*(l + 1U) * *P + *(l + 2U) * *(P + 2U) + *l * *(P + 4U)) / C;
+        y_inc =
+            (*(l + 1U) * *(P + 1U) + *(l + 2U) * *(P + 3U) + *l * *(P + 5U)) /
+            C;
 
-        /* Normalise triangles. */
-        normalise_polygon(3U, P);
-        normalise_polygon(3U, P + 6U);
-        normalise_polygon(3U, P + 12U);
+        /* Translate the triangle so that the incircle's center is at (0, 0). */
+        *P -= x_inc;
+        *(P + 2U) -= x_inc;
+        *(P + 4U) -= x_inc;
+        *(P + 1U) -= y_inc;
+        *(P + 3U) -= y_inc;
+        *(P + 5U) -= y_inc;
 
-        /* Dump the triangles to the output file. */
-        dump_polygons(out, 3U, P, 3U);
+        /* Dump the triangle to the output file. */
+        dump_polygons(out, 3U, P, 1U);
     }
 
     /* Close the output file. */

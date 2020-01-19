@@ -20,13 +20,17 @@ from collections.abc import Iterable as _Iterable
 from collections.abc import Sequence as _Sequence
 
 # Import SciPy packages.
+import matplotlib as _mpl
 import numpy as _np
 import pandas as _pd
+from matplotlib.figure import Figure as _Figure
 from numpy.random import choice as _choice
 from pandas.api.types import is_numeric_dtype as _is_numeric_dtype
 from pandas.core.frame import DataFrame as _DataFrame
 from pandas.core.series import Series as _Series
 
+# Define the function to read TSV dataframes of format in the master thesis
+# project.
 def read_tsv (
     filepath_or_buffer,
     header = False,
@@ -89,7 +93,7 @@ def read_tsv (
     if hasattr(header, '__iter__') or hasattr(header, '__array__'):
         if not isinstance(header, _np.ndarray):
             try:
-                header = _np.array(header)
+                header = _np.asarray(header)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(header, _np.ndarray):
@@ -126,7 +130,7 @@ def read_tsv (
     if hasattr(index, '__iter__') or hasattr(index, '__array__'):
         if not isinstance(index, _np.ndarray):
             try:
-                index = _np.array(index)
+                index = _np.asarray(index)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(index, _np.ndarray):
@@ -163,7 +167,7 @@ def read_tsv (
     if hasattr(as_str, '__iter__') or hasattr(as_str, '__array__'):
         if not isinstance(as_str, _np.ndarray):
             try:
-                as_str = _np.array(as_str)
+                as_str = _np.asarray(as_str)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(as_str, _np.ndarray):
@@ -206,6 +210,8 @@ def read_tsv (
         **kwargs
     )
 
+# Define the function to write TSV dataframes of format in the master thesis
+# project.
 def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
     """
     Save a dataframe to a TSV dataframe of format in the master thesis project.
@@ -216,6 +222,9 @@ def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
 
     Parameters
     ==========
+    df : DataFrame
+        Pandas dataframe to print to a TSV dataframe.
+
     filepath_or_buffer
         Destination of the TSV dataframe.  The parameter is not sanitised or
         checked, it is passed raw to the `pandas.read_csv` function as the first
@@ -242,7 +251,8 @@ def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
     Raises
     ======
     TypeError
-        Parameter `header` is not boolean.  Parameter `index` is not boolean.
+        Parameter `df` is not a Pandas dataframe.  Parameter `header` is not
+        boolean.  Parameter `index` is not boolean.
 
     ValueError
         Parameter `header` is not true or false.  Parameter `index` is not true
@@ -264,7 +274,7 @@ def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
     if hasattr(header, '__iter__') or hasattr(header, '__array__'):
         if not isinstance(header, _np.ndarray):
             try:
-                header = _np.array(header)
+                header = _np.asarray(header)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(header, _np.ndarray):
@@ -301,7 +311,7 @@ def to_tsv (df, filepath_or_buffer, header = False, index = False, **kwargs):
     if hasattr(index, '__iter__') or hasattr(index, '__array__'):
         if not isinstance(index, _np.ndarray):
             try:
-                index = _np.array(index)
+                index = _np.asarray(index)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(index, _np.ndarray):
@@ -395,7 +405,7 @@ def rainbow (n, start = 0.0, end = None):
     if hasattr(n, '__iter__') or hasattr(n, '__array__'):
         if not isinstance(n, _np.ndarray):
             try:
-                n = _np.array(n)
+                n = _np.asarray(n)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(n, _np.ndarray):
@@ -431,7 +441,7 @@ def rainbow (n, start = 0.0, end = None):
     if hasattr(start, '__iter__') or hasattr(start, '__array__'):
         if not isinstance(start, _np.ndarray):
             try:
-                start = _np.array(start)
+                start = _np.asarray(start)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(start, _np.ndarray):
@@ -480,7 +490,7 @@ def rainbow (n, start = 0.0, end = None):
     if hasattr(end, '__iter__') or hasattr(end, '__array__'):
         if not isinstance(end, _np.ndarray):
             try:
-                end = _np.array(end)
+                end = _np.asarray(end)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(end, _np.ndarray):
@@ -498,7 +508,9 @@ def rainbow (n, start = 0.0, end = None):
                 KeyError
             ):
                 raise TypeError('End position must be a real number.')
-    if end is not None:
+    if end is None:
+        end = None
+    else:
         if (
             not (
                 isinstance(
@@ -557,7 +569,7 @@ def rainbow (n, start = 0.0, end = None):
     C = _copy.deepcopy(float(n + 1))
 
     # Iterate over colours.
-    for i in range(n):
+    for i in _six.moves.range(n):
         # Get the position of the current colour in spectrum (circular, from 0
         # to 6).
         c = start + length * float(i) / C
@@ -681,7 +693,7 @@ def generate_subdf (
 
     Returns
     =======
-    subdf : tuple of DataFrames
+    subdf : tuple of pandas.DataFrames
         Tuple of the accepted subdataframes.  The subdataframes are given in the
         same order as the original dataframes were.  Row indices in
         subdataframes are preserved from the original dataframes.
@@ -790,7 +802,7 @@ def generate_subdf (
     if hasattr(n, '__iter__') or hasattr(n, '__array__'):
         if not isinstance(n, _np.ndarray):
             try:
-                n = _np.array(n)
+                n = _np.asarray(n)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(n, _np.ndarray):
@@ -836,7 +848,7 @@ def generate_subdf (
     if hasattr(ok, '__iter__') or hasattr(ok, '__array__'):
         if not isinstance(ok, _np.ndarray):
             try:
-                ok = _np.array(ok)
+                ok = _np.asarray(ok)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(ok, _np.ndarray):
@@ -897,7 +909,7 @@ def generate_subdf (
     if hasattr(N_ITER, '__iter__') or hasattr(N_ITER, '__array__'):
         if not isinstance(N_ITER, _np.ndarray):
             try:
-                N_ITER = _np.array(N_ITER)
+                N_ITER = _np.asarray(N_ITER)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(N_ITER, _np.ndarray):
@@ -939,7 +951,7 @@ def generate_subdf (
     if hasattr(rtol, '__iter__') or hasattr(rtol, '__array__'):
         if not isinstance(rtol, _np.ndarray):
             try:
-                rtol = _np.array(rtol)
+                rtol = _np.asarray(rtol)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(rtol, _np.ndarray):
@@ -988,7 +1000,7 @@ def generate_subdf (
     if hasattr(atol, '__iter__') or hasattr(atol, '__array__'):
         if not isinstance(atol, _np.ndarray):
             try:
-                atol = _np.array(atol)
+                atol = _np.asarray(atol)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(atol, _np.ndarray):
@@ -1054,7 +1066,7 @@ def generate_subdf (
     if hasattr(compl, '__iter__') or hasattr(compl, '__array__'):
         if not isinstance(compl, _np.ndarray):
             try:
-                compl = _np.array(compl)
+                compl = _np.asarray(compl)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(compl, _np.ndarray):
@@ -1091,7 +1103,7 @@ def generate_subdf (
     if hasattr(return_error, '__iter__') or hasattr(return_error, '__array__'):
         if not isinstance(return_error, _np.ndarray):
             try:
-                return_error = _np.array(return_error)
+                return_error = _np.asarray(return_error)
             except (TypeError, ValueError, AttributeError):
                 pass
     if isinstance(return_error, _np.ndarray):
@@ -1185,14 +1197,14 @@ def generate_subdf (
             raise ValueError('The number of dataframes must be non-negative.')
 
         # Initialise the list of subdataframes with empty dataframes.
-        subdf = list(dummy_df for i in range(N_dfs))
+        subdf = list(dummy_df for i in _six.moves.range(N_dfs))
         try:
             del i
         except (NameError, UnboundLocalError):
             pass
 
         # Initialise the list of standard deviation errors with zeros.
-        E_min = list(infinity for i in range(N_dfs))
+        E_min = list(infinity for i in _six.moves.range(N_dfs))
         try:
             del i
         except (NameError, UnboundLocalError):
@@ -1291,7 +1303,7 @@ def generate_subdf (
             pass
 
         # Generate subdataframes of the current dataframe.
-        for j in range(N_ITER):
+        for j in _six.moves.range(N_ITER):
             # Extract `n` rows from the current dataframe.
             aux = df.sample(n, replace = False)
 
@@ -1392,3 +1404,425 @@ def generate_subdf (
     # Return the extracted subdataframes and the corresponding standard
     # deviation errors if demanded.
     return (tuple(subdf), tuple(E_min)) if return_error else tuple(subdf)
+
+# Define the function to export ARGB values of the image on a figure.
+def tensorise_figure (fig):
+    """
+    Get the tensor of ARGB values of the image on a figure.
+
+    Parameters
+    ==========
+    fig : Figure
+        Matplotlib figure to extract the image from.
+
+    Returns
+    =======
+    A : (w, h, 4) array of numpy.uint8
+        ARGB values of the image on the figure `fig`.  Values `w` and `h` (>= 0)
+        are the width and the height of the figure, respectively.  The matrix
+        `A[0, :, :]` represents the alpha channel of the image, the matrix
+        `A[1, :, :]` represents the red channel of the image, the matrix
+        `A[2, :, :]` represents the green channel of the image and the matrix
+        `A[3, :, :]` represents the blue channel of the image.
+
+    Raises
+    ======
+    TypeError
+        Parameter `fig` is not a Matplotlib figure.
+
+    Notes
+    =====
+    The code was inspired by the code given at
+    http://www.icare.univ-lille1.fr/tutorials/convert_a_matplotlib_figure.
+
+    """
+
+    # Sanitise the parameter `fig`.
+    if hasattr(fig, '__iter__') or hasattr(fig, '__array__'):
+        if not isinstance(fig, _np.ndarray):
+            try:
+                fig = _np.asarray(fig)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(fig, _np.ndarray):
+        if fig.size == 1 or fig.shape == tuple():
+            fig = fig.ravel()
+            if not (fig.size == 1):
+                raise TypeError('Parameter `fig` must be a Matplotlib figure.')
+            try:
+                fig = fig.dtype.type(fig[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError('Parameter `fig` must be a Matplotlib figure.')
+    if not isinstance(fig, _Figure):
+        raise TypeError('Parameter `fig` must be a Matplotlib figure.')
+
+    # Draw the content of the figure on the figure's canvas.
+    fig.canvas.draw()
+
+    # Get the figure's dimensions.
+    w, h = fig.canvas.get_width_height()
+    w = _copy.deepcopy(int(w))
+    h = _copy.deepcopy(int(h))
+
+    # Extract the ARGB values of the image of the figure's canvas.
+    A = _np.frombuffer(fig.canvas.tostring_argb(), dtype = _np.uint8).reshape(
+        (h, w, 4)
+    )
+
+    # Free the memory.
+    del w
+    del h
+
+    # Return the extracted ARGB values.
+    return A
+
+def visualise_triangle (
+    T,
+    bbox = _np.array(
+        [[-0.5, -0.5], [0.5, 0.5]],
+        dtype = float,
+        copy = True,
+        order = 'F',
+        subok = False,
+        ndmin = 2
+    ),
+    m = 50,
+    n = None
+):
+    """
+    Visualise a triangle in the plane.
+
+    A triangle is visualised as the range of the function V such that
+    V(P) = d(P, B) if the point P is inside the triangle and 0 otherwise, where
+    B is the boundary of the triangle and d is the Euclidean distance.
+
+    Parameters
+    ==========
+    T : (6,) array
+        Coordinates of vertices of the triangle.  The vertices are at
+        (`T[0]`, `T[1]`), (`T[2]`, `T[3]`) and (`T[4]`, `T[5]`).  The vertices'
+        enumeration should be positively oriented; if not, results will be
+        unexpected.
+
+    bbox : (2, 2) array, optional
+        Bounding box of the visualisation (default is
+        `[[-0.5, -0.5], [ 0.5,  0.5]]`).  The visualised part is the rectangle
+        [`bbox[0, 0]`, `bbox[1, 0]`] x [`bbox[0, 1]`, `bbox[1, 1]`].  The
+        bounding box must be sorted strictly ascendingly on axis 1.
+
+    m : int in range [2, +inf), optional
+        Number of discretisation points on the x-axis of the bounding box
+        (default is 50).
+
+    n : None or int in range [2, +inf), optional
+        Number of discretisation points on the x-axis of the bounding box
+        (default is `None`).  If `None`, it is computed so that
+        (`n` - 1) / (`m` - 1) is the best approximation of
+        (`bbox[1, 1]` - `bbox[0, 1]`) / (`bbox[1, 0]` - `bbox[0, 0]`) with the
+        denominator `m` - 1.  However, should this number be 0 or 1, it is set
+        to 2.
+
+    Returns
+    =======
+    A : (m - 1, n - 1) array of floats
+        The visualisation matrix on the bounding box.  `A[i, j]` is the value of
+        the visualisation function on the central point of the rectangle
+        [`x[i]`, `x[i + 1]`] x [`y[j]`, `y[j + 1]`], where `x` denotes the
+        discretisation array of the x-axis of the bounding box, and `y` denotes
+        the discretisation array of the y-axis of the bounding box.
+
+    Raises
+    ======
+    TypeError
+        Parameter `T` is not a NumPy array of real numbers.  Parameter `bbox` is
+        not a NumPy array of real numbers.  Parameter `m` is not an integer.
+        Parameter `n` is not `None` or an integer.
+
+    ValueError
+        Parameter `T` is not of shape `(6,)` or any of its values is infinite or
+        NaN.  Parameter `bbox` is not of shape `(2, 2)` or any of its values is
+        infinite or NaN or it is not sorted strictly ascendingly on axis 1.
+        Parameter `m` is not in range [2, +inf).  Parameter `n` is not in range
+        [2, +inf).
+
+    """
+
+    # Sanitise the parameter `T`.
+    if not isinstance(T, _np.ndarray):
+        if hasattr(T, '__iter__') or hasattr(T, '__array__'):
+            try:
+                T = _np.asarray(T)
+            except (TypeError, ValueError, AttributeError):
+                raise TypeError(
+                    'Coordinates of vertices must be set as an array.'
+                )
+    if isinstance(T, _np.matrix):
+        T = T.A
+    if (
+        not (
+            issubclass(
+                T.dtype.type,
+                (
+                    float,
+                    _np.integer,
+                    _np.floating,
+                    _numbers.Integral,
+                    _numbers.Rational,
+                    _numbers.Real
+                )
+            ) or issubclass(T.dtype.type, _six.integer_types)
+        ) or issubclass(T.dtype.type, (bool, _np.bool_))
+    ):
+        raise TypeError('Coordinates of vertices must be real numbers.')
+    if not (T.ndim == 1 and T.size == 6):
+        raise ValueError(
+            "Coordinates must be set as an array of shape {shape:s}.".format(
+                shape = tuple([6])
+            )
+        )
+    if (_np.isnan(T) | _np.isinf(T)).any():
+        raise ValueError('Coordinates must be finite and non-NaN.')
+
+    # Sanitise the parameter `bbox`.
+    if not isinstance(bbox, _np.ndarray):
+        if hasattr(bbox, '__iter__') or hasattr(bbox, '__array__'):
+            try:
+                bbox = _np.asarray(bbox)
+            except (TypeError, ValueError, AttributeError):
+                raise TypeError('Bounding box must be set as an array.')
+    if isinstance(bbox, _np.matrix):
+        bbox = bbox.A
+    if (
+        not (
+            issubclass(
+                bbox.dtype.type,
+                (
+                    float,
+                    _np.integer,
+                    _np.floating,
+                    _numbers.Integral,
+                    _numbers.Rational,
+                    _numbers.Real
+                )
+            ) or issubclass(bbox.dtype.type, _six.integer_types)
+        ) or issubclass(bbox.dtype.type, (bool, _np.bool_))
+    ):
+        raise TypeError('Bounding box coordinates must be real numbers.')
+    if not (bbox.ndim == 2 and bbox.size == 4 and bbox.shape == (2, 2)):
+        raise ValueError(
+            "Bounding box be set as an array of shape {shape:s}.".format(
+                shape = (2, 2)
+            )
+        )
+    if (_np.isnan(bbox) | _np.isinf(bbox)).any():
+        raise ValueError('Bounding box coordinates must be finite and non-NaN.')
+    if not (bbox[0, :] < bbox[1, :]).ravel().all():
+        raise ValueError(
+            "Bounding box's first coordinates must be strictly less than its "
+            "second coordinates."
+        )
+
+    # Sanitise the parameter `m`.
+    if hasattr(m, '__iter__') or hasattr(m, '__array__'):
+        if not isinstance(m, _np.ndarray):
+            try:
+                m = _np.asarray(m)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(m, _np.ndarray):
+        if m.size == 1 or m.shape == tuple():
+            m = m.ravel()
+            if not (m.size == 1):
+                raise TypeError(
+                    'Number of discretisation points on the x-axis must be '
+                    'integral.'
+                )
+            try:
+                m = m.dtype.type(m[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError(
+                    'Number of discretisation points on the x-axis must be '
+                    'integral.'
+                )
+    if not (
+            isinstance(m, _six.integer_types) or
+            isinstance(m, (_np.integer, _numbers.Integral))
+    ) or isinstance(m, (bool, _np.bool_)):
+        raise TypeError(
+            'Number of discretisation points on the x-axis must be integral.'
+        )
+    try:
+        m = _copy.deepcopy(int(m))
+    except (TypeError, ValueError, AttributeError):
+        raise TypeError(
+            'Number of discretisation points on the x-axis must be of type '
+            '`int`.'
+        )
+    if _math.isnan(m) or _math.isinf(m):
+        raise ValueError(
+            'Number of discretisation points on the x-axis must be finite and '
+            'non-NaN.'
+        )
+    if m < 2:
+        raise ValueError(
+            'Number of discretisation points on the x-axis must be at least 2.'
+        )
+
+    # Sanitise the parameter `n`.
+    if hasattr(n, '__iter__') or hasattr(n, '__array__'):
+        if not isinstance(n, _np.ndarray):
+            try:
+                n = _np.asarray(n)
+            except (TypeError, ValueError, AttributeError):
+                pass
+    if isinstance(n, _np.ndarray):
+        if n.size == 1 or n.shape == tuple():
+            n = n.ravel()
+            if not (n.size == 1):
+                raise TypeError(
+                    'Number of discretisation points on the x-axis must be '
+                    'integral.'
+                )
+            try:
+                n = n.dtype.type(n[0])
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+                IndexError,
+                KeyError
+            ):
+                raise TypeError(
+                    'Number of discretisation points on the x-axis must be '
+                    'integral.'
+                )
+    if n is None:
+        n = None
+    else:
+        if not (
+                isinstance(n, _six.integer_types) or
+                isinstance(n, (_np.integer, _numbers.Integral))
+        ) or isinstance(n, (bool, _np.bool_)):
+            raise TypeError(
+                'Number of discretisation points on the y-axis must be '
+                'integral.'
+            )
+        try:
+            n = _copy.deepcopy(int(n))
+        except (TypeError, ValueError, AttributeError):
+            raise TypeError(
+                'Number of discretisation points on the y-axis must be of type '
+                '`int`.'
+            )
+        if _math.isnan(n) or _math.isinf(n):
+            raise ValueError(
+                'Number of discretisation points on the y-axis must be finite '
+                'and non-NaN.'
+            )
+        if n < 2:
+            raise ValueError(
+                'Number of discretisation points on the y-axis must be at '
+                'least 2.'
+            )
+
+    # Calculate the number of discretisation points on the y-axis if necessary.
+    if n is None:
+        n = max(
+            int(
+                round(
+                    float((bbox[1, 1] - bbox[0, 1])) /
+                    float((bbox[1, 0] - bbox[0, 0])) *
+                    float(m - 1)
+                )
+            ) + 1,
+            2
+        )
+
+    # Compute the differences in coordinates.
+    dT = _np.array(
+        [
+            [T[0] - T[2], T[2] - T[4], T[4] - T[0]],
+            [T[1] - T[3], T[3] - T[5], T[5] - T[1]]
+        ],
+        dtype = float,
+        copy = True,
+        order = 'F',
+        subok = False,
+        ndmin = 2
+    )
+
+    # Compute the independent terms in the implicit equations of lines through
+    # the triangle's edges.
+    CT = _np.array(
+        [
+            -dT[1, 0] * T[0] + dT[0, 0] * T[1],
+            -dT[1, 1] * T[2] + dT[0, 1] * T[3],
+            -dT[1, 2] * T[4] + dT[0, 2] * T[5]
+        ],
+        dtype = float,
+        copy = True,
+        order = 'F',
+        subok = False,
+        ndmin = 1
+    )
+
+    # Compute the lengths of normals of the lines through the triangle's edges.
+    NT = _np.sqrt((dT ** 2).sum(axis = 0))
+
+    # Discretise the bounding box.
+    x = _np.linspace(bbox[0, 0], bbox[1, 0], num = m, dtype = float)
+    y = _np.linspace(bbox[0, 1], bbox[1, 1], num = n, dtype = float)
+
+    # Decrement numbers `m` and `n`.
+    m -= 1
+    n -= 1
+
+    # Compute the coordinates of the center points of discretisation rectangles
+    # of the bounding box.
+    x = 0.5 * (x[:-1] + x[1:])
+    y = 0.5 * (y[:-1] + y[1:])
+
+    # Initialise the visualisation matrix to zeros.
+    A = _np.zeros((m, n), dtype = float, order = 'F')
+
+    # Generate a mesh grid of arrays `x` and `y`.
+    X, Y = _np.meshgrid(x, y, indexing = 'ij')
+
+    # Expand the dimensions of arrays `X` and `Y`.
+    X = X[:, :, _np.newaxis]
+    Y = Y[:, :, _np.newaxis]
+
+    # Compute the signed distances from edges on the bounding box.
+    D = (dT[1, :] * X - dT[0, :] * Y + CT) / NT
+
+    # Set the signed distances to 0 on points outside of the triangle (where any
+    # signed distance is negative).
+    D[(D < 0).any(axis = 2), :] = 0.0
+
+    # Copy the minimal signed distances to the visualisation matrix.
+    A[:, :] = D.min(axis = 2)
+
+    # Free the memory.
+    del X
+    del Y
+    del D
+    del dT
+    del CT
+    del NT
+    del x
+    del y
+
+    # Return the visualisation matrix.
+    return A
