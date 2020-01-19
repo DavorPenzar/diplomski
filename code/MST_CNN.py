@@ -19,7 +19,7 @@ References
 """
 
 # Import TensorFlow.
-import tesnorflow as _tf
+import tensorflow as _tf
 
 # Import Keras.
 import keras as _keras
