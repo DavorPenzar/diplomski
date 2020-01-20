@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """
 Personal useful functions for exploring and extracting data in dataframes.
 
 This file is part of Davor Penzar's master thesis programing.
 
 """
-
-# -*- coding: utf-8 -*-
 
 # Import standard library.
 import copy as _copy
@@ -1493,7 +1493,8 @@ def visualise_triangle (
         ndmin = 2
     ),
     m = 50,
-    n = None
+    n = None,
+    out = None
 ):
     """
     Visualise a triangle in the plane.
@@ -1528,6 +1529,12 @@ def visualise_triangle (
         denominator `m` - 1.  However, should this number be 0 or 1, it is set
         to 2.
 
+    out : None or (m - 1, n - 1) array of floats
+        Output array (default is `None`).  If specified, the parameter must be
+        an instance of class `numpy.ndarray` of the correct shape and format
+        (see the documentation for the `numpy.amin` function).  If `None`, a new
+        array is generated and returned.
+
     Returns
     =======
     A : (m - 1, n - 1) array of floats
@@ -1537,12 +1544,16 @@ def visualise_triangle (
         discretisation array of the x-axis of the bounding box, and `y` denotes
         the discretisation array of the y-axis of the bounding box.
 
+        If the parameter `out` was specified as non-`None`, a reference to the
+        original array `out` is returned.
+
     Raises
     ======
     TypeError
         Parameter `T` is not a NumPy array of real numbers.  Parameter `bbox` is
         not a NumPy array of real numbers.  Parameter `m` is not an integer.
-        Parameter `n` is not `None` or an integer.
+        Parameter `n` is not `None` or an integer.  Parameter `out` is not an
+        instance of class `numpy.ndarray`.
 
     ValueError
         Parameter `T` is not of shape `(6,)` or any of its values is infinite or
@@ -1550,6 +1561,11 @@ def visualise_triangle (
         infinite or NaN or it is not sorted strictly ascendingly on axis 1.
         Parameter `m` is not in range [2, +inf).  Parameter `n` is not in range
         [2, +inf).
+
+    Others
+        If the parameter `out` is specified as non-`None`, exceptions thrown
+        by the `numpy.amin` function if the argument is of illegal shape or
+        format is not caught.
 
     """
 
@@ -1737,6 +1753,15 @@ def visualise_triangle (
                 'least 2.'
             )
 
+    # Sanitise the parameter `out`.
+    if out is None:
+        out = None
+    else:
+        if not isinstance(out, _np.ndarray):
+            raise TypeError('Parameter `out` must be of type `numpy.ndarray.`')
+        if isinstance(out, _np.matrix):
+            out = out.A
+
     # Calculate the number of discretisation points on the y-axis if necessary.
     if n is None:
         n = max(
@@ -1794,9 +1819,6 @@ def visualise_triangle (
     x = 0.5 * (x[:-1] + x[1:])
     y = 0.5 * (y[:-1] + y[1:])
 
-    # Initialise the visualisation matrix to zeros.
-    A = _np.zeros((m, n), dtype = float, order = 'F')
-
     # Generate a mesh grid of arrays `x` and `y`.
     X, Y = _np.meshgrid(x, y, indexing = 'ij')
 
@@ -1812,7 +1834,10 @@ def visualise_triangle (
     D[(D < 0).any(axis = 2), :] = 0.0
 
     # Copy the minimal signed distances to the visualisation matrix.
-    A[:, :] = D.min(axis = 2)
+    if out is None:
+        out = D.min(axis = 2)
+    else:
+        D.min(axis = 2, out = out)
 
     # Free the memory.
     del X
@@ -1825,4 +1850,4 @@ def visualise_triangle (
     del y
 
     # Return the visualisation matrix.
-    return A
+    return out
