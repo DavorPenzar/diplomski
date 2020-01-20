@@ -24,6 +24,9 @@ import math as _math
 import numbers as _numbers
 import six as _six
 
+# Import SciPy packages.
+import numpy as _np
+
 # Import TensorFlow.
 import tensorflow as _tf
 
@@ -312,13 +315,11 @@ def MST_CNN_sequential (
     # Initialise the model.
     model = _km.Sequential(name = 'MST_CNN', **model_kwargs)
 
-    # Add the input layer.
-    model.add(_kl.Input(shape = input_shape, name = 'input', **input_kwargs))
-
     # If at least one reduction should be added, add the first reduction layer.
     if reductions:
         model.add(
             _kl.convolutional.Conv2D(
+                input_shape = input_shape,
                 filters = reduction_filters,
                 kernel_size = reduction_kernel_size,
                 strides = (2, 2),
@@ -374,17 +375,25 @@ def MST_CNN_sequential (
     except (NameError, UnboundLocalError):
         pass
 
-    # Flatten the output of the last reducing convolutional layer.
-    model.add(
-        _kl.Flatten(
-            data_format = data_format,
-            name = 'flattening'
+    # If at least one reducing convolutional layer was added, flatten the output
+    # of the last reducing convolutional layer.
+    if reductions:
+        model.add(
+            _kl.Flatten(
+                data_format = data_format,
+                name = 'flattening'
+            )
         )
-    )
 
     # Add the final, fully-connected hidden layer.
     model.add(
         _kl.Dense(
+            units = final_fully_connected_units,
+            activation = final_fully_connected_activation,
+            name = 'final_fully_connected',
+            **final_fully_connected_kwargs
+        ) if reductions else _kl.Dense(
+            input_shape = input_shape,
             units = final_fully_connected_units,
             activation = final_fully_connected_activation,
             name = 'final_fully_connected',
