@@ -68,6 +68,7 @@
 #include "numeric.h"
 #include "polygon.h"
 #include "playground.h"
+#include "triangle.h"
 
 int main (int argc, char** argv)
 {
@@ -79,11 +80,11 @@ int main (int argc, char** argv)
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
         "Number of additional arguments must be 3: number of triangles, input "
-            "input file path and output file path.";
+            "file path and output file path.";
 
     /* Error message for the illegal number of triangles. */
     const char* const err_msg_nt =
-        "Number of polygons to read must be at least 1.";
+        "Number of triangles to read must be at least 1.";
 
     /* Error message for input file opening fail. */
     const char* const err_msg_in = "Input file cannot be opened.";
@@ -112,7 +113,7 @@ int main (int argc, char** argv)
     size_t N;
 
     /* Array of vertices. */
-    real_t P[18U];
+    real_t T[18U];
 
     /* Arrays of the differences in coordinates, the lengths of edges and the
      * outer angles. */
@@ -120,13 +121,6 @@ int main (int argc, char** argv)
     real_t dy[3U];
     real_t l[3U];
     real_t phi[3U];
-
-    /* Circumference of triangles. */
-    real_t C;
-
-    /* Coordinates of the triangles' incircle's center. */
-    real_t x_inc;
-    real_t y_inc;
 
     /* Input file. */
     FILE* in;
@@ -143,13 +137,6 @@ int main (int argc, char** argv)
     /* Number of triangles. */
     N = 0U;
 
-    /* Circumference of triangles. */
-    C = 0.0;
-
-    /* Coordinates of the triangles' incircle's center. */
-    x_inc = 0.0;
-    y_inc = 0.0;
-
     /* Input file. */
     in = (FILE*)(NULL);
 
@@ -160,8 +147,8 @@ int main (int argc, char** argv)
     i = 0U;
     j = 0U;
 
-    /* Initialise coordinates of vertices of polygons to zeros. */
-    memset(P, 0, 18U * sizeof *P);
+    /* Initialise coordinates of vertices of triangles to zeros. */
+    memset(T, 0, 18U * sizeof *T);
 
     /* Initialise the differences in coordinates, the lengths of edges and the
      * outer angles to zeros. */
@@ -247,7 +234,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -275,7 +262,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -285,14 +272,14 @@ int main (int argc, char** argv)
     for (i = 0U; i < N; ++i)
     {
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Read the coordinates of the `i`-th input triangle.  If any of the
          * coordinates could not be read, print the error message, close the
          * output and the input files, clear memory and exit with a non-zero
          * value. */
         for (j = 0U; (j >> 1U) < 3U; ++j)
-            if (!(fscanf(in, format_input, P + j) == 1))
+            if (!(fscanf(in, format_input, T + j) == 1))
             {
                 /* Print the error message. */
                 fprintf(stderr, format_err_msg, err_msg_rc);
@@ -313,40 +300,26 @@ int main (int argc, char** argv)
                 memset(phi, 0, 3U * sizeof *phi);
 
                 /* Clear the memory in the array of points. */
-                memset(P, 0, 18U * sizeof *P);
+                memset(T, 0, 18U * sizeof *T);
 
                 /* Exit with a non-zero value. */
                 exit(EXIT_FAILURE);
             }
 
         /* Correct the triangles's orientation and enumeration. */
-        correct_polygon_orientation(3U, P);
+        correct_polygon_orientation(3U, T);
 
         /* Standardise the triangle. */
-        standardise_polygon(3U, P);
+        standardise_polygon(3U, T);
 
         /* Describe the triangle. */
-        describe_polygon(3U, P, dx, dy, l, phi);
+        describe_polygon(3U, T, dx, dy, l, phi);
 
-        /* Compute the circumference of the triangle. */
-        C = *l + *(l + 1U) + *(l + 2U);
-
-        /* Compute the coordinates of the incircle's center. */
-        x_inc = (*(l + 1U) * *P + *(l + 2U) * *(P + 2U) + *l * *(P + 4U)) / C;
-        y_inc =
-            (*(l + 1U) * *(P + 1U) + *(l + 2U) * *(P + 3U) + *l * *(P + 5U)) /
-            C;
-
-        /* Translate the triangle so that the incircle's center is at (0, 0). */
-        *P -= x_inc;
-        *(P + 2U) -= x_inc;
-        *(P + 4U) -= x_inc;
-        *(P + 1U) -= y_inc;
-        *(P + 3U) -= y_inc;
-        *(P + 5U) -= y_inc;
+        /* Centralise the triangle. */
+        centralise_triangle(T, l);
 
         /* Dump the triangle to the output file. */
-        dump_polygons(out, 3U, P, 1U);
+        dump_polygons(out, 3U, T, 1U);
     }
 
     /* Close the output file. */
@@ -365,7 +338,7 @@ int main (int argc, char** argv)
     memset(phi, 0, 3U * sizeof *phi);
 
     /* Clear the memory in the array of points. */
-    memset(P, 0, 18U * sizeof *P);
+    memset(T, 0, 18U * sizeof *T);
 
     /* Return a zero value (exit with a zero value). */
     return EXIT_SUCCESS;

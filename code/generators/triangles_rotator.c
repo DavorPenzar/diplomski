@@ -4,7 +4,7 @@
  * This file is part of Davor Penzar's master thesis programing.
  *
  * Usage:
- *     ./perturbate N in out
+ *     ./rotate N in out
  * where:
  *     N   is the number of triangles (at least 1),
  *     in  is the path to the input file to read the original coordinates of
@@ -78,11 +78,11 @@ int main (int argc, char** argv)
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
         "Number of additional arguments must be 3: number of triangles, input "
-            "input file path and output file path.";
+            "file path and output file path.";
 
     /* Error message for the illegal number of triangles. */
     const char* const err_msg_nt =
-        "Number of polygons to read must be at least 1.";
+        "Number of triangles to read must be at least 1.";
 
     /* Error message for input file opening fail. */
     const char* const err_msg_in = "Input file cannot be opened.";
@@ -111,7 +111,7 @@ int main (int argc, char** argv)
     size_t N;
 
     /* Array of vertices. */
-    real_t P[18U];
+    real_t T[18U];
 
     /* Arrays of the differences in coordinates, the lengths of edges and the
      * outer angles. */
@@ -145,8 +145,8 @@ int main (int argc, char** argv)
     i = 0U;
     j = 0U;
 
-    /* Initialise coordinates of vertices of polygons to zeros. */
-    memset(P, 0, 18U * sizeof *P);
+    /* Initialise coordinates of vertices of triangles to zeros. */
+    memset(T, 0, 18U * sizeof *T);
 
     /* Initialise the differences in coordinates, the lengths of edges and the
      * outer angles to zeros. */
@@ -232,7 +232,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -260,7 +260,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -270,14 +270,14 @@ int main (int argc, char** argv)
     for (i = 0U; i < N; ++i)
     {
         /* Clear the memory in the array of points. */
-        memset(P, 0, 18U * sizeof *P);
+        memset(T, 0, 18U * sizeof *T);
 
         /* Read the coordinates of the `i`-th input triangle.  If any of the
          * coordinates could not be read, print the error message, close the
          * output and the input files, clear memory and exit with a non-zero
          * value. */
         for (j = 0U; (j >> 1U) < 3U; ++j)
-            if (!(fscanf(in, format_input, P + j) == 1))
+            if (!(fscanf(in, format_input, T + j) == 1))
             {
                 /* Print the error message. */
                 fprintf(stderr, format_err_msg, err_msg_rc);
@@ -298,33 +298,33 @@ int main (int argc, char** argv)
                 memset(phi, 0, 3U * sizeof *phi);
 
                 /* Clear the memory in the array of points. */
-                memset(P, 0, 18U * sizeof *P);
+                memset(T, 0, 18U * sizeof *T);
 
                 /* Exit with a non-zero value. */
                 exit(EXIT_FAILURE);
             }
 
         /* Correct the triangles's orientation and enumeration. */
-        correct_polygon_orientation(3U, P);
+        correct_polygon_orientation(3U, T);
 
         /* Describe the triangle. */
-        describe_polygon(3U, P, dx, dy, l, phi);
+        describe_polygon(3U, T, dx, dy, l, phi);
 
         /* Copy the coordinates of the triangle two times. */
-        memcpy(P + 6U, P, 6U * sizeof *P);
-        memcpy(P + 12U, P, 6U * sizeof *P);
+        memcpy(T + 6U, T, 6U * sizeof *T);
+        memcpy(T + 12U, T, 6U * sizeof *T);
 
         /* Generate rotations of the triangle. */
-        rotate_polygon(3U, P + 6U, *(phi + 1U));
-        rotate_polygon(3U, P + 12U, *phi + *(phi + 1U));
+        rotate_polygon(3U, T + 6U, *(phi + 1U));
+        rotate_polygon(3U, T + 12U, *phi + *(phi + 1U));
 
         /* Normalise triangles. */
-        normalise_polygon(3U, P);
-        normalise_polygon(3U, P + 6U);
-        normalise_polygon(3U, P + 12U);
+        normalise_polygon(3U, T);
+        normalise_polygon(3U, T + 6U);
+        normalise_polygon(3U, T + 12U);
 
         /* Dump the triangles to the output file. */
-        dump_polygons(out, 3U, P, 3U);
+        dump_polygons(out, 3U, T, 3U);
     }
 
     /* Close the output file. */
@@ -343,7 +343,7 @@ int main (int argc, char** argv)
     memset(phi, 0, 3U * sizeof *phi);
 
     /* Clear the memory in the array of points. */
-    memset(P, 0, 18U * sizeof *P);
+    memset(T, 0, 18U * sizeof *T);
 
     /* Return a zero value (exit with a zero value). */
     return EXIT_SUCCESS;

@@ -210,4 +210,81 @@ void char_triangle (
     while (false);
 }
 
+/**
+ * Centralise a triangle so that its incircle's center is at the origin of the
+ * plane.
+ *
+ * The triangle is translated so that its incircle's center is at (0, 0).
+ *
+ * The triangle must be described via the `describe_polygon` function
+ * beforehand.  It is assumed that the arrays `T` and `l` are not changed after
+ * the description (by shuffling elements or changing their values).  No memory
+ * locations may overlap to avoid unexpected results.
+ *
+ * @param T
+ *     Array of coordinates of the vertices of size 6.  The array is organised
+ *     as `{x_0, y_0, x_1, y_1, x_2, y_2}`, where `x_i` is the x-coordinate of
+ *     the `i`-th vertex and `y_i` is its y-coordinate.  Note that the first and
+ *     the last vertex are neighbouring.
+ *
+ *     Caution: the array `T` is mutated in the function.
+ *
+ * @param l
+ *     Array of the edges' lengths of size 3.
+ *
+ * @see describe_polygon
+ *
+ */
+void centralise_triangle (real_t* T, const real_t* l)
+{
+    /* DECLARATION OF VARIABLES */
+
+    /* Circumference. */
+    real_t C;
+
+    /* Coordinates of the incircle. */
+    real_t x;
+    real_t y;
+
+    /* INITIALISATION OF VARIABLES. */
+
+    /* Circumference. */
+    C = 0.0;
+
+    /* Coordinates of the incircle. */
+    x = 0.0;
+    y = 0.0;
+
+    /* ALGORITHM */
+
+    /* To avoid using the `goto` command and additional `return` commands, the
+     * algorithm is enclosed in a `do while`-loop with a false terminating
+     * statement. */
+    do
+    {
+      /* If any of the pointers `T` and `l` is a null-pointer, break the
+       * `do while`-loop. */
+        if (!(T && l))
+            break;
+
+        /* Compute the circumference of the triangle. */
+        C = *l + *(l + 1U) + *(l + 2U);
+
+        /* Compute the coordinates of the incircle's center. */
+        x = (*(l + 1U) * *T + *(l + 2U) * *(T + 2U) + *l * *(T + 4U)) / C;
+        y =
+            (*(l + 1U) * *(T + 1U) + *(l + 2U) * *(T + 3U) + *l * *(T + 5U)) /
+            C;
+
+        /* Translate the triangle so that the incircle's center is at (0, 0). */
+        *T -= x;
+        *(T + 2U) -= x;
+        *(T + 4U) -= x;
+        *(T + 1U) -= y;
+        *(T + 3U) -= y;
+        *(T + 5U) -= y;
+    }
+    while (false);
+}
+
 #endif /* __TRIANGLE_H_INCLUDED */

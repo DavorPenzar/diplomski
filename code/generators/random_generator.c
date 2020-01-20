@@ -59,7 +59,7 @@ int main (int argc, char** argv)
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
         "Number of additional arguments must be 3: number of polygons, number "
-            "of vertices, output file path.";
+            "of vertices and output file path.";
 
     /* Error message for the illegal number of polygons. */
     const char* const err_msg_np = "Number of polygons must be at least 1.";

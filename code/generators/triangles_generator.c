@@ -73,7 +73,7 @@ int main (int argc, char** argv)
     /* Error message for the illegal number of additional arguments. */
     const char* const err_msg_argc =
         "Number of additional arguments must be 2: number of dicretisation "
-            "points on x-axis and path to the output file.";
+            "points on x-axis and output file path.";
 
     /* Error message for the illegal number of discretisation points. */
     const char* const err_msg_nd =
