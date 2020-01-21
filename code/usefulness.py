@@ -1370,7 +1370,10 @@ def generate_subdf (
                 # `for`-loop.
                 if E < ok:
                     # Free the memory.
-                    del E
+                    try:
+                        del E
+                    except (NameError, UnboundLocalError):
+                        pass
                     del aux
 
                     # Break the inner `for`-loop.
