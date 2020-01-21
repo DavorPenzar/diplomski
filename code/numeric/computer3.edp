@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* FreeFEM script for computing Laplace eigenvalues on polygons.            */
+/* FreeFEM++ script for computing Laplace eigenvalues on polygons.          */
 /*                                                                          */
 /* This file is part of Davor Penzar's master thesis programing.            */
 /*                                                                          */
@@ -81,7 +81,7 @@ int prec = 8;       // Precision of the output.
 int tprec = 6;      // Precision of the output of time.
 real tol = 5.0e-9;  // Tolerance for the solution.
 real eps = 1.0e-16; // Epsilon for the CG solver.
-int np = 4096;      // Number of polygons.
+int np = 125000;    // Number of polygons.
 int nv = 3;         // Number of vertices (change code acccordingly).
 real unit =         // Number of mesh regions on an edge of length 1.
     6.36619772367581343075535053490057;

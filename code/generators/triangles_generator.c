@@ -65,7 +65,11 @@ int main (int argc, char** argv)
 
     /* Numerical approximation of sqrt(3) / 2. */
     const real_t half_sqrt_3 =
-        0.86602540378443864676372317075293618347140262690519031402790348973;
+        0.8660254037844386467637231707529361834714026269051903140279034897;
+
+    /* Numerical approximation of 1 / 2 - sqrt(3). */
+    const real_t half_minus_sqrt_3 =
+        -1.2320508075688772935274463415058723669428052538103806280558069795;
 
     /* Error message for an unknown environment error. */
     const char* const err_msg_env = "Unknown environment error.";
@@ -190,7 +194,7 @@ int main (int argc, char** argv)
     /* Read the number of discretisation points on x-axis and compute the number
      * of discretisation points on y-axis. */
     m = (size_t)atoi(*(argv + 1U));
-    n = (size_t)(sqrt_3 * (double)m - 0.5) + 1U;
+    n = (size_t)(sqrt_3 * (double)m + half_minus_sqrt_3) + 1U;
 
     /* If the number of discretisation points on x-axis is 0, print the error
      * message and exit with a non-zero value. */
