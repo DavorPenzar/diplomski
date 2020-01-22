@@ -86,18 +86,15 @@ def MST_CNN_sequential (
     nonreduction_activation = 'relu',
     final_fully_connected_units = 1024,
     final_fully_connected_activation = 'relu',
-    output_units = 1,
-    output_activation = 'linear',
     data_format = 'channels_last',
     model_kwargs = dict(),
     input_kwargs = dict(),
     reduction_kwargs = dict(),
     nonreduction_kwargs = dict(),
-    final_fully_connected_kwargs = dict(),
-    output_kwargs = dict()
+    final_fully_connected_kwargs = dict()
 ):
     """
-    Create the MST CNN as a sequential model.
+    Create the MST CNN as a sequential model without the output layer.
 
     Parameters
     ==========
@@ -153,14 +150,6 @@ def MST_CNN_sequential (
         is `'relu'`).  See the documentation for `keras.layers.Dense` for more
         information.
 
-    output_units : int, optional
-        Dimensionality of the output (default is 1).  See the documentation for
-        `keras.layers.Dense` for more information.
-
-    final_fully_connected_activation : function or str, optional
-        Activation function for the output layer (default is `'linear'`).  See
-        the documentation for `keras.layers.Dense` for more information.
-
     data_format : str, optional
         Value `'channels_first'` for the dimensionality of channels on the first
         place or `'channels_last'` for the dimensionality of channels on the
@@ -191,14 +180,11 @@ def MST_CNN_sequential (
         (default is `{}`).  See the documentation for `keras.layers.Dense` for
         more information.
 
-    input_kwargs : dict, optional
-        Additional keyword arguments for the output layer (default is `{}`).
-        See the documentation for `keras.layers.Dense` for more information.
-
     Returns
     =======
     model : Sequential
-        Noncompiled sequential model of the MST CNN with specified parameters.
+        Noncompiled sequential model of the MST CNN with specified parameters
+        but without the output layer.
 
     Raises
     ======
@@ -382,6 +368,10 @@ def MST_CNN_sequential (
             _kl.Flatten(
                 data_format = data_format,
                 name = 'flattening'
+            ) if reductions else _kl.Flatten(
+                input_shape = input_shape,
+                data_format = data_format,
+                name = 'flattening'
             )
         )
 
@@ -392,26 +382,10 @@ def MST_CNN_sequential (
             activation = final_fully_connected_activation,
             name = 'final_fully_connected',
             **final_fully_connected_kwargs
-        ) if reductions else _kl.Dense(
-            input_shape = input_shape,
-            units = final_fully_connected_units,
-            activation = final_fully_connected_activation,
-            name = 'final_fully_connected',
-            **final_fully_connected_kwargs
         )
     )
 
-    # Add the output layer.
-    model.add(
-        _kl.Dense(
-            units = output_units,
-            activation = output_activation,
-            name = 'output',
-            **output_kwargs
-        )
-    )
-
-    # Return the MST CNN model.
+    # Return the MST CNN model without the output layer.
     return model
 
 # Define a function to create MST CNN as a tensor.
@@ -427,17 +401,14 @@ def MST_CNN_tensor (
     nonreduction_activation = 'relu',
     final_fully_connected_units = 1024,
     final_fully_connected_activation = 'relu',
-    output_units = 1,
-    output_activation = 'linear',
     data_format = 'channels_last',
     input_kwargs = dict(),
     reduction_kwargs = dict(),
     nonreduction_kwargs = dict(),
-    final_fully_connected_kwargs = dict(),
-    output_kwargs = dict()
+    final_fully_connected_kwargs = dict()
 ):
     """
-    Create MST CNN as a tensor.
+    Create MST CNN as a tensor without the output layer.
 
     Parameters
     ==========
@@ -493,14 +464,6 @@ def MST_CNN_tensor (
         is `'relu'`).  See the documentation for `keras.layers.Dense` for more
         information.
 
-    output_units : int, optional
-        Dimensionality of the output (default is 1).  See the documentation for
-        `keras.layers.Dense` for more information.
-
-    final_fully_connected_activation : function or str, optional
-        Activation function for the output layer (default is `'linear'`).  See
-        the documentation for `keras.layers.Dense` for more information.
-
     data_format : str, optional
         Value `'channels_first'` for the dimensionality of channels on the first
         place or `'channels_last'` for the dimensionality of channels on the
@@ -526,14 +489,11 @@ def MST_CNN_tensor (
         (default is `{}`).  See the documentation for `keras.layers.Dense` for
         more information.
 
-    input_kwargs : dict, optional
-        Additional keyword arguments for the output layer (default is `{}`).
-        See the documentation for `keras.layers.Dense` for more information.
-
     Returns
     =======
     CNN : Tensor
-        Tensor of the MST CNN with specified parameters.
+        Tensor of the MST CNN with specified parameters but without the output
+        layer.
 
     Raises
     ======
@@ -711,14 +671,6 @@ def MST_CNN_tensor (
         activation = final_fully_connected_activation,
         name = 'final_fully_connected',
         **final_fully_connected_kwargs
-    )(CNN)
-
-    # Add the output layer.
-    CNN = _kl.Dense(
-        units = output_units,
-        activation = output_activation,
-        name = 'output',
-        **output_kwargs
     )(CNN)
 
     # Return the MST CNN tensor.
