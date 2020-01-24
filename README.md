@@ -9,7 +9,7 @@
 ***Prirodoslovno-matematički fakultet*** <br>
 ***Sveučilište u Zagrebu***
 
-*Zagreb, 2019.*
+*Zagreb, 2020.*
 
 ##  Opis repozitorija
 
@@ -40,4 +40,3 @@ Materijali mog diplomskog rada u nastajanju.
 15. E. W. Weisstein, Curve Orientation, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/CurveOrientation.html`](http://mathworld.wolfram.com/CurveOrientation.html).
 16. E. W. Weisstein, Polygon, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/Polygon.html`](http://mathworld.wolfram.com/Polygon.html).
 17. M. Žepić, *Latinsko-hrvatski rječnik* (Lj. Tomljenović-Biškupić, ur.), 11. izdanje, Školska knjiga, Zagreb, 1991.
-
