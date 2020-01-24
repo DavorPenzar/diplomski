@@ -1,6 +1,0 @@
-# Ignore all.  Old codes are not used, I only keep them for reference when
-# writing new ones.
-*
-
-# Do not ignore this file.
-!.gitignore
