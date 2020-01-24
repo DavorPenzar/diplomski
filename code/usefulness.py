@@ -1759,11 +1759,6 @@ def visualise_triangle (
     # Sanitise the parameter `out`.
     if out is None:
         out = None
-    else:
-        if not isinstance(out, _np.ndarray):
-            raise TypeError('Parameter `out` must be of type `numpy.ndarray.`')
-        if isinstance(out, _np.matrix):
-            out = out.A
 
     # Calculate the number of discretisation points on the y-axis if necessary.
     if n is None:
