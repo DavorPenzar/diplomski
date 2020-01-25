@@ -346,7 +346,6 @@ def MST_CNN_sequential (
         model.add(
             _kl.convolutional.Conv2D(
                 filters = reduction_filters,
-                input_shape = input_shape,
                 kernel_size = reduction_kernel_size,
                 strides = (2, 2),
                 padding = 'same',
@@ -608,7 +607,7 @@ def MST_CNN_tensor (
         )
 
     # Create the CNN as an input layer.
-    CNN = _kl.Input(shape = input_shape, name = 'MST_CNN_input', **input_kwargs)
+    CNN = _kl.Input(shape = input_shape, name = 'MST_CNN', **input_kwargs)
 
     # If at least one reduction should be added, add the first reduction layer.
     if reductions:
@@ -649,7 +648,6 @@ def MST_CNN_tensor (
         # Add a reduction layer.
         CNN = _kl.convolutional.Conv2D(
             filters = reduction_filters,
-            input_shape = input_shape,
             kernel_size = reduction_kernel_size,
             strides = (2, 2),
             padding = 'same',
@@ -659,7 +657,7 @@ def MST_CNN_tensor (
             **reduction_kwargs
         )(CNN)
 
-    # Flatten the output of the seventh reducing convolutional layer.
+    # Flatten the output.
     CNN = _kl.Flatten(
         data_format = data_format,
         name = 'flattening'
