@@ -55,7 +55,8 @@ lim = {
     'r(inv sv_edge_1, inv sv_angle_1)' : (0.0, 1.5),
     'l_0' : (0.0, 6000.0),
     'l_0_log10' : (1.5, 4.0),
-    'l_0_inv' : (0.00, 0.02)
+    'l_0_inv' : (0.00, 0.02),
+    'l_0_90_pc' : (0.0, 900.0)
 }
 
 # Set tick positions for plotting data from dataframes.
@@ -118,7 +119,19 @@ ticks = {
     ),
     'l_0' : (0.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 6000.0),
     'l_0_log10' : (2.0, 2.5, 3.0, 3.5),
-    'l_0_inv' : (0.000, 0.005, 0.010, 0.015, 0.020)
+    'l_0_inv' : (0.000, 0.005, 0.010, 0.015, 0.020),
+    'l_0_90_pc' : (
+        0.0,
+        100.0,
+        200.0,
+        300.0,
+        400.0,
+        500.0,
+        600.0,
+        700.0,
+        800.0,
+        900.0
+    )
 }
 
 # Set tick labels for plotting data from dataframes.
@@ -313,6 +326,10 @@ ticklabels = {
     'l_0_inv' : tuple(
         "$ {tick:.3f} $".format(tick = ticks['l_0_inv'][i])
             for i in range(len(ticks['l_0_inv']))
+    ),
+    'l_0_90_pc' : tuple(
+        "$ {tick:d} $".format(tick = int(round(ticks['l_0_90_pc'][i])))
+            for i in range(len(ticks['l_0_90_pc']))
     )
 }
 try:

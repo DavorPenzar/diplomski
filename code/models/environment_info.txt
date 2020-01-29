@@ -1,0 +1,11 @@
+Python version:
+	3.6.9 (default, Nov  7 2019, 10:44:02)
+	[GCC 8.3.0]
+SciPy version: 1.4.1
+NumPy version: 1.17.5
+Pandas version: 0.25.3
+Matplotlib version: 3.1.2
+TensorFlow version: 1.15.0
+Keras version: 2.2.5
+Scikit-learn version: 0.22.1
+Joblib version: 0.14.1
