@@ -17,7 +17,8 @@ Neki od izvora vjerojatno nisu legalno objavljeni ovdje. Ti će izvori biti makn
 11. Multiphysics Encyclopedia, Eigenfrequncy Analysis, COMSOL Multiphysics, 2018, dostupno na [`https://www.comsol.com/multiphysics/eigenfrequency-analysis`](https://www.comsol.com/multiphysics/eigenfrequency-analysis).
 12. B. Nica, [*The Mazur-Ulam Theorem*](1306.2380.pdf), Expositiones Mathematicae 30.4 (2013), 397&ndash;398.
 13. M. Reuter, F.-E. Wolter, M. Shenton, M. Niethammer, [*Laplace-Beltrami Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape Analysis*](nihms99404.pdf), Computer-Aided Design 41.10 (2009), 739&ndash;755.
-14. H. Tverberg, [*A Proof of the Jordan Curve Theorem*](tverberg.pdf), Bulletin of the London Mathematical Society 12.1 (1980), 34&ndash;38.
-15. E. W. Weisstein, Curve Orientation, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/CurveOrientation.html`](http://mathworld.wolfram.com/CurveOrientation.html).
-16. E. W. Weisstein, Polygon, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/Polygon.html`](http://mathworld.wolfram.com/Polygon.html).
-17. M. Žepić, *Latinsko-hrvatski rječnik* (Lj. Tomljenović-Biškupić, ur.), 11. izdanje, Školska knjiga, Zagreb, 1991.
+14. B. Siudeja, [*Isoperimetric Inequalities for Eigenvalues of Triangles*](0707.3631.pdf), Indiana University Mathematics Journal 59.3 (2010), 1097&ndash;1120.
+15. H. Tverberg, [*A Proof of the Jordan Curve Theorem*](tverberg.pdf), Bulletin of the London Mathematical Society 12.1 (1980), 34&ndash;38.
+16. E. W. Weisstein, Curve Orientation, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/CurveOrientation.html`](http://mathworld.wolfram.com/CurveOrientation.html).
+17. E. W. Weisstein, Polygon, Wolfram MathWorld, dostupno na [`http://mathworld.wolfram.com/Polygon.html`](http://mathworld.wolfram.com/Polygon.html).
+18. M. Žepić, *Latinsko-hrvatski rječnik* (Lj. Tomljenović-Biškupić, ur.), 11. izdanje, Školska knjiga, Zagreb, 1991.
