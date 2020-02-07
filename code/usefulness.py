@@ -1411,7 +1411,7 @@ def generate_subdf (
 # Define the function to export ARGB values of the image on a figure.
 def tensorise_figure (fig):
     """
-    Get the tensor of ARGB values of the image on a figure.
+    Get the tensor of ARGB values of the image in a figure.
 
     Parameters
     ==========

@@ -211,10 +211,10 @@ void char_triangle (
 }
 
 /**
- * Centralise a triangle so that its incircle's center is at the origin of the
+ * Centralise a triangle so that its incircle's centre is at the origin of the
  * plane.
  *
- * The triangle is translated so that its incircle's center is at (0, 0).
+ * The triangle is translated so that its incircle's centre is at (0, 0).
  *
  * The triangle must be described via the `describe_polygon` function
  * beforehand.  It is assumed that the arrays `T` and `l` are not changed after
@@ -270,13 +270,13 @@ void centralise_triangle (real_t* T, const real_t* l)
         /* Compute the circumference of the triangle. */
         C = *l + *(l + 1U) + *(l + 2U);
 
-        /* Compute the coordinates of the incircle's center. */
+        /* Compute the coordinates of the incircle's centre. */
         x = (*(l + 1U) * *T + *(l + 2U) * *(T + 2U) + *l * *(T + 4U)) / C;
         y =
             (*(l + 1U) * *(T + 1U) + *(l + 2U) * *(T + 3U) + *l * *(T + 5U)) /
             C;
 
-        /* Translate the triangle so that the incircle's center is at (0, 0). */
+        /* Translate the triangle so that the incircle's centre is at (0, 0). */
         *T -= x;
         *(T + 2U) -= x;
         *(T + 4U) -= x;

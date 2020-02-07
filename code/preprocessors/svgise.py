@@ -53,7 +53,28 @@ import pandas as pd
 import shapely as sh
 import shapely.geometry as gm
 
-# Check if the variable `__name__` is in the right format.
+# Check if the variable `sys.path` is of the right format.
+if not (isinstance(sys.path, list) and sys.path.__class__ is list):
+    raise RuntimeError('`sys.path` must be an instance of class `list`.')
+
+# Check if all system paths are of the right format.
+for p in sys.path:
+    if not (isinstance(p, str) and p.__class__ is str):
+        raise RuntimeError(
+            'Command line arguments must be instances of class `str`'
+        )
+try:
+    del p
+except (NameError, UnboundLocalError):
+    pass
+
+# Add parent folder to system paths.
+sys.path.append('..')
+
+# Import functions from own scripts.
+from usefulness import *
+
+# Check if the variable `__name__` is of the right format.
 if not (isinstance(__name__, str) and __name__.__class__ is str):
     raise RuntimeError('`__name__` must be an instance of class `str`.')
 
@@ -61,11 +82,11 @@ if not (isinstance(__name__, str) and __name__.__class__ is str):
 if not (__name__ == '__main__'):
     raise RuntimeError('Module must be run as a Python script.')
 
-# Check if the variable `sys.argv` is in the right format.
+# Check if the variable `sys.argv` is of the right format.
 if not (isinstance(sys.argv, list) and sys.argv.__class__ is list):
     raise RuntimeError('`sys.argv` must be an instance of class `list`.')
 
-# Check if all the command line arguments are in the right format.
+# Check if all the command line arguments are of the right format.
 for arg in sys.argv:
     if not (isinstance(arg, str) and arg.__class__ is str):
         raise RuntimeError(
@@ -91,6 +112,7 @@ if six.PY2:
 elif six.PY3:
     _FileOpenException = FileNotFoundError
 
+# Check if the input file is of the right format.
 if len(sys.argv[1]) < 4:
     raise ValueError('Input table must be TSV, CSV or TXT file.')
 if sys.argv[1][-4:].lower() not in {'.csv', '.tsv', '.txt'}:
@@ -100,13 +122,7 @@ if sys.argv[1][-4:].lower() not in {'.csv', '.tsv', '.txt'}:
 # type `RuntimeError`.
 df = None
 try:
-    df = pd.read_csv(
-        sys.argv[1],
-        sep = "\t",
-        header = None,
-        index_col = None,
-        dtype = float
-    )
+    df = read_tsv(sys.argv[1], header = False, index = False, as_str = False)
 except (
     _FileOpenException,
     TypeError,

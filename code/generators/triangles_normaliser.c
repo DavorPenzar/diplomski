@@ -30,7 +30,7 @@
  *         there are ties),
  *     2.  standardising it---it is scaled so that its diameter equals 1 (up to
  *         a numerical precision),
- *     3.  centralising it---translating it so that its incircle's center is at
+ *     3.  centralising it---translating it so that its incircle's centre is at
  *         the origin of the plane (at (0, 0)).
  *
  * Each triangle is printed to the output file in its own line.  Each triangle
