@@ -12,7 +12,7 @@ Neki od izvora vjerojatno nisu legalno objavljeni ovdje. Ti će izvori biti makn
 6.  Z. Fattah, M. Berrada, [*Eigenvalues of Dirichlet Laplacian within the Class of Open Sets with Constant Diameter*](1801.04133.pdf), 2018, arXiv: [`1801.04133 [math.SP]`](https://arxiv.org/abs/1801.04133).
 7.  [*FreeFEM Documentation*. *Release 4.2.1*](FreeFEM-documentation.pdf), 4. izdanje, 2019, dostupno na [`https://doc.freefem.org/introduction/index.html`](https://doc.freefem.org/introduction/index.html).
 8.  G. Harris, C. Martin, [*The Roots of a Polynomial Vary Continuously as a Function of the Coefficients*](The_roots_of_a_polynomial_vary_continuously_as_a_f.pdf), Proceedings of the American Mathematical Society 100.2 (1987), 390&ndash;392.
-9.  R. S. Laugesen, B. Siudeja, [*Dirichlet Eigenvalue Sums on Triangles Are Minimal for Equilaterals*](1008.1316.pdf), 2010, arXiv: [`1008.1316 [math.SP]`](https://arxiv.org/abs/1008.1316).
+9.  R. S. Laugesen, B. Siudeja, [*Dirichlet Eigenvalue Sums on Triangles Are Minimal for Equilaterals*](1008.1316.pdf), Communications in Analysis and Geometry 19.5 (2011), 855&ndash;885.
 10.  K. Mills, M. Spanner, I. Tamblyn, [*Deep Learning and the Schr&ouml;dinger Equation*](1702.01361.pdf), 2017, arXiv: [`1702.01361 [cond-mat.mtrl-sci]`](https://arxiv.org/abs/1702.01361).
 11. Multiphysics Encyclopedia, Eigenfrequncy Analysis, COMSOL Multiphysics, 2018, dostupno na [`https://www.comsol.com/multiphysics/eigenfrequency-analysis`](https://www.comsol.com/multiphysics/eigenfrequency-analysis).
 12. B. Nica, [*The Mazur-Ulam Theorem*](1306.2380.pdf), Expositiones Mathematicae 30.4 (2013), 397&ndash;398.
