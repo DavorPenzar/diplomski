@@ -5,9 +5,9 @@
 **Autor: Davor Penzar** <br>
 **Voditelj rada: prof. dr. sc. Luka Grubišić**
 
-***Matematički odsjek*** <br>
-***Prirodoslovno-matematički fakultet*** <br>
-***Sveučilište u Zagrebu***
+[***Matematički odsjek***](https://www.math.pmf.unizg.hr/hr) <br>
+[***Prirodoslovno-matematički fakultet***](https://www.pmf.unizg.hr/) <br>
+[***Sveučilište u Zagrebu***](http://www.unizg.hr/)
 
 *Zagreb, 2020.*
 
