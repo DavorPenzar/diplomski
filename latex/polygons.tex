@@ -753,7 +753,7 @@ Označimo onaj treći, \emph{varijabilni} vrh trokuta $ T '' $ s $ \left( x_{T '
 \begin{equation*}
     \distance{\left( \frac{\numprint{1}}{\numprint{2}} , \numprint{0} \right)}{\left( x_{T ''} , y_{T ''} \right)} \leq \distance{\left( {- \frac{\numprint{1}}{\numprint{2}}} , \numprint{0} \right)}{\left( x_{T ''} , y_{T ''} \right)} \leq \numprint{1}
 \end{equation*}
-(prva nejednakost posljedica je činjenice da je $ x_{T ''} \geq \numprint{0} $, a druga činjenice da je $ \diameter \left( T '' \right) = \numprint{1} $. Kvadriranjem i raspisivanjem izraza za euklidsku udaljenost dobijemo
+(prva nejednakost posljedica je činjenice da je $ x_{T ''} \geq \numprint{0} $, a druga činjenice da je $ \diameter \left( T '' \right) = \numprint{1} $). Kvadriranjem i raspisivanjem izraza za euklidsku udaljenost dobijemo
 \begin{equation*}
     \left( x_{T ''} + \frac{\numprint{1}}{\numprint{2}} \right)^{\numprint{2}} + y_{T ''}^{\numprint{2}} \leq \numprint{1} \text{,}
 \end{equation*}
@@ -796,11 +796,11 @@ Lako se provjeri i da proizvoljna točka $ \left( x , y \right) \in \reals^{\num
         \draw[red, thin, ->] (0, -0.125) -- (0, 1.125) node[black, below left] {$ y $};
 
         % Skup S_\bigtriangleup^1.
-        \fill[black, opacity = 0.15] (0.5, 0) arc (0:60:1) -- (0, 0.866025403784439) -- (0, 0) -- cycle;
+        \fill[black, opacity = 0.15] (0.5, 0) -- (0.5, 0) arc (0:60:1) -- (0, 0.866025403784439) -- (0, 0) -- cycle;
 
         % Rub skupa S_\bigtriangleup^*.
         \draw[black, thick, dashed] (0, 0) -- (0.5, 0);
-        \draw[black, thick] (0.5, 0) arc (0:60:1) -- (0, 0.866025403784439) -- (0, 0);
+        \draw[black, thick] (0.5, 0) -- (0.5, 0) arc (0:60:1) -- (0, 0.866025403784439) -- (0, 0);
 
         % Slika pravokutnih trokuta.
         \draw[magenta] (0.5, 0) arc (0:90:0.5);
