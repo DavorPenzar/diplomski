@@ -1,0 +1,13 @@
+\begin{summary}
+    Studying the theory behind the eigenvalues and the eigenfunctions of Dirichlet Laplacian it was observed that they possess some characteristics that allow us to simplify calculations to find them. First of all, they are independent of affine isometric transformations of sets (except that the domain of the eigenfunctions is obviously isometrically transformed). Also, scaling a set scales its eigenvalues by the factor of the square of the multiplicative inverse of the scaling factor, and the resulting eigenfunctions are compositions of the original eigenfunctions on the left and the scaling factor on the right. Furthermore, they depend continuously on the domain and the eigenvalues are monotonically decreasing in regard to the order of inclusion of sets. Considering all this it was then concluded that some domains can be approximated by other, \emph{simpler} yet \emph{similar enough}, normalised domains to numerically find the eigenvalues and the eigenfunctions of Dirichelt Laplacian (i.\ e.\ the minimal eigenvalue, as is the case in this paper) on them.
+
+    \par
+
+    Polygons were then chosen as an example of \emph{simple} domains with \emph{many} different shapes. Because of the observed characteristics of the eigenvalues and the eigenfunctions, to predict them on polygons using a machine learning model, polygons should be characterised in a way that discriminates them but is also resistant to specific transformations. In this paper three distinct characterisations were proposed, and then in the following part of the paper, the practical part, only triangles were observed as they can be considered prototypes of polygons.
+
+    \par
+
+    After studying the sources and conducting exploratory analysis of the generated dataset, a suitable machine learning method was chosen for each of the characterisations to solve the original problem. Subsequently two linear regression models, a neural network, and a convolutional neural network were designed. After the training their success was measured on testing datasets and they were compared for their successfulness and time consumption. In most cases the results were promising, although generalisability of the models to more complex polygons was not confirmed since the model that could be generalised most easily---the convolutional neural network---yeilds the worst results.
+
+    \par
+\end{summary}

@@ -1,0 +1,307 @@
+%%%%    Davor Penzar --- Diplomski rad.
+
+% Klasa dokumenta: scrbook.
+\documentclass[paper = a4, fontsize = 12pt, DIV = 12, BCOR = 0pt, twoside = true, headings = standardclasses, headings = optiontotocandhead, open = right, numbers = endperiod]{scrbook}
+
+% Neke opcije za "kvalitetniji" (barem u smislu eksportiranja teksta) PDF dokument.
+\pdfinterwordspaceon
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+% Stil za diplomski rad.
+\usepackage{packages/diplomski}
+    \pgfplotsset{compat = 1.15}
+    \hypersetup{
+        pdfstartview = ,
+        pdftitle = {Metode strojnog u\v{c}enja u predvi{\dj}anju najni\v{z}e svojstvene vrijednosti Laplaceovog operatora},
+        pdfauthor = {Davor Penzar},
+        pdfsubject = {Diplomski rad},
+        pdfkeywords = {strojno u\v{c}enje, duboko strojno u\v{c}enje, linearna regresija, neurosnke mre\v{z}e, konvolucijske neuronske mre\v{z}e, Dirichletov Laplaceov operator, svojstvena vrijednost Dirichletovog Laplaceovog operatora}
+    }
+
+% Paket s prosirenom podrskom "masnih" znakova.
+%\usepackage{bbm}
+
+% Paket sa simbolima kao tekstualnim znakovima.
+\usepackage{pifont}
+
+% Paket za prikaz rubova dijelova stranica (zaglavlje, glavni dio, podnozje).
+%\usepackage{showframe}
+
+% Paket za generiranje "lorem ipsum" teksta.
+\usepackage{lipsum}
+
+% Dopustanje prekida stranica u matematickim okruzenjima.
+\allowdisplaybreaks
+
+% Podatci o diplomskom radu.
+\title{Metode strojnog u\v{c}enja u predvi{\dj}anju najni\v{z}e svojstvene vrijednosti Laplaceovog operatora}
+\author{Davor Penzar}
+\advisor{prof.\ dr.\ sc.\ Luka Grubi\v{s}i\'{c}}
+\date{{$ \numprint{2020} $.}}
+
+% Posveta i zahvale.
+\dedication{%
+    Zahvaljujem svojim sestrama, roditeljima, prijateljima i ostalima koji su mi pružali podršku tijekom mog školovanja, a posebno studija, koje, barem zasada, kulminira upravo ovim diplomskim radom.%
+    \\%
+    Posebno zahvaljujem prijateljicama i prijateljima kolegama s fakulteta s kojima sam dijelio iskustvo i interes proteklih godina zbog čega ću studij pamtiti u lijepom sjećanju. Kroz skupna učenja, a pogotovo zajedničke projekte, stekao sam i vrlo bitno iskustvo grupnog rada.%
+    \\%
+    Zahvaljujem i svom voditelju rada profesoru Grubišiću na danim smjernicama i pomoći što mi je olakšalo, ako ne i omogućilo, izradu ovog diplomskog rada.%
+}
+
+% Literatura.
+\addbibresource{bibliography/bibliography.bib}
+
+% Definicija naredbe za oznaku kompleksno konjugiranog broja.
+\newcommand*{\conjugate}[1]{\overline{#1}}
+
+% Definicija naredbe za oznaku restrikcije funkcije.
+\newcommand*{\restrictlparen}{.}
+\newcommand*{\restrictmparen}{|}
+\newcommand*{\restrictrparen}{.}
+\newcommand*{\restrict}[2]{\left\restrictlparen {#1} \restrictmparen_{{#2}} \right\restrictrparen}
+
+% Definicija naredbe za oznaku faktorijela.
+\newcommand*{\factorial}{!}
+
+% Definicija naredbe za oznaku karakteristicne funkcije.
+\newcommand*{\characteristicfont}{\mathit}
+\newcommand*{\characteristicsym}{\chi}
+\DeclareMathOperator{\characteristicop}{\characteristicfont{\characteristicsym}}
+\newcommand*{\characteristic}[1]{\characteristicop_{{#1}}}
+
+% Definicija naredbe za oznaku Kroneckerove delta-funkcije.
+\newcommand*{\Kroneckerdsym}{\delta}
+\newcommand*{\Kroneckerd}[2]{\Kroneckerdsym_{{#1} , {#2}}}
+
+% Definicije naredbi za oznake najveceg cijelog, najmanjeg cijelog i decimalnog dijela.
+\newcommand*{\floorlparen}{\lfloor}
+\newcommand*{\floorrparen}{\rfloor}
+\newcommand*{\ceillparen}{\lceil}
+\newcommand*{\ceilrparen}{\rceil}
+\newcommand*{\fracpartlparen}{\{}
+\newcommand*{\fracpartrparen}{\}}
+\newcommand*{\floor}[1]{\left\floorlparen {#1} \right\floorrparen}
+\newcommand*{\ceil}[1]{\left\ceillparen {#1} \right\ceilrparen}
+\newcommand*{\fracpart}[1]{\left\fracpartlparen {#1} \right\fracpartrparen}
+
+% Definicije naredbi za notaciju redova veliko O i malo o.
+\newcommand*{\onotefont}{\mathcal}
+\newcommand*{\littleosym}{o}
+\newcommand*{\bigOsym}{O}
+\DeclareMathOperator{\bigO}{\onotefont{\bigOsym}}
+\DeclareMathOperator{\littleo}{\onotefont{\littleosym}}
+
+% Definicije naredbi za interior, zatvorenje i rub skupa.
+\newcommand*{\interiorfont}{\mathrm}
+\newcommand*{\interiorsym}{Int}
+\DeclareMathOperator{\interior}{\interiorfont{\interiorsym}}
+\DeclareMathOperator{\boundary}{\partial}
+\newcommand*{\closure}[1]{\overline{#1}}
+
+% Definicija naredbe za oznaku metrike.
+\newcommand*{\normlparen}{\lVert}
+\newcommand*{\normrparen}{\rVert}
+\newcommand*{\norm}[1]{\left\normlparen {#1} \right\normrparen}
+
+% Definicija naredbe za oznaku udaljenosti.
+\newcommand*{\distancefont}{\mathit}
+\newcommand*{\distancesym}{d}
+\DeclareMathOperator{\distanceop}{\distancefont{\distancesym}}
+\newcommand*{\distance}[2]{\distanceop \left( {#1} , {#2} \right)}
+\newcommand*{\Distance}[3]{\distanceop^{{#3}} \left( {#1} , {#2} \right)}
+
+% Definicija naredbe za onaku otvorene kugle.
+\newcommand*{\openballfont}{\mathit}
+\newcommand*{\openballsym}{B}
+\DeclareMathOperator{\openballop}{\openballfont{\openballsym}}
+\newcommand*{\openball}[2]{\openballop_{#2} \left( {#1} \right)}
+
+% Definicija naredbe za oznaku dijametra skupa.
+\newcommand*{\diameterfont}{\mathit}
+\newcommand*{\diametersym}{d}
+\DeclareMathOperator{\diameter}{\diameterfont{\diametersym}}
+
+% Definicija naredbe za oznaku funkcije dubine poligona.
+\newcommand*{\deepnessfont}{\mathit}
+\newcommand*{\deepnesssym}{D}
+\DeclareMathOperator{\deepness}{\deepnessfont{\deepnesssym}}
+
+% Definicija naredbe za oznake pravca kroz dvije tocke i duzine izmedu dvije tocke.
+\newcommand*{\lengthlparen}{\lvert}
+\newcommand*{\lengthrparen}{\rvert}
+\newcommand*{\straightline}[2]{{{#1} {#2}}}
+\newcommand*{\linesegment}[2]{\overline{{#1} {#2}}}
+\newcommand*{\linesegmentlength}[2]{\left\lengthlparen \linesegment{{#1}}{{#2}} \right\lengthrparen}
+
+% Definicije naredbi za lijevi i desni limes.
+\newcommand*{\llimitexp}{{-}}
+\newcommand*{\rlimitexp}{{+}}
+\newcommand*{\llimitpt}[1]{{#1}^{\llimitexp}}
+\newcommand*{\rlimitpt}[1]{{#1}^{\rlimitexp}}
+
+% Definicije naredbi za diferencijale.
+\newcommand*{\difffont}{\mathrm}
+\newcommand*{\diffsym}{d}
+\newcommand*{\partdiffsym}{\partial}
+\DeclareMathOperator{\derivativeop}{\difffont{\diffsym}}
+\DeclareMathOperator{\partialderivativeop}{\partdiffsym}
+\newcommand*{\diff}{\mathop{}\!\difffont{\diffsym}}
+\newcommand*{\Diff}[1]{\mathop{}\!\difffont{\diffsym}^{{#1}}}
+\newcommand*{\derivative}[1]{\frac{\difffont{\diffsym}}{\derivativeop {#1}}}
+\newcommand*{\Derivative}[2]{\frac{\difffont{\diffsym}^{{#2}}}{\derivativeop {#1}^{{#2}}}}
+\newcommand*{\DerivativeSub}[3]{\frac{\difffont{\diffsym}^{{#3}}}{\derivativeop {#1}_{{#2}}^{{#3}}}}
+\newcommand*{\partialderivative}[1]{\frac{\partdiffsym}{\partialderivativeop {#1}}}
+\newcommand*{\PartialDerivative}[2]{\frac{\partdiffsym^{{#2}}}{\partialderivativeop {#1}^{{#2}}}}
+\newcommand*{\PartialDerivativeSub}[3]{\frac{\partdiffsym^{{#3}}}{\partialderivativeop {#1}_{{#2}}^{{#3}}}}
+
+% Definicije naredbi za gradijent i divergenciju.
+\newcommand*{\gradientfont}{\mathrm}
+\newcommand*{\divergencefont}{\mathrm}
+\newcommand*{\gradientsym}{grad}
+\newcommand*{\divergencesym}{div}
+\DeclareMathOperator{\gradient}{\gradientfont{\gradientsym}}
+\DeclareMathOperator{\divergence}{\divergencefont{\divergencesym}}
+
+% Definicija naredbe za oznaku Laplaceovog operatora (Laplaciana).
+\DeclareMathOperator{\Laplacian}{\Delta}
+
+% Definicije naredbi za klase neprekidnih funkcija.
+\newcommand*{\continuousfont}{\mathit}
+\newcommand*{\continuoussym}{C}
+\DeclareMathOperator{\continuousop}{\continuousfont{\continuoussym}}
+\newcommand*{\continuous}[2]{\continuousop^{{#2}} \left( {#1} \right)}
+\newcommand*{\Continuous}[3]{\continuous{{#1} , {#2}}{#3}}
+
+% Definicije naredbi za oznake vektora, linearnih operatora i matrica.
+\newcommand*{\vectorspacefont}{\mathit}
+\newcommand*{\vectorfont}{\mathbf}
+\newcommand*{\linearspacefont}{\mathit}
+\newcommand*{\linearfont}{\mathit}
+\newcommand*{\matrixalgebrafont}{\mathrm}
+\newcommand*{\matrixfont}{\mathit}
+\newcommand*{\vectorspacesym}{V}
+\newcommand*{\linearspacesym}{L}
+\newcommand*{\matrixalgebrasym}{M}
+\DeclareMathOperator{\vectorspaceop}{\vectorspacefont{\vectorspacesym}}
+\newcommand*{\vectorspace}{\VectorSpace{\vectorspaceop}}
+\newcommand*{\VectorSpace}[1]{\VectorSpacen{\vectorspaceop}^{{#1}}}
+\DeclareMathOperator{\linearspaceop}{\linearspacefont{\linearspacesym}}
+\newcommand*{\linearspace}[1]{\linearspaceop \left( {#1} \right)}
+\newcommand*{\LinearSpace}[2]{\linearspace{{#1} , {#2}}}
+\DeclareMathOperator{\matrixalgebraop}{\matrixalgebrafont{\matrixalgebrasym}}
+\newcommand*{\matrixalgebra}[1]{\matrixalgebraop_{{#1}}}
+\newcommand*{\matrixalgebramn}[2]{\matrixalgebra{{#1} , {#2}}}
+\newcommand*{\MatrixAlgebra}[2]{\matrixalgebra{{#2}} \left( {#1} \right)}
+\newcommand*{\MatrixAlgebramn}[3]{\matrixalgebramn{{#2}}{{#3}} \left( {#1} \right)}
+\newcommand*{\aslinear}[1]{\linearfont{{#1}}}
+\newcommand*{\asvector}[1]{\vectorfont{{#1}}}
+\newcommand*{\asmatrix}[1]{\matrixfont{{#1}}}
+
+% Definicija naredbe za oznaku vektora izmedu dvije tocke.
+\newcommand*{\vectorline}[2]{\overrightarrow{{#1} {#2}}}
+
+% Definicija naredbi za oznake transponenta i hermitske adjunkte matrice.
+\newcommand*{\transponent}{{\mathchar"AFC}}
+\newcommand*{\Hermiteconjugate}{{*}}
+
+% Definicija naredbe za skalarni produkt.
+\newcommand*{\dotproductlparen}{\langle}
+\newcommand*{\dotproductrparen}{\rangle}
+\newcommand*{\dotproductdelim}{,}
+\newcommand*{\dotproduct}[2]{\left\dotproductlparen {#1} \dotproductdelim {#2} \right\dotproductrparen}
+
+% Definicija naredbe za oznaku spektra.
+\DeclareMathOperator{\spectrum}{\sigma}
+
+% Definicija okruzenja za sustav jednadzbi.
+\newenvironment{eqsystem}{%
+    \left\{%
+    \begin{array}{r @{\;} l l}%
+    \displaystyle%
+}
+{%
+    \end{array}%
+    \right.%
+}
+
+% Definiranje vlastitog stila programskih kodova.
+\lstdefinestyle{program}
+{
+    breaklines        = true,
+    breakatwhitespace = true,
+    numbers           = left,
+    stepnumber        = 1,
+    numberstyle       = {\footnotesize \ttfamily \bfseries},
+    tabsize           = 4,
+    frame             = none,
+    basicstyle        = {\ttfamily},
+    stringstyle       = {\color{red}},
+    keywordstyle      = {\bfseries \color{blue}},
+    commentstyle      = {\itshape \color{gray}},
+    showstringspaces  = true
+}
+
+% Definicija naredbe za referenciranje i citiranje kao "v. [izvor]".
+\newcommand*{\seetxt}{v.}
+\newcommand*{\Seetxt}{V.}
+\newcommand*{\seeref}[1]{\seetxt~\ref{#1}}
+\newcommand*{\Seeref}[1]{\Seetxt~\ref{#1}}
+\newcommand*{\seecite}[1]{\seetxt~\cite{#1}}
+\newcommand*{\Seecite}[1]{\Seetxt~\cite{#1}}
+
+% Definicija naredbe za naglasavanje definiranog pojma u definiciji.
+\newcommand*{\defined}[1]{\emph{#1}}
+
+% Postavljanje stila stranica na scrheadings.
+\pagestyle{scrheadings}
+
+% Diplomski rad.
+\begin{document}
+    %%  POCETNI DIO
+
+    \frontmatter
+
+    %%  GLAVNI DIO
+
+    \mainmatter
+
+    % Uvod.
+    \include{intro}
+
+    % Definicije svojstvenih vrijednosti i svojstvenih funkcija Laplaceovog operatora.
+    \include{dirichlet_laplacian}
+
+    % Definicija poligona, svojstva poligona, karakterizacija poligona.
+    \include{polygons}
+
+    % Izrada i analiza skupa podataka.
+    \include{dataset}
+
+    % Pregled razvijenih modela.
+    \include{models}
+
+    % Pregled rezultata.
+    \include{results}
+
+    % Zakljucak.
+    \include{conclusion}
+
+    %%  KRAJNJI DIO
+
+    % Bibliografija.
+%   \nocite{*}%
+    \printbibliography[heading = master]%
+%   \printbibliography[title = {Primjer bibliografije}, heading = master, keyword = example]
+
+    \backmatter
+
+    % Sazetak na hrvatskom jeziku.
+    \include{summary_hr}
+
+    % Sazetak na engleskom jeziku.
+    \include{summary_en}
+
+    % Curriculum vitae.
+    \include{cv}
+\end{document}

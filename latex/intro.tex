@@ -1,0 +1,137 @@
+\begin{intro}
+    Problem Dirichletovog Laplaceovog operatora odnosno njegovih svojstvenih funkcija i vrijednosti s jedne strane predstavlja matematički izazov jer se rješenja često moraju numerički računati, ali je s druge strane prisutan i u raznim granama fizike. Štoviše, taj se problem inicijalno počeo proučavati istraživanjem vibracija napete membrane---kao, na primjer, na bubnju. U mnogim takvim primjenama više svojstvene vrijednosti i pripadne funkcije često nisu \emph{zanimljive} jer je njihov doprinos u realnom sustavu zanemariv, a najniža su svojstvena vrijednost i njoj pripadna funkcija zapravo najzastupljenije.
+
+    \par
+
+    Upravo zato što je ponekad nepraktično, nemoguće ili \emph{teško} egzaktno izračunati u zatvorenoj formi svojstvene vrijednosti Laplaceovog operatora, u primjeni je njezina numerička aproksimacija s unaprijed ograničenom greškom zadovoljavajuće dobra. Međutim, i taj numerički račun ponekad predstavlja velike zahtjeve na resurse---u suvremeno, računalno doba to znači potreba za velikom moći procesora (jednog samostalnog ili više njih u distribuiranom sustavu) i/ili dugi vremenski rok. Ideja je ovog diplomskog rada metodama strojnog učenja pronaći alternativu klasičnom numeričkom računu.
+
+    \par
+
+    Modeli strojnog učenja ne će se samo teorijski razmatrati, oni će biti i testirani na stvarnim primjerima. Stoga su unaprijed postavljena ograničenja na te modele i njihove primjene:
+    \begin{enumerate}
+        \item kao što i naslov rada kaže, predviđat će se samo najniža svojstvena vrijednost---čak ne ni njoj pripadna svojstvena funkcija,
+        \item domene će biti isključivo realne i dvodimenzionalne u standardnoj topologiji $ \reals^{\numprint{2}} $ i u standardnom euklidskom prostoru $ \reals^{\numprint{2}} $,
+        \item prvenstveno će se proučavati trokutaste domene, a rezultati će se tek na kraju komentirati u svrhu generaliziranja metoda na poligonalne domene od $ \numprint{4} $ i više vrhova.
+    \end{enumerate}
+    Primjeri koji će služiti za treniranje i testiranje modela bit će izračunati metodom konačnih elemenata koju u tom kontekstu smatramo klasičnim numeričkim računom.
+
+    \par
+
+    U poglavlju~\ref{chp:Dirichlet_Laplacian} precizno će se definirati svojstvene vrijednosti i svojstvene funkcije Laplaceovog operatora i navest će se neka njihova obilježja. Istovremeno će se opravdavati i motivacija za ovaj rad. U poglavlju~\ref{chp:polygons} definirat će se poligoni, dokazivat će se neka njihova svojstva i predstavit će se karakterizacije poligona koje će se koristiti kao ulazni podatci u kasnijim modelima strojnog učenja. Nakon postavljene teorijske podloge, u poglavlju~\ref{chp:dataset} opisat će se konstruirani skupovi podataka s kratkom eksploratornom analizom numeričkih vrijednosti. U poglavlju~\ref{chp:models} predstavit će se konstruirani modeli, a u poglavlju~\ref{chp:results} pregledat će se njihovi rezultati. Nakon pregleda rezultata slijedi zaključak ovog diplomskog rada.
+
+    \par
+
+    \addsec{Uvodna teorija}%
+    \thispagestyle{empty}%
+    \makeatletter%
+    \@mkboth{}{}%
+    \makeatother
+
+    Prije samog rada navodimo neke teoreme na kojima se bazira ostatak materije rada. Od čitatelja se, doduše, očekuje da je upoznat s osnovama analize, topologije i linearne algebre.
+
+    \par
+
+    \begin{*theorem} \label{thm:polynomial_continuity}
+        Neka je $ n \in \positives{\naturals} $ proizvoljan. Neka je vektor $ \asvector{a} \coloneqq \left( a_{\numprint{0}} , a_{\numprint{1}} , \dotsc , a_{n - \numprint{1}} \right) \in \complex^{n} $ proizvoljan. Neka su $ k \in \positives{\naturals} $, $ m_{\numprint{1}} , m_{\numprint{2}} , \dotsc , m_{k} \in \positives{\naturals} $ i u parovima različiti $ z_{\numprint{1}} , z_{\numprint{2}} , \dotsc , z_{k} \in \complex $ takvi da je
+        \begin{align*}
+            m_{\numprint{1}} + m_{\numprint{2}} + \dotsb + m_{k} & = n \text{,} \\
+            P \left( z \right) \coloneqq a_{\numprint{0}} + a_{\numprint{1}} z + \dotsb + a_{n - \numprint{1}} z^{n - \numprint{1}} + z^{n} & = \prod_{i = \numprint{1}}^{k} \left( z - z_{i} \right)^{m_{i}} \text{.}
+        \end{align*}
+        Neka je $ \varepsilon > \numprint{0} $ takav da za svake različite $ i , j \in \left\{ \numprint{1} , \numprint{2} , \dotsc , k \right\} $ vrijedi $ \openball{z_{i}}{\varepsilon} \cap \openball{z_{j}}{\varepsilon} = \emptyset $. Tada postoji $ \delta > \numprint{0} $ takav da za svaki $ \asvector{b} \coloneqq \left( b_{\numprint{0}} , b_{\numprint{1}} , \dotsc , b_{n - \numprint{1}} \right) \in \openball{\asvector{a}}{\delta} $ polinom
+        \begin{equation*}
+            Q \left( z \right) \coloneqq b_{\numprint{0}} + b_{\numprint{1}} z + \dotsb + b_{n - \numprint{1}} z^{n - \numprint{1}} + z^{n}
+        \end{equation*}
+        ima točno $ m_{i} $ nultočaka (brojeći ih po kratnostima) u skupu $ \openball{z_{i}}{\varepsilon} $, za svaki $ i \in \left\{ \numprint{1} , \numprint{2} , \dotsc , k \right\} $.
+    \end{*theorem}
+
+    \par
+
+    \begin{proof}
+        Teorem su dokazali Harris i Martin u~\cite{bib:Harris87}.
+    \end{proof}
+
+    \par
+
+    \begin{remark*}
+        Teorem~\ref{thm:polynomial_continuity} zapravo formalizira tvrdnju da nultočke polinoma neprekidno ovise o njegovim koeficijentima. Zbog neprekidnosti množenja i zbrajanja na realnim brojevima iz tog teorema tada slijedi da svojstvene vrijednosti matrice neprekidno ovise o njezinim elementima, a tada pak istim argumentiranjem, imajući u vidu i da je korijenovanje neprekidno, zaključujemo i neprekidnost singularnih vrijednosti s obzirom na elemente matrice.
+    \end{remark*}
+
+    \par
+
+    \begin{*theorem}[Bolzano-Weierstrass] \label{thm:Bolzano_Weierstrass}
+        Neka je $ n \in \positives{\naturals} $ proizvoljan. Svaki ograničeni beskonačni skup $ S \subseteq \reals^{n} $ ima gomilište.
+    \end{*theorem}
+
+    \par
+
+    \begin{proof}
+        Teorem su, za slučaj $ n = \numprint{1} $, dokazali, na primjer, Eidolon i Oman u~\cite{bib:Eidolon17}.
+    \end{proof}
+
+    \par
+
+    \begin{remark*}
+        Korisna je posljedica teorema~\ref{thm:Bolzano_Weierstrass} da svaka neprekidna funkcija čija je kodomena $ \reals $ na kompaktu postiže svoje minimum i maksimum.
+    \end{remark*}
+
+    \par
+
+    \begin{*theorem}[Mazur-Ulman] \label{thm:Mazur_Ulman}
+        Neka je $ n \in \positives{\naturals} $ proizvoljan. Ako je funkcija $ \varphi \colon \reals^{n} \to \reals^{n} $ surjektivna izometrija, onda postoji linearni operator $ \aslinear{A} \in \linearspace{\reals^{n}} $ i vektor $ b \in \reals^{n} $ tako da za svaki $ x \in \reals^{n} $ vrijedi
+        \begin{equation*}
+            \varphi \left( x \right) = \aslinear{A} x + b \text{.}
+        \end{equation*}
+    \end{*theorem}
+
+    \par
+
+    \begin{proof}
+        Teorem je, među ostalima, dokazao Nica u~\cite{bib:Nica13}.
+    \end{proof}
+
+    \par
+
+    \begin{*theorem}[Jordan] \label{thm:Jordan}
+        Komplement svake jednostavne zatvorene krivulje $ \Gamma \subseteq \reals^{\numprint{2}} $ na jedinstven se način može prikazati kao unija dva neprazna disjunktna otvorena skupa, od kojih je jedan ograničen, a drugi neograničen, pri čemu je svaki od njih povezan putovima, a rub svakog od njih upravo je krivulja $ \Gamma $.
+    \end{*theorem}
+
+    \par
+
+    \begin{proof}
+        Tverberg je ovaj teorem dokazao u~\cite{bib:Tverberg80}.
+    \end{proof}
+
+    \par
+
+    Također, navest ćemo dvije bitne definicije. Jedna je definicija orijentacije krivulje jer se formalna definicija toga obilježja u literaturi često izostavlja kao nepotrebna komplikacija vrlo jednostavnog pojma (na primjer, čak je u~\cite{bib:Weisstein_curve_orientation} Weisstein orijentaciju definirao riječima \emph{lijevo} i \emph{desno}), a druga je definicija Laplaceovog operatora iz očitih razloga. Navedena formalna definicija orijentacije krivulje inspirirana je odgovorom Blattera u~\cite{bib:Blatter12}.
+
+    \par
+
+    \begin{*definition} \label{def:positive_orientation}
+        Neka je $ \Gamma \subseteq \reals^{\numprint{2}} $ jednostavna zatvorena krivulja koja se može parametrizirati neprekidnom funkcijom na nekom ograničenom intervalu, koja je diferencijabilna zdesna na cijeloj domeni osim možda u nekom diskretnom skupu točaka. Neka je ograničeni interval $ I \subseteq \reals $ i parametrizacija $ \gamma \colon I \to \reals^{\numprint{2}} $ krivulje $ \Gamma $ diferencijabilna zdesna na cijelom $ I $ osim možda u nekom diskretnom skupu točaka. U točki $ t \in \interior I $ definiramo
+         \begin{equation*}
+            \dot{\gamma} \left( t \right) \coloneqq \left( \dot{x} \left( t \right) , \dot{y} \left( t \right) \right) \coloneqq \lim_{h \to \rlimitpt{\numprint{0}}} \frac{\gamma \left( t + h \right) - \gamma \left( t \right)}{h} \in \reals^{\numprint{2}}
+        \end{equation*}
+        ako taj limes postoji i konačan je (u obje koordinate). Za parametrizaciju $ \gamma $ kažemo da je \defined{pozitivno orijentirana} odnosno da \defined{je u pozitivnom smjeru} ako za svaki $ t \in I $ takav da je $ \dot{\gamma} \left( t \right) $ definirano i nije jednako $ \left( \numprint{0} , \numprint{0} \right) $ postoji $ \varepsilon_{\numprint{0}} > \numprint{0} $ takav da za svaki $ \numprint{0} < \varepsilon \leq \varepsilon_{\numprint{0}} $ vrijedi
+        \begin{equation*}
+            \gamma \left( t \right) + \varepsilon \left( {- \dot{y} \left( t \right)} , \dot{x} \left( t \right) \right) \in R_{\Gamma} \text{,}
+        \end{equation*}
+        gdje je $ R_{\Gamma} $ ograničeni otvoreni skup čiji rub je $ \Gamma $.
+
+        \par
+
+        Za parametrizaciju $ \gamma \colon I \to \reals^{\numprint{2}} $ kažemo da je \defined{negativno orijentirana} odnosno da \defined{je u negativnom smjeru} ako je parametrizacija $ t \mapsto \gamma \left( a + b - t \right) $ na $ I $, gdje su $ a , b $ (obje) rubne točke intervala $ I $, pozitivno orijentirana.
+    \end{*definition}
+
+    \par
+
+    \begin{*definition} \label{def:Laplacian}
+        Neka je $ n \in \positives{\naturals} $. Neka je $ \Omega \subseteq \reals^{n} $ neprazan i otvoren. Neka je funkcija $ f \colon \Omega \to \reals $. Ako u točki $ x \in \Omega $ postoje sve druge parcijalne derivacije funkcije $ f $, onda definiramo \defined{vrijednost Laplaceovog operatora funkcije $ f $ u točki $ x $} kao
+        \begin{equation*}
+            \Laplacian f \left( x \right) = \PartialDerivativeSub{x}{\numprint{1}}{\numprint{2}} f \left( x \right) + \PartialDerivativeSub{x}{\numprint{2}}{\numprint{2}} f \left( x \right) + \dotsb + \PartialDerivativeSub{x}{n}{\numprint{2}} f \left( x \right) \text{.}
+        \end{equation*}
+        \defined{Laplaceov operator} je operator koji funkciji u zadanoj točki (u kojoj je to moguće) pridružuje vrijednost definiranu gornjom jednakosti. Na lijevoj strani jednakosti prikazana je i notacija Laplaceovog operatora \defined{$ {\Laplacian} $}.
+    \end{*definition}
+
+    \par
+\end{intro}

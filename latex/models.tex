@@ -1,0 +1,98 @@
+\chapter{Razvijeni modeli}
+\label{chp:models}
+
+U sklopu ovog rada razvijeno je nekoliko modela strojnog učenja za predviđanju najmanje svojstvene vrijednosti Laplaceovog operatora na trokutima dijametra $ \numprint{1} $. Te modele možemo svrstati u tri skupine: linearna regresija, neuronske mreže i konvolucijske neuronske mreže. U ovom poglavlju objašnjene su arhitekture eksperimentalno pronađenih najboljih modela u svakoj skupini, a sami rezultati bit će predstavljeni tek u sljedećem poglavlju (u poglavlju~\ref{chp:results}).
+
+\par
+
+Osim pretprocesiranja \emph{golih} koordinata vrhova---u što ulaze računanje duljina stranica, veličina vanjskih kutova i singularnih vrijednosti duljina stranica i vanjskih kutova, koje je bilo realizirano u programskom jeziku \href{https://en.cppreference.com/w/c/header}{\emph{C}} sa standardnom bibliotekom, a za \emph{SVD} korištene su i biblioteke \href{http://www.netlib.org/blas/}{\emph{BLAS}} i \href{http://www.netlib.org/lapack/}{\emph{LAPACK}}---modeli su razvijani u programskom jeziku \href{https://docs.python.org/3/}{\emph{Python}} inačice $ \numprint{3} $ uz biblioteke \href{https://www.scipy.org/docs.html}{\emph{SciPy}} paketa (\href{https://numpy.org/}{\emph{NumPy}} i \href{https://pandas.pydata.org/}{\emph{Pandas}}). Kao platforma korištena je besplatna usluga \href{https://colab.research.google.com/}{\emph{Google Colab}} s ubrzanjem preko \emph{GPU}.
+
+\par
+
+\section{Linearna regresija}
+\label{sec:linear_regression}
+
+Jedna od ideja kod razvijanja modela bila je pronaći što jednostavniji model koji bi mogao dobro predviđati traženu vrijednost. Zbog neprekidnosti spektra iz teorema~\ref{thm:Laplace_eigenvalue_continuity} i karakterizacije trokuta pomoću jedinstvene točke u ograničenom povezanom skupu u ravnini iz propozicije~\ref{prop:triangle_characteristic_bijective} problem pronalaska najmanje svojstvene vrijednosti možemo pokušati aproksimirati polinomom u dvije varijable (koordinate karakteristične točke iz propozicije~\ref{prop:triangle_characteristic_bijective}).
+
+\par
+
+Polinom najviše $ n $-tog stupnja (ne navodimo ograničenje da je barem jedan od koeficijenata $ a_{\numprint{0} , n} , a_{\numprint{1} , n - \numprint{1}} , \dotsc , a_{n , \numprint{0}} $ različit od $ \numprint{0} $), za $ n \in \naturals $, linearna je kombinacija
+\begin{multline*}
+    P \left( x , y \right) = a_{\numprint{0} , \numprint{0}} + a_{\numprint{0} , \numprint{1}} y + a_{\numprint{1} , \numprint{0}} x + a_{\numprint{0} , \numprint{2}} y^{\numprint{2}} + a_{\numprint{1} , \numprint{1}} x y + a_{\numprint{2} , \numprint{0}} x^{\numprint{2}} + \dotsb + {} \\
+    {} + a_{\numprint{0} , n} y^{n} + a_{\numprint{1} , n - \numprint{1}} x y^{n - \numprint{1}} + \dotsb + a_{n - \numprint{1} , \numprint{1}} x^{n - \numprint{1}} y + a_{n , \numprint{0}} x^{n} \text{,}
+\end{multline*}
+to jest, u kompaktnijem obliku
+\begin{equation*}
+    P \left( x , y \right) = \sum_{k = \numprint{0}}^{n} \sum_{i = \numprint{0}}^{k} a_{i , k - i} x^{i} y^{k - i}
+\end{equation*}
+(gdje, jednostavnosti zapisa radi, uzimamo $ \numprint{0}^{\numprint{0}} = \numprint{1} $ u slučaju da je $ x = \numprint{0} $ i/ili $ y = \numprint{0} $) za neke koeficijente $ a_{i j} $. Za poznati uzorak $ \left( \left( x_{i} , y_{i} , z_{i} \right) \right)_{i = \numprint{1}}^{N} $, gdje je $ N \in \naturals $ dovoljno velik, pronalazak polinoma stupnja najviše $ n $ koji najbolje aproksimira $ P \left( x , y \right) = z $ svodi se na linearnu regresiju.
+
+\par
+
+Najbolje rezultate s obzirom na kompleksnost modela lučili su polinomi stupnjeva $ \numprint{4} $ i $ \numprint{5} $ koji su predviđali multiplikativni inverz najmanje svojstvene vrijednosti Laplaceovog operatora. To jest, ako za proizvoljni otvoreni trokut dijametra $ \numprint{1} $ označimo s $ V = \left( x , y \right) \in \reals^{\numprint{2}} $ njegovu karakterističnu točku iz propozicije~\ref{prop:triangle_characteristic_bijective}, a s $ \lambda_{\numprint{1}} \in \intervaloo{\numprint{0}}{{+ \infty}} $ najmanju svojstvenu vrijednost Laplaceovog operatora na tom trokutu, onda su najbolji dobiveni polinomni modeli linearne regresije
+\begin{equation*}
+    \lambda_{\numprint{1}}^{{- \numprint{1}}} \approx \sum_{k = \numprint{0}}^{n} \sum_{i = \numprint{0}}^{k} a_{i , k - i}^{\left( n \right)} x^{i} y^{k - i} \text{,}
+\end{equation*}
+gdje je $ n \in \left\{ \numprint{4} , \numprint{5} \right\} $, a $ a_{i j}^{\left( n \right)} $ koeficijenti dobiveni linearnom regresijom za odgovarajući polinom.
+
+\par
+
+Nešto je bolje rezultate lučio model polinoma stupnja $ \numprint{11} $ koji je također predviđao multiplikativni inverz najmanje svojstvene vrijednosti, ali ta je razlika zanemariva s obzirom na činjenicu da taj model ima $ \numprint{78} $ koeficijenata. Uspredbe radi, polinom stupnja $ \numprint{5} $ ima $ \numprint{21} $ koeficijent, dok polinom stupnja $ \numprint{4} $ njih $ \numprint{15} $.
+
+\par
+
+Spomenuti polinomi izračunati linearnom regresijom razvijeni su pomoću paketa \href{https://scikit-learn.org/stable/}{\emph{Scikit-learn}}. Sami modeli bili su instance klase \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}{\lstinline[language = Python, style = program]{scikit.linear_model.LinearRegression}}.
+
+\par
+
+\section{Neuronske mreže}
+\label{sec:neural_networks}
+
+Osim polinomnih rješenja, razmatrano je i rješenje koje u obzir uzima samo numeričke vrijednosti vezane uz oblik trokuta, a ne koordinate njegovih vrhova. Te su vrijednosti---značajke---bile duljine stranica trokuta u padajućem poretku, veličine vanjskih kutova u rastućem poretku, singularne vrijednosti duljina stranica u padajućem poretku i singularne vrijednosti vanjskih kutova u padajućem poretku. Zbog obilježja uočenih u eksploratornoj analizi ovih značajki (\seetxt~dio~\ref{sec:dataset_exploratory_analysis}) iz tih su značajki izbačene duljina najdulje stranice, treća najveća singularna vrijednost duljina stranica i prva i treća najveća singularna vrijednost vanjskih kutova. Ovime je skup značajki reduciran na svega $ \numprint{8} $, koje su tada normalizirane oduzimanjem srednje vrijednosti i dijeljenjem sa standardnom devijacijom na uzorku značajki u skupu podataka za treniranje.
+
+\par
+
+Budući da je ulaz male dimenzionalnosti (manje od polinomnih rješenja i od konvolucijske neuronske mreže), model se mogao konstruirati s više ne suviše velikih skrivenih slojeva bez ekstremno velikih zahtjeva za resursima. Tako je pronađeno rješenje neuronske mreže s $ \numprint{5} $ skrivenih slojeva, čija arhitektura je bila
+\begin{enumerate}
+    \item ulazni sloj s $ \numprint{8} $ čvorova,
+    \item prvi prednji skriveni sloj sa $ \numprint{16} $ čvorova---aktivacijska funkcija \emph{ReLU},
+    \item drugi prednji skriveni sloj s $ \numprint{32} $ čvora---aktivacijska funkcija \emph{ReLU},
+    \item treći prednji skriveni sloj sa $ \numprint{64} $ čvora---aktivacijska funkcija \emph{ReLU},
+    \item srednji skriveni sloj s $ \numprint{4} $ čvora---aktivacijska funkcija $ \text{\emph{ReLU}} \circ x \mapsto x^{{- \numprint{1}}} $,
+    \item stražnji skriveni sloj s $ \numprint{256} $ čvorova---aktivacijska funkcija \emph{ReLU},
+    \item izlazni sloj s $ \numprint{1} $ čvorom.
+\end{enumerate}
+Korištene aktivacijske funkcije odabrane su zbog uočenih korelacija u eksploratornoj analizi (\seetxt~dio~\ref{sec:dataset_exploratory_analysis}). Pritom je odabrana aktivacijska funkcija \emph{ReLU} umjesto obične linearne identitete tako da se omogući \emph{selektivno aktiviranje} neurona s obzirom na dolazne impulse.
+
+\par
+
+Za optimizaciju je odabran \emph{adadelta} algoritam s inicijalnom brzinom učenja veličine $ \numprint{1} $. Originalno je ovaj algoritam bio izabran po uzoru na rješenje Millsa i dr.\ u~\cite{bib:Mills17}, ali je kroz pokušaje i promašaje bilo potvrđeno da taj algoritam (u ovom rješenju) osigurava najbržu i najbolju optimizaciju. Minimizirajuća funkcija greške (hiperparametar \emph{loss}) bila je srednja kvadratna greška (\emph{MSE}). Mreža se trenirala u $ \numprint{2000} $ epoha, a za konačni model uzete su težine iz one epohe s najmanjom greškom na validacijskom skupu.
+
+\par
+
+Neuronska mreža razvijena je uz paket \href{https://keras.io/}{\emph{Keras}} s podrškom u \href{https://www.tensorflow.org/}{\emph{TensorFlowu}}. Model neuronske mreže realiziran je kao instanca klase \href{https://keras.io/models/sequential/}{\lstinline[language = Python, style = program]{keras.models.Sequential}}.
+
+\par
+
+\section{Konvolucijske neuronske mreže}
+\label{sec:convolutional_neural_network}
+
+U već spomenutom radu~\cite{bib:Mills17} Mills i dr.\ problem diferencijalne zadaće riješili su konvolucijskom neuronskom mrežom koja kao ulazne podatke uzima vizualizirani prikaz elektrostatskog potencijala vezanog uz ciljnu varijablu. Njihovo je rješenje bilo uspješno do na kemijsku točnost, a pokazuju i da je takvo rješenje imalo bolje rezultate od nekih ranijih rješenja baziranih na izabranim numeričkim značajkama. Između ostalog, navode kako rješenja u kojima se numeričke značajke kao ulazni podatci \emph{ručno} biraju nisu generalizabilna (na druge probleme slične prirode) i kako su točnosti takvih modela ograničeni reprezentativnošću ciljnih varijabli pomoću odabranih značajki.
+
+\par
+
+Jedna je od ideja, stoga, bila pokušati iskoristiti takav model na problemu računanja najmanje svojstvene vrijednosti Laplaceovog operatora, bez odabranih numeričkih značajki. Međutim, zbog ograničenih resursa, model je djelomično pojednostavljen. Naime, ulazni podatci bili su rezolucije $ \numprint{128} \times \numprint{128} $ (iako nije eksplicitno navedeno, po autorovom shvaćanju ulazni su podatci u~\cite{bib:Mills17} bili rezolucije $ \numprint{256} \times \numprint{256} $), a broj redukcijskih slojeva smanjen je na $ \numprint{6} $ s originalnih $ \numprint{7} $. Osim prvog redukcijskog sloja, izbačeni su i dva neredukcijska sloja koji su u~\cite{bib:Mills17} postavljeni između prvog i drugog redukcijskog sloja. Ostatak arhitekture prati originalni model iz~\cite{bib:Mills17}.
+
+\par
+
+Za ulazne podatke odabrana je vizualna reprezentacija trokuta funkcijom dubine (\seetxt~definiciju~\ref{def:set_deepness}) na kvadratu $ \intervalcc{{- \numprint{1}}}{\numprint{1}} \times \intervalcc{{- \numprint{1}}}{\numprint{1}} $, normirana tako da na jednakostraničnom trokutu njezin maksimum iznosi $ \numprint{1} $ (kako su ulazni podatci trokuti dijametra $ \numprint{1} $, to znači da je dubinu bilo potrebno podijeliti s $ \frac{\sqrt{\numprint{3}}}{\numprint{6}} $). Ova reprezentacija, za razliku od vizualizacije kao na slici~\ref{fig:triangle_mesh}, poprima \emph{različitije} vrijednosti na istom trokutu zbog čega, vjerojatno, konvolucijska neuronska mreža brže pronalazi bitne značajke. Naime, pokušaji modela koji su računali s vizualizacijom sa slike~\ref{fig:triangle_mesh} nisu pokazivali obećavajuće rezultate. S druge strane, \emph{kompliciranije} vizualizacije izbjegavale su se zato što one ne predstavljaju pojednostavljenje originalnog problema---kada bi, na primjer, vizualizacija bila dana svojstvenom funkcijom pripadnom najmanjoj svojstvenoj vrijednosti Laplaceovog operatora, aproksimativnom formulom derivacije $ f ' \left( x \right) \approx \frac{f \left( x + h \right) - f \left( x \right)}{h} $ za neki dovoljno mali $ h \neq 0 $ svojstvenu je vrijednost jednostavnije izračunati nego kroz duboku konvolucijsku neuronsku mrežu.
+
+\par
+
+Također, zbog ograničenih resursa broj epoha smanjen je s $ \numprint{1000} $ na svega $ \numprint{50} $, ali je minimizirajuća funkcija greške bila isto \emph{MSE} kao u~\cite{bib:Mills17}. I kod ovog modela za konačno rješenje uzete su težine iz one epohe u kojoj je greška na validacijskom skupu bila najmanja. Iako je broj epoha znatno smanjen, inicijalna brzina učenja \emph{adadelta} algoritma optimizacije također je $ \numprint{10}^{{- \numprint{3}}} $, kao u~\cite{bib:Mills17}. S tom je brzinom model postizao bolje rezultate nego s većim brzinama, kao, na primjer, $ \numprint{10}^{{- \numprint{2}}} $.
+
+\par
+
+Kao i obična neuronska mreža, konvolucijska neuronska mreža također je bila reprezentirana kao instanca klase \href{https://keras.io/models/sequential/}{\lstinline[language = Python, style = program]{keras.models.Sequential}}. U originalnom radu~\cite{bib:Mills17} autori su konvolucijsku neuronsku mrežu sami isprogramirali u \href{https://www.tensorflow.org/}{\emph{TensorFlowu}}, što je još jedna razlika između tog modela i modela razvijenog u ovom radu.
+
+\par

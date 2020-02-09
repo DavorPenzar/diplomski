@@ -1,0 +1,525 @@
+%%%%%%%%%%%%%%%%% diplomski.sty %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%rev 2020/10/27-00:00
+
+%%  Mala dorada (u svrhe vlastitog diplomskog rada) paketa diplomski.sty preuzetog s web-stranice PMF-MO.
+%%
+%%  Doradnik: Davor Penzar
+%%
+%%  Poveznica za preuzimanje originalnog predloska za diplomski rad (ukljucujuci paket `diplomski.sty`) godine nalazi se na:
+%%      http://www.math.pmf.unizg.hr/hr/diplomski-rad-i-diplomski-ispiti
+%%  Originalni predlozak za diplomski rad (ukljucujuci paket `diplomski.sty`) moze se preuzeti s:
+%%      http://www.math.pmf.unizg.hr/sites/default/files/diplomski.zip
+%%  Zadnje preuzimanje originalnog predloska s gore navedenih adresa u svrhu dorade ovog paketa bilo je izvrseno 2019/03/04 (tadasnja verzija bila je iz 2009. godine).
+%%
+%%  Za ovu doradu odlucio sam se vidjevsi da je originalni predlozak bio 10-ak godina star (Pravilnik o diplomskom radu i diplomskom ispitu je, na primjer, iz 2015. godine, dakle, noviji, i predlozak takav kakav je bio preuzet nije pratio neke upute iz pravilnika---konkretno, enumeriranje teorema i ispis bibliografije nisu pratili upute iz pravilnika---stoga je barem nekakva dorada predloska bila nuzna, a ostatak je rezultat mojih osobnih zelja i ambicija) i da se neka rjesenja mogu zamijeniti vjerojatno suvremenijim paketima i drugacijim naredbama (u svakom slucaju koristio sam pakete i njihova rjesenja za koje sam stekao dojam da su trenutno najcjenjenija na internetu).  Takoder, odlucio sam kod "prepisati" u citkiji (atribut je, naravno, subjektivan i rezultat je mog osobnog, a stoga vjerojatno i pristranog, suda) format uz razne komentare objasnjenja.
+%%
+%%  Vjerojatno nepotpuni popis izmjena i objasnjenja od zadnje preuzetog predloska:
+%%      (1) jedna je polazna pretpostavka da je klasa dokumenta KOMA-script knjiga (`scrbook`) verzije barem 3.19 s pozivom s barem sljedecim opcijama
+%%              \documentclass[paper = a4, fontsize = 12pt, DIV = 12, BCOR = 0pt, headings = standardclasses]{scrbook}
+%%          dakle, klasa dokumenta nije `memoir`,
+%%      (2) naredba za stranicu o komisiji i obrani, konsistencije radi, preimenovana je iz `\komisija` u `\commissionpage`,
+%%      (3) gotovo svi paketi se ukljucuju ovim paketom---to su matematicki paketi, paketi za odabir familije fontova, paketi za reference i neki dodatni paketi; za bibliografiju se koristi BibLaTeX (paket `biblatex`),
+%%      (4) da bi stil bibliografije pratio Pravilnik, uz ovaj paket potrebno je priloziti i datoteku `biblatex.cfg` koja konfigurira kako se ispisuje bibliografija i u ovom paketu definiran je stil naslova bibliografije `master` tako da se pozivom
+%%              \printbibliography[heading = master]
+%%          ispisuje bibliografija kako je zadano u Pravilniku,
+%%      (5) popis ukljucenih matematickih paketa je prosiren (povecan) tako da sada, izmedu ostalog, ukljucuje i pakete `tikz` + `pgfplots` + `pgfplotstable` za generiranje grafova, `listings` za programske kodove i pakete `siunitx` i `units` za mjerne jedinice,
+%%      (6) `\newpage` je na nekim mjestima zamijenjen s `\clearpage` odnosno `\cleardoublepage` gdje, naravno, ima smisla; takoder, gdje ima smisla, dodano je `\clearpage` odnosno `\cleardoublepage`
+%%      (7) `\frontmatter` vise na kraju ne postavlja enumeriranje stranica na arapske brojke---potrebno je eksplicitno dodati `\mainmatter` nakon `\frontmatter` u glavni kod dokumenta da se postigne taj efekt,
+%%      (8) shodno tocki (7), ocekuje se da se nakon bibliografije u glavnom kodu dokumenta doda `\backmatter`, sto ce izbrisati zaglavlja i podnozja zadnjih stranica,
+%%      (9) `\uppercase{...}` je zamijenjeno s `\MakeUppercase{...}` koji bolje tretira dijakriticke znakove (`\uppercase{...}` ih zapravo ni ne tretira),
+%%      (10)    zbog tocke (1) okruzenje `intro` je pojednostavljeno---na pocetak se samo dodaje `\addchap{Uvod}` (nema vise eksplicitnog dodavanja uvoda u sadrzaj i eksplicitnog zadavanja `\@mkboth{UVOD}{UVOD}` za `\markleft` i `\markright`),
+%%      (11)    za definiciju "teoremskih okruzenja" koristi se noviji paket, `thmtools`, umjesto starijeg paketa, `amsthm`, na kojem je ovaj noviji zapravo baziran, ali je manipulacija okruzenjima olaksana,
+%%      (12)    enumeriranje jednadzbi, tablica, slika, programskih kodova i "teoremskih okruzenja" eksplicitno je zadano tako da prati upute iz Pravilnika,
+%%      (13)    nazivi "teoremskih okruzenja" u LaTeX-ovim naredbama (`\begin{...}` i `\end{...}`) jos uvijek su na engleskom jeziku, ali su sada cijele rijeci (tako, na primjer, definicija pocinje naredbom `\begin{definition}` umjesto `\begin{defn}`),
+%%      (14)    osim enumeriranih "teoremskih okruzenja", svako od njih ima i globalno enumeriranu verziju (redni broj ne ovisi o rednom broju poglavlja) i ne-enumeriranu verziju cija su imena u naredbama jednaka imenu lokalno enumerirane verzije, ali s asteriskom na pocetku odnosno na kraju (globalno enumerirana definicija, na primjer, zapocinje naredbom `\begin{*definition}`, a ne-enumerirana definicija, na primjer, zapocinje naredbom `\begin{definition*}`),
+%%      (15)    "Q. E. D. oznaka" na kraju dokaza eksplicitno je definirana kao ispunjeni kvadratic (sam paket thmtools tekst "Q. E. D." zamjenjuje praznim kvadraticem),
+%%      (16)    definicije naredbi za oznake skupova su izmijenjene tako da je sada
+%%                  --  `\naturals` --  skup prirodnih brojeva,
+%%                  --  `\integers` --  skup cijelih brojeva,
+%%                  --  `\rationals`    --  skup racionalnih brojeva,
+%%                  --  `\reals`    --  skup realnih brojeva,
+%%                  --  `\complex`  --  skup kompleksnih brojeva
+%%              jer mi neke naredbe od `\N`, `\Z`, `\Q`, `\R` i `\C` nisu radile,
+%%      (17)    konsistencije radi, naredbe za matematicke operatore jezgre i slike su zamijenjene iz `\Ker` i `\slika` u `\kernel` i `\image` respektivno,
+%%      (18)    dodane su definicije naredbi za partitivni skup---`\powerset`---i za intervale (podskupove linearno/totalno uredenih skupova)---`\intervalXY{donja_granica}{gornja_granica}`, gdje `X` i `Y` mogu biti bilo koji od "o" za interval otvoren s te strane odnosno "c" za interval zatvoren s te strane (`X` je za donju granicu, a `Y` za gornju)---na primjer, interval od 0 do 1 otvoren odozdo i zatvoren odozgo zadaje se naredbom `\intervaloc{0}{1}`; naredbe za diskretne intervale---kojima su granice odvojene dvama tockama umjesto zarezom---imaju prefiks "d" (na primjer, diskretni interval od 0 do 10 zatvoren s obje strane zadaje se naredbom `\dintervalcc{0}{10}`); dodane su definicije naredbi za skupove bez nule (`\excludezero{...}`), s nulom (`\includezero{...}`), negativne odnosno pozitivne polupravce (`\negatives{...}` odnosno `\positives{...}`) i kombinacije (`\negativesexcludezero{...}`, `negativesincludezero{...}`, `\positivesexcludezero{...}` i `\positivesincludezero{...}`),
+%%      (19)    dodane su definicije naredbi za funkcije---`\partto` za strelicu pri definiciji parcijalne funkcije (na primjer, `f \colon \reals \partto \complex`), `\compose` za oznaku kompozicije, `\domain` i `\Domain{...}` za domenu, `\codomain` i `\Codomain{...}` za kodomenu, `\range`, `Range{...}` i `RangeSet{...}{...}` za sliku i `\InvRangeSet{...}{...}` za prasliku (argumenti naredbi `\Domain`, `\Codomain` i `\Range` su funkcija cija se domena/kodomena/slika oznacava, a naredbe `\RangeSet` i `\InvRangeSet` kao prvi argument primaju funkciju, a kao drugi argument skup),
+%%      (20)    dodana je definicija naredbe za matematicki operator card (kardinalitet skupa) intuitivno nazvana `\card`.
+%%      (21)    dodana je definicija naredbe za ispis rimskih brojki velikim tiskanim slovima nazvana `\upperroman` (`\upperroman{208}` ispisuje "CCVIII").
+%%
+%%  Takoder, zbog velikog naslova (koji se protezao na 4 reda na naslovnoj stranici) mog diplomskog rada, vertikalni razmaci u definiciji naslovne stranice izmijenjeni su jer bi se inace sadrzaj naslovne stranice "prelio" na dvije stranice.  Ipak, u komentarima su ostavljeni vertikalni razmaci iz originalnog predloska.
+
+% Paket za geometrijsko uredenje stranica.
+\RequirePackage[a4paper]{geometry}
+
+% Uredenje margina i razmaka.
+\geometry{
+    includeall,
+    nomarginpar,
+    bindingoffset = 12mm,
+    left = 23mm,
+    right = 23mm,
+    top = 35mm,
+    bottom = 38mm
+}
+\setlength{\baselineskip}{15pt}
+
+% Paket s bojama.
+\RequirePackage[usenames, dvipsnames, svgnames, x11names]{xcolor}
+
+% Paket za uredenje izgleda stranica.
+\RequirePackage{scrlayer-scrpage}
+
+% (Uglavnom) matematicki paketi (dodatno: tikz + pgfplots + pgfplotstable za generiranje grafova, lstlistings za programske kodove, siunitx za SI i srodne mjerne jedinice, units za mjerne jedinice opcenito).
+\RequirePackage{amsbsy}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amstext}
+\RequirePackage{amsthm}
+\RequirePackage{listings}
+\RequirePackage{mathtools}
+\RequirePackage[autolanguage, nosepfour]{numprint}
+\RequirePackage{pgfplots}
+\RequirePackage{pgfplotstable}
+\RequirePackage[locale = DE, binary-units = true, sepfour = false, decimalsymbol = comma]{siunitx}
+\RequirePackage{stackrel}
+\RequirePackage{thmtools}
+\RequirePackage{tikz}
+\RequirePackage{units}
+
+% Indeks, pojmovnik i bibliografija (stil ispisa bibliografije doraden je u biblatex.cfg tako da ispisana bibliografija prati upute iz Pravilnika o diplomskom radu).
+\RequirePackage[xindy]{imakeidx}
+\RequirePackage[xindy]{glossaries}
+\RequirePackage[backend = biber, indexing = true, style = numeric, bibstyle = numeric, citestyle = numeric-comp]{biblatex}
+    \defbibheading{master}[\bibname]{%
+        \addchap{#1}%
+    }
+\RequirePackage[nottoc]{tocbibind}
+\RequirePackage{xpatch}
+
+% Paketi za odabir familije fontova, dobro procesuiranje i prikazivanje teksta i za jezik.
+\RequirePackage{lmodern}
+\RequirePackage{txfonts}
+\RequirePackage{newtxtext}
+\RequirePackage{newtxmath}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[final]{microtype}
+\RequirePackage[british, croatian]{babel}
+
+% Paket za renumeriranje enumeriranih objekata.
+\RequirePackage{chngcntr}
+
+% Dodatni paketi.
+\RequirePackage{array}
+\RequirePackage{caption}
+\RequirePackage{csquotes}
+    \MakeOuterQuote{"}
+\usepackage[british, croatian, calc]{datetime2}
+%   \DTMusemodule{croatian}{hr-HR}
+    \DTMusemodule{british}{en-GB}
+    \DTMlangsetup[en-GB]{ord = raise, monthyearsep = {,\space}}
+\RequirePackage{graphicx}
+\RequirePackage{longtable}
+\RequirePackage{multicol}
+\RequirePackage{multirow}
+\RequirePackage{subcaption}
+\RequirePackage{tabularx}
+\RequirePackage{tabu}
+
+% Reference i hiperlinkovi.
+\RequirePackage{varioref}
+\RequirePackage{url}
+\RequirePackage[unicode = true]{hyperref}
+\RequirePackage{bookmark}
+\RequirePackage{cleveref}
+
+% Definicija novog uvjeta grananja (uvjet posvete) i postavljanje njegove vrijednosti na laz.
+\newif\ifdedication
+\dedicationfalse
+
+% Definicija naredbi za ispis naslova, voditelja i posvete (definiranje posvete takoder postavlja uvjet grananja (uvjet posvete) na istinu).
+\def\title#1{\gdef\@title{\MakeUppercase{#1}}}
+\def\advisor#1{\gdef\@advisor{#1}}
+\def\dedication#1{\gdef\@dedication{#1}\dedicationtrue}
+
+% Definicija naslovne stranice.
+\renewcommand{\titlepage}{%
+    \cleardoubleoddemptypage%
+%
+    \enlargethispage{2cm}%
+    \thispagestyle{empty}%
+%
+    % Sveuciliste u Zagrebu, Prirodoslovno-matematicki fakultet, Matematicki odsjek.
+    \begin{center}
+        {\Large\textbf{\textsf{\MakeUppercase{Sveu\v{c}ili\v{s}te u Zagrebu}}}} \\[5mm]
+        {\Large\textbf{\textsf{\MakeUppercase{Prirodoslovno-matemati\v{c}ki fakultet}}}} \\[5mm]
+        {\Large\textbf{\textsf{\MakeUppercase{Matemati\v{c}ki odsjek}}}}
+    \end{center}%
+
+    \par
+
+%   \vskip 150pt
+    \vskip 125pt
+
+    % Autor, naslov, diplomski rad.
+    \begin{center}
+        % Autor.
+        {
+            \LARGE%
+            \lineskip .75em%
+            \begin{tabular}[t]{c}
+                \textsf{\@author}
+            \end{tabular}
+        }
+
+        \par
+
+        \vskip 3em
+
+        % Naslov.
+        {
+            \huge%
+            \textbf{\textsf{\@title}}
+
+            \par
+        }
+
+        \par
+
+        \vskip 3em
+
+        % Diplomski rad.
+        {\Large\textsf{Diplomski rad}}
+    \end{center}
+
+    \par
+
+%   \vskip 100pt
+    \vskip 40pt
+
+    % Voditelj.
+    \mbox{}%
+    \hfill%
+    \begin{minipage}{7cm}
+    {
+        \Large%
+        \textsf{Voditelj rada:} \\
+        \textsf{\@advisor}%
+    }
+    \end{minipage}
+
+    \par
+
+    \vfill
+
+    % Zagreb, datum.
+    \begin{center}
+        {
+            \Large\textsf{Zagreb, \@date}
+
+            \par
+        }
+    \end{center}
+
+    \par
+
+    \clearpage%
+    \newpage
+}
+
+% Definicija stranice o komisiji i obrani.
+\newcommand{\commissionpage}{%
+    \cleardoubleoddemptypage%
+%
+    \thispagestyle{empty}%
+%
+    % Datum obrane.
+    \noindent%
+    Ovaj diplomski rad obranjen je dana \underline{$ \phantom{\mbox{25. prosinca 2006.AAA}} $} pred ispitnim povjerenstvom u sastavu:%
+
+    \par
+
+    \vskip 5mm
+
+    % Povjerenstvo.
+    \begin{center}
+        {%
+            \renewcommand{\arraystretch}{1.3}%
+%
+            \begin{tabular}{l l}
+                {$ \numprint{1} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $}, predsjednik \\
+                {$ \numprint{2} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $}, \v clan \\
+                {$ \numprint{3} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $}, \v clan \\
+            \end{tabular}%
+        }
+    \end{center}
+
+    \par
+
+    \vskip 5mm
+
+    % Ocjena.
+    \noindent%
+    Povjerenstvo je rad ocijenilo ocjenom \underline{$ \phantom{\mbox{izvrstan (5)AAAA}} $}.
+
+    \par
+
+    \vskip 1cm
+
+    % Potpisi clanova povjerenstva.
+    \hspace{21em}%
+    Potpisi \v{c}lanova povjerenstva:
+
+    \par
+
+    \vskip 5mm
+
+    \begin{flushright}
+        {%
+            \renewcommand{\arraystretch}{1.3}%
+%
+            \begin{tabular}{l l}
+                {$ \numprint{1} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $} \\
+                {$ \numprint{2} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $} \\
+                {$ \numprint{3} $.} & \underline{$ \phantom{\mbox{Neko vrlo dugacko ime ide ovdje}} $} \\
+            \end{tabular}%
+        }
+    \end{flushright}
+
+    \par
+
+    \clearpage%
+    \newpage
+}
+
+% Definicija stranice posvete.
+\newcommand{\dedicationpage}{%
+    \cleardoubleoddemptypage%
+%
+    \thispagestyle{empty}%
+%
+    \vspace*{3.0in}%
+    \begin{center}
+        {%
+            \itshape%
+            \@dedication
+
+            \par%
+        }
+    \end{center}
+
+    \par
+
+    \clearpage%
+    \newpage
+}
+
+% Definicija okruzenja za uvod.
+\newenvironment{intro}{%
+    \addchap{Uvod}%
+}
+{%
+    \par%
+    \clearpage%
+}
+
+% Definicija okruzenja za sazetak (na hrvatskom jeziku).
+\newenvironment{sazetak}{%
+    \chapter*{Sa\v{z}etak}%
+    \thispagestyle{empty}%
+    \@mkboth{}{}%
+}
+{%
+    \par%
+    \clearpage%
+}
+
+% Definicija okruzenja za sazetak (na engleskom jeziku).
+\newenvironment{summary}{%
+    \begin{otherlanguage}{british}%
+    \chapter*{Summary}%
+    \thispagestyle{empty}%
+    \@mkboth{}{}%
+}
+{%
+    \par%
+    \clearpage%
+    \end{otherlanguage}%
+}
+
+% Definicija okruzenja za zivotopis.
+\newenvironment{cv}{%
+    \chapter*{\v{Z}ivotopis}%
+    \thispagestyle{empty}%
+    \@mkboth{}{}%
+}
+{%
+    \par%
+    \clearpage%
+}
+
+% Definicija pocetnog okruzenja (ispisuju se naslovna stranica, stranica o komisiji i obrani, stranica posvete po potrebi i sadrzaj).  Stranice do uvoda (iskljucivo) nemaju zaglavlje ni podnozje, enumeriranje stranica je malim rimskim brojkama.
+\renewcommand{\frontmatter}{%
+    \clearpage%
+    \pagenumbering{roman}%
+    \pagestyle{empty}%
+    \titlepage%
+    \commissionpage%
+    \ifdedication{%
+        \dedicationpage%
+    }%
+    \fi%
+    \pagestyle{scrheadings}%
+    \tableofcontents%
+}
+
+% Definicija okruzenja glavnog dijela rada.  Enumeriranje stranica je arapskim brojkama.
+\renewcommand{\mainmatter}{%
+    \cleardoubleoddemptypage%
+    \pagestyle{scrheadings}%
+    \pagenumbering{arabic}%
+}
+
+% Definicija okruzenja zavrsnog dijela rada.  Stranice nemaju ni zaglavlje ni podnozje.
+\renewcommand{\backmatter}{%
+    \cleardoubleoddemptypage%
+    \pagestyle{empty}%
+    \pagenumbering{arabic}%
+}
+
+% Postavljanje dubine prikaza naslova u sadržaju enumeriranja i dubine enumeriranja naslova.
+\setcounter{tocdepth}{\sectiontocdepth}
+\setcounter{secnumdepth}{\sectionnumdepth}
+
+% Postavljanje enumeriranja jednadzbi, tablica, slika i programskih kodova u format tako da je, na primjer, sedma slika u prvom poglavlju enumerirana sa 1.7., i zajednicka enumeracija slika, tablica i programskih kodova.
+\counterwithout{equation}{section}
+\counterwithin{equation}{chapter}
+\counterwithout{table}{section}
+\counterwithin{table}{chapter}
+\counterwithout{figure}{section}
+\counterwithin{figure}{chapter}
+\AtBeginDocument{
+    \counterwithout{lstlisting}{section}
+    \counterwithin{lstlisting}{chapter}
+    \let\c@table\c@figure
+    \let\c@lstlisting\c@figure
+    \let\ftype@table\ftype@figure
+    \let\ftype@lstlisting\ftype@figure
+}
+
+% Preimenovanje naslova programskih kodova u hrvatski prijevod.
+\renewcommand*{\lstlistingname}{Programski k{\^{o}}d}
+\renewcommand*{\lstlistlistingname}{Popis programskih k\^{o}dova}
+
+% Postavljanje QED simbola na kraju dokaza u crni kvadratic.
+\renewcommand*{\qedsymbol}{\ensuremath{\blacksquare}}
+
+% Definicije okruzenja za definicije, teoreme, leme, propozicije, korolare, slutnje, napomene i primjere.  Svako okruzenje ima normalnu definiciju (na primjer, \begin{definition}...\end{definition}) koja rezultira okruzenjem enumeriranim s rednim brojem poglavlja, definiciju s asteriskom na pocetku (na primjer, \begin{*definition}...\end{*definition}) koja rezultira okruzenjem enumeriranim globalno (bez rednog broja poglavlja, sekcije ili drugog podnaslova), i definiciju s asteriskom na kraju (na primjer, \begin{definition*}...\end{definicition*}) koja rezultira ne-enumeriranim okruzenjem.  Enumeracija je analogna kao s jednadzbama, tablicama, slikama i programskim kodovima, samo sto su sva "teoremska okruzenja" zajedno enumerirana (na primjer, teorem neposredno nakon definicije 1.1 bit ce enumeriran s 1.2 ako u poglavlju 1 prije tog teorema nije bilo nijedno enumerirano "teoremsko okruzenje" osim spomenute definicije).
+\declaretheorem[style = definition, name = {Definicija}]{*definition}
+\declaretheorem[style = definition, numberwithin = chapter, name = {Definicija}]{definition}
+\declaretheorem[style = definition, numbered = no, name = {Definicija}]{definition*}
+\declaretheorem[style = plain, sibling = *definition, name = {Teorem}]{*theorem}
+\declaretheorem[style = plain, sibling = definition, name = {Teorem}]{theorem}
+\declaretheorem[style = plain, numbered = no, name = {Teorem}]{theorem*}
+\declaretheorem[style = plain, sibling = *definition, name = {Lema}]{*lemma}
+\declaretheorem[style = plain, sibling = definition, name = {Lema}]{lemma}
+\declaretheorem[style = plain, numbered = no, name = {Lema}]{lemma*}
+\declaretheorem[style = plain, sibling = *definition, name = {Propozicija}]{*proposition}
+\declaretheorem[style = plain, sibling = definition, name = {Propozicija}]{proposition}
+\declaretheorem[style = plain, numbered = no, name = {Propozicija}]{proposition*}
+\declaretheorem[style = plain, sibling = *definition, name = {Korolar}]{*corollary}
+\declaretheorem[style = plain, sibling = definition, name = {Korolar}]{corollary}
+\declaretheorem[style = plain, numbered = no, name = {Korolar}]{corollary*}
+\declaretheorem[style = plain, sibling = *definition, name = {Slutnja}]{*conjecture}
+\declaretheorem[style = plain, sibling = definition, name = {Slutnja}]{conjecture}
+\declaretheorem[style = plain, numbered = no, name = {Slutnja}]{conjecture*}
+\declaretheorem[style = remark, sibling = *definition, name = {Napomena}]{*remark}
+\declaretheorem[style = remark, sibling = definition, name = {Napomena}]{remark}
+\declaretheorem[style = remark, numbered = no, name = {Napomena}]{remark*}
+\declaretheorem[style = remark, sibling = *definition, name = {Primjer}, qed = {\ensuremath{{\lhd}}}]{*example}
+\declaretheorem[style = remark, sibling = definition, name = {Primjer}, qed = {\ensuremath{{\lhd}}}]{example}
+\declaretheorem[style = remark, numbered = no, name = {Primjer}, qed = {\ensuremath{{\lhd}}}]{example*}
+
+% Definicije naredbi za oznake skupova.
+\newcommand*{\setsfont}{\mathbb}
+\newcommand*{\naturalssym}{N}
+\newcommand*{\integerssym}{Z}
+\newcommand*{\rationalssym}{Q}
+\newcommand*{\realssym}{R}
+\newcommand*{\complexsym}{C}
+\newcommand*{\naturals}{\setsfont{\naturalssym}}
+\newcommand*{\integers}{\setsfont{\integerssym}}
+\newcommand*{\rationals}{\setsfont{\rationalssym}}
+\newcommand*{\reals}{\setsfont{\realssym}}
+\newcommand*{\complex}{\setsfont{\complexsym}}
+
+% Definicija naredbe za oznaku partitivnog skupa.
+\newcommand*{\powersetfont}{\mathcal}
+\newcommand*{\powersetsym}{P}
+\DeclareMathOperator{\powerset}{\powersetfont{\powersetsym}}
+
+% Definicije naredbi za oznake intervala (podskupova linearno/totalno uredenog skupa).
+\newcommand*{\lointervalparen}{(}
+\newcommand*{\rointervalparen}{)}
+\newcommand*{\lcintervalparen}{[}
+\newcommand*{\rcintervalparen}{]}
+\newcommand*{\intervaldelim}{,}
+\newcommand*{\dintervaldelim}{\mathinner{\ldotp \ldotp}}
+\newcommand*{\intervaloo}[2]{\left\lointervalparen {#1} \intervaldelim {#2} \right\rointervalparen}
+\newcommand*{\intervaloc}[2]{\left\lointervalparen {#1} \intervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\intervalco}[2]{\left\lcintervalparen {#1} \intervaldelim {#2} \right\rointervalparen}
+\newcommand*{\intervalcc}[2]{\left\lcintervalparen {#1} \intervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\dintervaloo}[2]{\left\lointervalparen {#1} \dintervaldelim {#2} \right\rointervalparen}
+\newcommand*{\dintervaloc}[2]{\left\lointervalparen {#1} \dintervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\dintervalco}[2]{\left\lcintervalparen {#1} \dintervaldelim {#2} \right\rointervalparen}
+\newcommand*{\dintervalcc}[2]{\left\lcintervalparen {#1} \dintervaldelim {#2} \right\rcintervalparen}
+
+% Definicije naredbi za dodatke na oznake skupova (bez nule, s nulom, samo negativni, samo pozitivni).
+\newcommand*{\exludezeroexp}{{*}}
+\newcommand*{\includezeroexp}{0}
+\newcommand*{\negativesexp}{{-}}
+\newcommand*{\positivesexp}{{+}}
+\newcommand*{\excludezero}[1]{{#1}^{\exludezeroexp}}
+\newcommand*{\includezero}[1]{{#1}_{\includezeroexp}}
+\newcommand*{\negatives}[1]{{#1}_{\negativesexp}}
+\newcommand*{\negativesexcludezero}[1]{{#1}_{\negativesexp}^{\exludezeroexp}}
+\newcommand*{\negativesincludezero}[1]{{#1}_{{\negativesexp \includezeroexp}}}
+\newcommand*{\positives}[1]{{#1}_{\positivesexp}}
+\newcommand*{\positivesexcludezero}[1]{{#1}_{\positivesexp}^{\exludezeroexp}}
+\newcommand*{\positivesincludezero}[1]{{#1}_{{\includezeroexp \positivesexp}}}
+
+% Definicije naredbi za oznake za funkcije.
+\newcommand*{\partto}{\rightharpoonup}
+\newcommand*{\compose}{\circ}
+\newcommand*{\funcsetsfont}{\mathcal}
+\newcommand*{\domainsym}{D}
+\newcommand*{\codomainsym}{C}
+\newcommand*{\rangesym}{R}
+\newcommand*{\rangelparen}{[}
+\newcommand*{\rangerparen}{]}
+\newcommand*{\invrangeexp}{\leftarrow}
+\newcommand*{\domain}{\funcsetsfont{\domainsym}}
+\newcommand*{\codomain}{\funcsetsfont{\codomainsym}}
+\newcommand*{\range}{\funcsetsfont{\rangesym}}
+\newcommand*{\Domain}[1]{\domain_{{#1}}}
+\newcommand*{\Codomain}[1]{\codomain_{{#1}}}
+\newcommand*{\Range}[1]{\range_{{#1}}}
+\newcommand*{\RangeSet}[2]{#1 \left\rangelparen {#2} \right\rangerparen}
+\newcommand*{\InvRangeSet}[2]{#1^{\invrangeexp} \left\rangelparen {#2} \right\rangerparen}
+
+% Definicije naredbi za oznake nekih matematickih operatora.
+\DeclareMathOperator{\tg}{tg}
+\DeclareMathOperator{\ctg}{ctg}
+\DeclareMathOperator{\arctg}{arctg}
+\DeclareMathOperator{\arcctg}{arcctg}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\sh}{sh}
+\DeclareMathOperator{\ch}{ch}
+\DeclareMathOperator{\tgh}{th}
+\DeclareMathOperator{\cth}{cth}
+\DeclareMathOperator{\kernel}{Ker}
+\DeclareMathOperator{\image}{Im}
+
+% Definicija naredbe za ispis rimskih brojki.
+\newcommand*{\upperroman}[1]{\MakeUppercase{\expandafter{\romannumeral#1}}}
