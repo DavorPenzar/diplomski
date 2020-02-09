@@ -8,7 +8,7 @@ Poddirektorij [*data*](data) sadrži podatke koji su korišteni u programskim ko
 
 ### [*data/auxiliary_coordinates.tsv*](data/auxiliary_coordinates.tsv) i [*data/auxiliary_eigenvalues.tsv*](data/auxiliary_eigenvalues.tsv)
 
-Datoteka [*data/auxiliary_coordinates.tsv*](data/auxiliary_coordinates.tsv) sadrži koordinate vrhova trokuta čiji su vrhovi (0.5, 0), *V*, (-0.5, 0), gdje je *V* = (*x*, *y*) tako da je 0 < *y* &le; 0.5 sqrt(3) i *x* = *p* (-0.5 + sqrt(1 - *y*<sup>2</sup>)) za *p* iz {0, 0.25, 0.5, 0.75, 1}. Vrijednosti ordinate varijabilnih vrhova diskretnog su koraka otprilike 0.00050001, s najmanjom vrijednosti 0.05000147 i najvećom vrijednosti 0.86602540. Datoteka [*data/auxiliary_eigenvalues.tsv*](data/auxiliary_eigenvalues.tsv) sadrži najmanje svojstvene vrijednosti Laplaceovog operatora na tim trokutima.
+Datoteka [*data/auxiliary_coordinates.tsv*](data/auxiliary_coordinates.tsv) sadrži koordinate vrhova trokuta čiji su vrhovi (0.5, 0), *V*, (-0.5, 0), gdje je *V* = (*x*, *y*) tako da je 0 < *y* &le; 0.5 sqrt(3) i *x* = *p* (-0.5 + sqrt(1 - *y*<sup>2</sup>)) za *p* iz {0, 0.25, 0.5, 0.75, 1}. Vrijednosti ordinate varijabilnih vrhova diskretnog su koraka otprilike 0.00050001, s najmanjom vrijednosti 0.05000147 i najvećom vrijednosti 0.86602540 (ukupno 1633 različite vrijednosti). Datoteka [*data/auxiliary_eigenvalues.tsv*](data/auxiliary_eigenvalues.tsv) sadrži najmanje svojstvene vrijednosti Laplaceovog operatora na tim trokutima.
 
 ### [*data/arrays*](data/arrays)
 
