@@ -113,7 +113,7 @@ int main (int argc, char** argv)
     size_t N;
 
     /* Array of vertices. */
-    real_t T[18U];
+    real_t T[6U];
 
     /* Arrays of the differences in coordinates, the lengths of edges and the
      * outer angles. */
@@ -148,7 +148,7 @@ int main (int argc, char** argv)
     j = 0U;
 
     /* Initialise coordinates of vertices of triangles to zeros. */
-    memset(T, 0, 18U * sizeof *T);
+    memset(T, 0, 6U * sizeof *T);
 
     /* Initialise the differences in coordinates, the lengths of edges and the
      * outer angles to zeros. */
@@ -234,7 +234,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(T, 0, 18U * sizeof *T);
+        memset(T, 0, 6U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -262,7 +262,7 @@ int main (int argc, char** argv)
         memset(phi, 0, 3U * sizeof *phi);
 
         /* Clear the memory in the array of points. */
-        memset(T, 0, 18U * sizeof *T);
+        memset(T, 0, 6U * sizeof *T);
 
         /* Exit with a non-zero value. */
         exit(EXIT_FAILURE);
@@ -272,7 +272,7 @@ int main (int argc, char** argv)
     for (i = 0U; i < N; ++i)
     {
         /* Clear the memory in the array of points. */
-        memset(T, 0, 18U * sizeof *T);
+        memset(T, 0, 6U * sizeof *T);
 
         /* Read the coordinates of the `i`-th input triangle.  If any of the
          * coordinates could not be read, print the error message, close the
@@ -300,7 +300,7 @@ int main (int argc, char** argv)
                 memset(phi, 0, 3U * sizeof *phi);
 
                 /* Clear the memory in the array of points. */
-                memset(T, 0, 18U * sizeof *T);
+                memset(T, 0, 6U * sizeof *T);
 
                 /* Exit with a non-zero value. */
                 exit(EXIT_FAILURE);
@@ -338,7 +338,7 @@ int main (int argc, char** argv)
     memset(phi, 0, 3U * sizeof *phi);
 
     /* Clear the memory in the array of points. */
-    memset(T, 0, 18U * sizeof *T);
+    memset(T, 0, 6U * sizeof *T);
 
     /* Return a zero value (exit with a zero value). */
     return EXIT_SUCCESS;
