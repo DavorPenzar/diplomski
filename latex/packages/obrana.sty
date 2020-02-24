@@ -1,0 +1,215 @@
+%%%%%%%%%%%%%%%%% obrana.sty %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%rev 2020/02/24-00:00
+
+%%  Paket za izradu prezentacije za obranu diplomskog rada na Matematickom odsjeku Prirodoslovno-matematickog fakulteta Sveucilista u Zagrebu.
+%%
+%%  Autor: Davor Penzar
+%%
+%%  Paket je inspiriran Pravilnikom o diplomskom radu i diplomskom ispitu i predloskom za diplomski rad, dostupnima na:
+%%      http://www.math.pmf.unizg.hr/hr/diplomski-rad-i-diplomski-ispiti
+%%  Originalni predlozak za diplomski rad (ukljucujuci paket `diplomski.sty`) moze se preuzeti s:
+%%      http://www.math.pmf.unizg.hr/sites/default/files/diplomski.zip
+%%  Zadnje preuzimanje originalnog predloska s gore navedenih adresa bilo je izvrseno 2019/03/04 (tadasnja verzija predloska bila je iz 2009. godine).  Prije izrade ovog paketa (`obrana.sty`) predlozak je izmijenjen i kao takav koristen u mom diplomskom radu.
+%%
+%%  Pretpostavka je da je klasa dokumenta `beamer` s pozivom s barem sljedecim opcijama
+%%      \documentclass[croatian, 12pt, usepdftitle = false, xcolor = {{usenames, dvipsnames, svgnames, x11names}}, hyperref = {unicode}]{beamer}
+
+% Paket za geometrijsko uredenje stranica.
+\RequirePackage{geometry}
+
+% Paket s bojama.
+\RequirePackage[usenames, dvipsnames, svgnames, x11names]{xcolor}
+
+% (Uglavnom) matematicki paketi (dodatno: tikz + pgfplots + pgfplotstable za generiranje grafova, lstlistings za programske kodove, siunitx za SI i srodne mjerne jedinice, units za mjerne jedinice opcenito).
+\RequirePackage{amsbsy}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amstext}
+\RequirePackage{amsthm}
+\RequirePackage{listings}
+\RequirePackage{mathtools}
+\RequirePackage[autolanguage, nosepfour]{numprint}
+\RequirePackage{pgfplots}
+\RequirePackage{pgfplotstable}
+\RequirePackage[locale = DE, binary-units = true, group-four-digits = false, output-decimal-marker = \symbol{"002C}]{siunitx}
+\RequirePackage{stackrel}
+\RequirePackage{thmtools}
+\RequirePackage{tikz}
+\RequirePackage{units}
+
+% Paketi za odabir familije fontova, dobro procesiranje i prikazivanje teksta i za jezik.
+\RequirePackage{lmodern}
+\RequirePackage{txfonts}
+\RequirePackage{newtxtext}
+\RequirePackage{newtxmath}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[final]{microtype}
+\RequirePackage[british, main = croatian]{babel}
+
+% Paket za renumeriranje enumeriranih objekata.
+\RequirePackage{chngcntr}
+
+% Dodatni paketi.
+\RequirePackage{array}
+\RequirePackage{caption}
+\RequirePackage{csquotes}
+    \MakeOuterQuote{"}
+\usepackage[british, croatian, calc]{datetime2}
+%   \DTMusemodule{croatian}{hr-HR}
+    \DTMusemodule{british}{en-GB}
+    \DTMlangsetup[en-GB]{ord = raise, monthyearsep = {,\space}}
+\RequirePackage{graphicx}
+\RequirePackage{longtable}
+\RequirePackage{multicol}
+\RequirePackage{multirow}
+\RequirePackage{subcaption}
+\RequirePackage{tabularx}
+\RequirePackage{tabu}
+
+% Indeks, pojmovnik i bibliografija (stil ispisa bibliografije doraden je u biblatex.cfg tako da ispisana bibliografija prati upute iz Pravilnika o diplomskom radu).
+\RequirePackage[backend = biber, indexing = true, style = numeric, bibstyle = numeric, citestyle = numeric-comp]{biblatex}
+    \defbibheading{master}[\bibname]{%
+        \addchap{#1}%
+    }
+\RequirePackage{xpatch}
+
+% Reference i hiperlinkovi.
+\RequirePackage{varioref}
+\RequirePackage{url}
+
+% Postavljanje izgleda prezentacije.
+\mode<presentation>
+\usetheme{default}
+\usetheme{Madrid}
+\usetheme{Boadilla}
+\useoutertheme{infolines}
+\useinnertheme{circles}
+\useinnertheme{rounded}
+\usefonttheme{default}
+\usefonttheme[stillsansserifsmall, stillsansseriflarge]{serif}
+\usefonttheme{professionalfonts}
+\usecolortheme{default}
+\usecolortheme[named = RoyalBlue]{structure}
+\usecolortheme{sidebartab}
+\AtBeginSection{\frame{\sectionpage}}
+\AtBeginSubsection{\frame{\subsectionpage}}
+
+% Postavljanje enumeriranja jednadzbi, tablica, slika i programskih kodova u format tako da je, na primjer, sedma slika u prvom poglavlju enumerirana sa 1.7., i zajednicka enumeracija slika, tablica i programskih kodova.
+\counterwithin{equation}{section}
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\AtBeginDocument{
+    \counterwithin{lstlisting}{section}
+    \let\c@table\c@figure
+    \let\c@lstlisting\c@figure
+    \let\ftype@table\ftype@figure
+    \let\ftype@lstlisting\ftype@figure
+}
+
+% Preimenovanje naslova programskih kodova u hrvatski prijevod.
+\renewcommand*{\lstlistingname}{Programski k{\^{o}}d}
+\renewcommand*{\lstlistlistingname}{Popis programskih k\^{o}dova}
+
+% Postavljanje QED simbola na kraju dokaza u crni kvadratic.
+\renewcommand*{\qedsymbol}{\ensuremath{\blacksquare}}
+
+% Dopuna definicija okruzenja za definicije, teoreme, leme, propozicije, korolare, slutnje, napomene i primjere.
+\deftranslation[to = english]{conjecture}{conjecture}
+\deftranslation[to = english]{Conjecture}{Conjecture}
+\deftranslation[to = british]{conjecture}{conjecture}
+\deftranslation[to = british]{Conjecture}{Conjecture}
+\deftranslation[to = german]{conjecture}{Vermutung}
+\deftranslation[to = german]{Conjecture}{Vermutung}
+\deftranslation[to = croatian]{conjecture}{slutnja}
+\deftranslation[to = croatian]{Conjecture}{Slutnja}
+\theoremstyle{plain}
+\newtheorem{proposition}[theorem]{\translate{Proposition}}
+\newtheorem{conjecture}[theorem]{\translate{Conjecture}}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{\translate{Remark}}
+\theoremstyle{plain}
+
+% Definicije naredbi za oznake skupova.
+\newcommand*{\setsfont}{\mathbb}
+\newcommand*{\naturalssym}{N}
+\newcommand*{\integerssym}{Z}
+\newcommand*{\rationalssym}{Q}
+\newcommand*{\realssym}{R}
+\newcommand*{\complexsym}{C}
+\newcommand*{\naturals}{\setsfont{\naturalssym}}
+\newcommand*{\integers}{\setsfont{\integerssym}}
+\newcommand*{\rationals}{\setsfont{\rationalssym}}
+\newcommand*{\reals}{\setsfont{\realssym}}
+\newcommand*{\complex}{\setsfont{\complexsym}}
+
+% Definicija naredbe za oznaku partitivnog skupa.
+\newcommand*{\powersetfont}{\mathcal}
+\newcommand*{\powersetsym}{P}
+\DeclareMathOperator{\powerset}{\powersetfont{\powersetsym}}
+
+% Definicije naredbi za oznake intervala (podskupova linearno/totalno uredenog skupa).
+\newcommand*{\lointervalparen}{(}
+\newcommand*{\rointervalparen}{)}
+\newcommand*{\lcintervalparen}{[}
+\newcommand*{\rcintervalparen}{]}
+\newcommand*{\intervaldelim}{,}
+\newcommand*{\dintervaldelim}{\mathinner{\ldotp \ldotp}}
+\newcommand*{\intervaloo}[2]{\left\lointervalparen {#1} \intervaldelim {#2} \right\rointervalparen}
+\newcommand*{\intervaloc}[2]{\left\lointervalparen {#1} \intervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\intervalco}[2]{\left\lcintervalparen {#1} \intervaldelim {#2} \right\rointervalparen}
+\newcommand*{\intervalcc}[2]{\left\lcintervalparen {#1} \intervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\dintervaloo}[2]{\left\lointervalparen {#1} \dintervaldelim {#2} \right\rointervalparen}
+\newcommand*{\dintervaloc}[2]{\left\lointervalparen {#1} \dintervaldelim {#2} \right\rcintervalparen}
+\newcommand*{\dintervalco}[2]{\left\lcintervalparen {#1} \dintervaldelim {#2} \right\rointervalparen}
+\newcommand*{\dintervalcc}[2]{\left\lcintervalparen {#1} \dintervaldelim {#2} \right\rcintervalparen}
+
+% Definicije naredbi za dodatke na oznake skupova (bez nule, s nulom, samo negativni, samo pozitivni).
+\newcommand*{\exludezeroexp}{{*}}
+\newcommand*{\includezeroexp}{0}
+\newcommand*{\negativesexp}{{-}}
+\newcommand*{\positivesexp}{{+}}
+\newcommand*{\excludezero}[1]{{#1}^{\exludezeroexp}}
+\newcommand*{\includezero}[1]{{#1}_{\includezeroexp}}
+\newcommand*{\negatives}[1]{{#1}_{\negativesexp}}
+\newcommand*{\negativesexcludezero}[1]{{#1}_{\negativesexp}^{\exludezeroexp}}
+\newcommand*{\negativesincludezero}[1]{{#1}_{{\negativesexp \includezeroexp}}}
+\newcommand*{\positives}[1]{{#1}_{\positivesexp}}
+\newcommand*{\positivesexcludezero}[1]{{#1}_{\positivesexp}^{\exludezeroexp}}
+\newcommand*{\positivesincludezero}[1]{{#1}_{{\includezeroexp \positivesexp}}}
+
+% Definicije naredbi za oznake za funkcije.
+\newcommand*{\partto}{\rightharpoonup}
+\newcommand*{\compose}{\circ}
+\newcommand*{\funcsetsfont}{\mathcal}
+\newcommand*{\domainsym}{D}
+\newcommand*{\codomainsym}{C}
+\newcommand*{\rangesym}{R}
+\newcommand*{\rangelparen}{[}
+\newcommand*{\rangerparen}{]}
+\newcommand*{\invrangeexp}{\leftarrow}
+\newcommand*{\domain}{\funcsetsfont{\domainsym}}
+\newcommand*{\codomain}{\funcsetsfont{\codomainsym}}
+\newcommand*{\range}{\funcsetsfont{\rangesym}}
+\newcommand*{\Domain}[1]{\domain_{{#1}}}
+\newcommand*{\Codomain}[1]{\codomain_{{#1}}}
+\newcommand*{\Range}[1]{\range_{{#1}}}
+\newcommand*{\RangeSet}[2]{#1 \left\rangelparen {#2} \right\rangerparen}
+\newcommand*{\InvRangeSet}[2]{#1^{\invrangeexp} \left\rangelparen {#2} \right\rangerparen}
+
+% Definicije naredbi za oznake nekih matematickih operatora.
+\DeclareMathOperator{\tg}{tg}
+\DeclareMathOperator{\ctg}{ctg}
+\DeclareMathOperator{\arctg}{arctg}
+\DeclareMathOperator{\arcctg}{arcctg}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\sh}{sh}
+\DeclareMathOperator{\ch}{ch}
+\DeclareMathOperator{\tgh}{th}
+\DeclareMathOperator{\cth}{cth}
+\DeclareMathOperator{\kernel}{Ker}
+\DeclareMathOperator{\image}{Im}
+
+% Definicija naredbe za ispis rimskih brojki.
+\newcommand*{\upperroman}[1]{\MakeUppercase{\expandafter{\romannumeral#1}}}
