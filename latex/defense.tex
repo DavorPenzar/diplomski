@@ -302,14 +302,14 @@
             \begin{equation*}
                 \Omega_{\numprint{1}} \subseteq \Omega_{\numprint{2}} \implies \forall k \in \positives{\naturals} \left( \lambda_{k} \left( \Omega_{\numprint{1}} \right) \geq \lambda_{k} \left( \Omega_{\numprint{2}} \right) \right) \text{.}
             \end{equation*}
-            To jest, za svaki $ k \in \positives{\naturals} $ parcijalno preslikavanje $ \lambda_{k} \colon \powerset \left( \reals^{n} \right) \partto \intervaloo{0}{{+ \infty}} $ je padajuće s obzirom na inkluziju.
+            To jest, za svaki $ k \in \positives{\naturals} $ parcijalno preslikavanje $ \lambda_{k} \colon \powerset \left( \reals^{n} \right) \partto \intervaloo{\numprint{0}}{{+ \infty}} $ je padajuće s obzirom na inkluziju.
         \end{proposition}
     \end{frame}
 
     \begin{frame}{Neprekidnost svojstvenih vrijednosti Laplaceovog operatora}
         \only<1>{%
             \begin{theorem}
-                Za svaki $ k \in \positives{\naturals} $ parcijalno preslikavanje $ \lambda_{k} \colon \powerset \left( \reals^{n} \right) \partto \intervaloo{0}{{+ \infty}} $ je neprekidno.~\cite[418--424]{bib:Courant53}
+                Za svaki $ k \in \positives{\naturals} $ parcijalno preslikavanje $ \lambda_{k} \colon \powerset \left( \reals^{n} \right) \partto \intervaloo{\numprint{0}}{{+ \infty}} $ je neprekidno.~\cite[418--424]{bib:Courant53}
             \end{theorem}%
         }%
         \only<2->{%
@@ -598,7 +598,7 @@
 
             \only<2>{%
                 \begin{definition}
-                    \defined{Dubina} skupa $ S \subseteq \reals^{n} $ funkcija je $ \deepness_{S} \colon \reals^{n} \to \intervalcc{0}{{+ \infty}} $ t.\ d.
+                    \defined{Dubina} skupa $ S \subseteq \reals^{n} $ funkcija je $ \deepness_{S} \colon \reals^{n} \to \intervalcc{\numprint{0}}{{+ \infty}} $ t.\ d.
                     \begin{equation*}
                         \deepness_{S} \left( x \right) =
                         \begin{cases}
@@ -720,7 +720,7 @@
 
     \begin{frame}{Polinomi -- linearna regresija}
 
-        {\small (uz konvenciju $ \numprint{0}^{\numprint{0}} \coloneqq 1 $)}
+        {\small (uz konvenciju $ \numprint{0}^{\numprint{0}} \coloneqq \numprint{1} $)}
         \begin{equation*}
             P_{n} \left( x , y \right) = \sum_{k = \numprint{0}}^{n} \sum_{i = \numprint{0}}^{k} a_{i , k - i}^{\left( n \right)} x^{i} y^{k - i}
         \end{equation*}
@@ -746,7 +746,7 @@
             \framesubtitle{Ulazni podatci}
 
             \begin{enumerate}
-                \item duljine stranica u silaznom poretku---zapravo samo $ b , c $
+                \item duljine stranica u silaznom poretku---zapravo samo $ c , b $
                 \item vanjski kutovi u uzlaznom poretku
                 \item singularne vrijednosti duljina stranica u silaznom poretku---zapravo samo $ \sigma_{l}^{\left( \numprint{1} \right)} , \sigma_{l}^{\left( \numprint{2} \right)} $
                 \item singularne vrijednosti vanjskih kutova u silaznom poretku---zapravo samo $ \sigma_{\varphi}^{\left( \numprint{2} \right)} $
