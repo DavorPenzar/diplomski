@@ -56,7 +56,7 @@ After studying the sources and conducting exploratory analysis of the generated 
 ##  Literatura
 
 1.  C. Audet, J. E. Dennis, Jr. *Mesh Adaptive Direct Search Algorithms for Constrained Optimization*, SIAM Journal on Optimization 17.1 (2006), 188&ndash;217.
-2.  C. Blatter, Rigorous Definition of Positive Curve in **R**<sup>*n*</sup>, 2012, dostupno na [`https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn`](https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn).
+2.  C. Blatter, Rigorous Definition of Positive Curve in &#8477;<sup>*n*</sup>, 2012, dostupno na [`https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn`](https://math.stackexchange.com/questions/218849/rigorous-definition-of-positive-orientation-of-curve-in-mathbbrn).
 3.  R. Courant, D. Hilbert, *Methods of Mathematical Physics*, sv. 1, Interscience Publishers, Inc., New York, 1953.
 4.  R. Donoso Benguria, Dirichlet Eigenvalue, Enyclopedia of Mathematics, dostupno na [`https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue`](https://www.encyclopediaofmath.org/index.php/Dirichlet_eigenvalue).
 5.  K. Eidolon, G. Oman, *A Short Proof of the Bolzano Weierstrass Theorem*, The College Mathematics Journal 48.4 (2017), 288&ndash;289.
